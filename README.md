@@ -1,2 +1,2 @@
-# Chartbuilder
-Excel like Chartbuilder for RI &amp; CI Data
+# ChartBuilder
+Excel Style Chart builder for RI &amp; CI Test data
