@@ -206,6 +206,10 @@ private:
     bool _OverrideLegendValue;
     QString _dataTypes[2] = {"RI","CI"};
 
+    // new cool stuff
+    bool _EnableAnimations;
+    bool _EnableHoverCallout;
+
     //
     //
     //

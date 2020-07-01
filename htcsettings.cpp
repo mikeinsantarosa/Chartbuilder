@@ -260,7 +260,11 @@ void HTCSettings::saveSettings()
     setting.setValue("LegendPosition9", _positions[8]);
     setting.setValue("LegendPosition10", _positions[9]);
 
-    setting.setValue("ChartLegendOverride",QString::number(_OverrideLegendValue));
+    setting.setValue("ChartLegendOverride",QString::number(_OverrideLegendValue)); //
+    setting.setValue("EnableChartAnimations",QString::number(_EnableAnimations));
+    setting.setValue("EnableHoverCallout",QString::number(_EnableHoverCallout));
+
+    qDebug() << "saved Enable animations/EnableHoverCallout " << _EnableAnimations << "/" << _EnableHoverCallout;
 
 
     setting.endGroup();
@@ -300,13 +304,53 @@ void HTCSettings::loadSettings()
     // ----------------------------------------------- //
     setLegendOverrideSelector(_OverrideLegendValue);
 
+
+
+
+    //
+    //  new chart animations
+    //
+    if (setting.value("EnableChartAnimations").toInt() == 1)
+    {
+        _EnableAnimations = true;
+    }
+    else
+    {
+        _EnableAnimations = false;
+
+
+    }
+
+    qDebug() << "in settings loading enable Animations " << _EnableAnimations;
+
+    setEnableChartAnimationsSelector(_EnableAnimations);
+
+
+    //
+    // new hover callout
+    //
+    if (setting.value("EnableHoverCallout").toInt() == 1)
+    {
+        _EnableHoverCallout =  true;
+    }
+    else
+    {
+        _EnableHoverCallout = false;
+    }
+
+    qDebug() << "in settings loading enable HoverCallout " << _EnableHoverCallout;
+
+    setEnableHoverCalloutSelector(_EnableHoverCallout);
+
+   // end of new cool stuff
+
     if(_ChartScalePaddingValue < 0)
     {
         _ChartScalePaddingValue = _defaultChartScalePaddingValue;
     }
 
 
-
+    // chart fonts
     if(_ChartLegendFontSizeValue == 0)
     {
         _ChartLegendFontSizeValue = _defaultChartLegendFontSizeValue;
@@ -619,7 +663,7 @@ void HTCSettings::loadSettings()
 
 void HTCSettings::setLegendOverrideSelector(bool SetOVerrideOn)
 {
-    if (SetOVerrideOn)
+    if (SetOVerrideOn ==  true)
     {
         ui->radioRILegendFile->toggle();
     }
@@ -628,7 +672,39 @@ void HTCSettings::setLegendOverrideSelector(bool SetOVerrideOn)
         ui->radioRILegendAuto->toggle();
     }
 
+
+
 }
+
+void HTCSettings::setEnableChartAnimationsSelector(bool SetAnimationsOn)
+{
+    if (SetAnimationsOn == true)
+    {
+        ui->radioAnimationsOn->toggle();
+    }
+    else
+    {
+        ui->radioAnimationsOff->toggle();
+    }
+    qDebug() << "changing enable animations " << SetAnimationsOn;
+}
+
+void HTCSettings::setEnableHoverCalloutSelector(bool SetCalloutHoverOn)
+{
+    if (SetCalloutHoverOn)
+    {
+        ui->radioHoverOn->toggle();
+    }
+    else
+    {
+        ui->radioHoverOff->toggle();
+    }
+    qDebug() << "changing enable animations " << SetCalloutHoverOn;
+}
+
+
+
+
 
 void HTCSettings::initPositions()
 {
@@ -892,4 +968,35 @@ void HTCSettings::on_radioRILegendFile_clicked()
     _OverrideLegendValue = true;
     ui->btnApply->setEnabled(true);
 
+}
+
+void HTCSettings::on_radioAnimationsOn_clicked()
+{
+    _EnableAnimations = true;
+    ui->btnApply->setEnabled(true);
+
+    qDebug() << "set animations " << _EnableAnimations;
+
+}
+
+void HTCSettings::on_radioAnimationsOff_clicked()
+{
+    _EnableAnimations = false;
+    ui->btnApply->setEnabled(true);
+
+    qDebug() << "set animations " << _EnableAnimations;
+}
+
+void HTCSettings::on_radioHoverOn_clicked()
+{
+    _EnableHoverCallout = true;
+    ui->btnApply->setEnabled(true);
+    qDebug() << "Set hover " << _EnableHoverCallout;
+}
+
+void HTCSettings::on_radioHoverOff_clicked()
+{
+    _EnableHoverCallout = false;
+    ui->btnApply->setEnabled(true);
+    qDebug() << "Set hover " << _EnableHoverCallout;
 }

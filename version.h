@@ -13,7 +13,7 @@ Description : Set the release version of the application
 */
 #define MY_MAJOR_VERSION    0
 #define MY_MEAN_VERSION     5
-#define MY_MINOR_VERSION    7
+#define MY_MINOR_VERSION    8
 
 
 #define MY_REV_YEAR     "2020"

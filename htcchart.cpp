@@ -407,6 +407,19 @@ void HtcChart::initChart()
     // ----------------------------------------------------------+
     _chart->legend()->hide();
 
+    qDebug() << "intChart with enable animations " << _EnableAnimations;
+
+    if(_EnableAnimations == true)
+    {
+        _chart->setAnimationOptions(QChart::AllAnimations);
+    }
+    else
+    {
+        _chart->setAnimationOptions(QChart::NoAnimation);
+    }
+
+
+
 
     // -------------------------------------------------- //
     // We need to iterate over all of the data first
@@ -811,7 +824,7 @@ void HtcChart::setHeaderValues(QStringList list)
 
         current = list[_firstNumericRow - 1];
 
-        qDebug() << "listing the header from the file";
+       // qDebug() << "listing the header from the file";
 
         // listTheList(list);
 
@@ -998,7 +1011,29 @@ int HtcChart::findFirstNumericRow(QStringList list, QString delimiter)
 
         // --------------------------------------------------------- //
 
+        // the cool stuff
+        if (setting.value("EnableChartAnimations").toInt() == 1)
+        {
+            _EnableAnimations = true;
+        }
+        else
+        {
+            _EnableAnimations = false;
+        }
 
+        qDebug() << "HTCChart LoadSettings() loaded enable animations " << _EnableAnimations;
+
+        //
+        // new hover callout
+        //
+        if (setting.value("EnableHoverCallout").toInt() == 1)
+        {
+            _EnableHoverCallout =  true;
+        }
+        else
+        {
+            _EnableHoverCallout = false;
+        }
 
         _ChartPaddingValue = setting.value("ChartScalePaddingOn").toInt();
         _ChartScalePaddingValue = setting.value("ChartScalePaddingValue").toDouble();
@@ -1731,12 +1766,12 @@ QString HtcChart::StripQuotesFromString(QString wordToStrip)
     if(wordToStrip.startsWith(target))
      {
             wordToStrip.remove(0,1);
-            qDebug() << "stripped begin";
+            //qDebug() << "stripped begin";
      }
     if(wordToStrip.endsWith(target))
     {
         wordToStrip.remove(wordToStrip.size()-1,1);
-        qDebug() << "stripped end";
+        //qDebug() << "stripped end";
     }
     result = wordToStrip;
 

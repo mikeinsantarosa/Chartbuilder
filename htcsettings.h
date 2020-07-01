@@ -60,6 +60,14 @@ private slots:
 
     void on_radioRILegendFile_clicked();
 
+    void on_radioAnimationsOn_clicked();
+
+    void on_radioAnimationsOff_clicked();
+
+    void on_radioHoverOn_clicked();
+
+    void on_radioHoverOff_clicked();
+
 private:
     Ui::HTCSettings *ui;
 
@@ -78,8 +86,12 @@ private:
     void saveSettings();
     void loadSettings();
     void setLegendOverrideSelector(bool SetOVerrideOn);
+    void setEnableChartAnimationsSelector(bool SetAnimationsOn);
+    void setEnableHoverCalloutSelector(bool SetCalloutHoverOn);
 
     bool _OverrideLegendValue;
+    bool _EnableAnimations;
+    bool _EnableHoverCallout;
 
     bool _busy;
     QFont _formFont;
