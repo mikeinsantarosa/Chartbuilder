@@ -8,7 +8,10 @@
 //
 //
 // TODO:
+//  1-Add callout capability to charts
 //
+//  2-Add rescaling object for datasets
+//  with values < e-12
 //
 //
 // ++++++++++++++++++++++++++++++++++++++++++++ /

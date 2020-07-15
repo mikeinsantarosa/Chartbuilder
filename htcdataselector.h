@@ -21,7 +21,6 @@
 #include "about.h"
 #include "htcsettings.h"
 #include "version.h"
-#include "globals.h"
 
 
 namespace Ui {

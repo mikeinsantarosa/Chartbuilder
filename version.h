@@ -13,12 +13,21 @@ Description : Set the release version of the application
 */
 #define MY_MAJOR_VERSION    0
 #define MY_MEAN_VERSION     5
+<<<<<<< HEAD
 #define MY_MINOR_VERSION    8
 
 
 #define MY_REV_YEAR     "2020"
 #define MY_REV_MONTH    "June"
 #define MY_REV_DAY      "29"
+=======
+#define MY_MINOR_VERSION    9
+
+
+#define MY_REV_YEAR     "2020"
+#define MY_REV_MONTH    "July"
+#define MY_REV_DAY      "08"
+>>>>>>> 3cad4568a1d52ce581c6de3720cec1c2ba1ef1c4
 
 
 /*
