@@ -55,7 +55,7 @@ About::About(QWidget *parent) :
     labelText.append("<p><span style= font-size:10pt;font-weight:500;>Description : </span>");
     labelText.append(" ");
     labelText.append("<span style= font-size:10pt;font-weight:300;>");
-    labelText.append("Excel Style Chart Builder for Radiated & (in progress) Conducted Immunity Test Data.");
+    labelText.append("Excel Style Chart Builder for Radiated & Conducted Immunity Test Data.");
     labelText.append("</span>");
 
     labelText.append("<p><span style= font-size:10pt;font-weight:500;>Company : </span>");
