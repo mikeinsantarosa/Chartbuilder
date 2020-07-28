@@ -33,7 +33,7 @@ private slots:
 
     void on_btnResetColors_clicked();
 
-    void on_comboChartPadding_currentIndexChanged(int index);
+//    void on_comboChartPaddingY_currentIndexChanged(int index);
 
     void on_lineXpos_editingFinished();
 
@@ -67,6 +67,16 @@ private slots:
     void on_radioHoverOn_clicked();
 
     void on_radioHoverOff_clicked();
+
+    void on_comboChartPaddingY_currentIndexChanged(int index);
+
+    void on_comboChartPaddingX_currentIndexChanged(int index);
+
+    void on_linePaddingValueY_editingFinished();
+
+
+
+    void on_linePaddingValueX_editingFinished();
 
 private:
     Ui::HTCSettings *ui;
@@ -106,8 +116,12 @@ private:
    int _yGeoStart;
    int _GeoWidth;
    int _GeoHeight;
-   double _ChartScalePaddingValue;
-   int _ChartPaddingValue;
+   int _ChartScalePaddingValueY;
+   int _ChartPaddingValueY;
+   int _ChartScalePaddingValueX;
+   int _ChartPaddingValueX;
+
+
    int _ChartLegendFontSizeValue;
    int _ChartLegendFontFamilyValue;
 
@@ -115,8 +129,12 @@ private:
    int _defaultYStart = 50;
    int _defaultWidth = 960;
    int _defaultHeight = 767;
-   double _defaultChartScalePaddingValue = 20;
-   int _defaultChartPaddingValue = 20;
+
+//   double _defaultChartScalePaddingValueY = 10;
+//   int _defaultChartPaddingValueY = 0;
+//   double _defaultChartScalePaddingValueX = 10;
+//   int _defaultChartPaddingValueX = 0;
+
    int _defaultChartLegendFontSizeValue = 9;
    int _defaultChartLegendFontFamilyValue = 1;
 
@@ -126,7 +144,8 @@ private:
 
 
 
-   QString _ChartPaddingValues[2] = {"Off","On"};
+   QString _ChartPaddingValuesY[2] = {"Off","On"};
+   QString _ChartPaddingValuesX[2] = {"Off","On"};
    QString _ChartLegendFontValues[3] = {"Arial","Courier New", "Times New Roman"};
 
 
