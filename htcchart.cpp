@@ -371,7 +371,7 @@ void HtcChart::initChart()
 
       // qDebug() << "Updating chart from porperties";
 
-       if (_ChartPaddingValue == true && _loadedChartFromFile == false)
+       if (_ChartPaddingValueY == 1 && _loadedChartFromFile == false)
        {
            setYaxisPaddingValue();
            _YAxisMinValue = getPaddedYMinValue();
@@ -401,13 +401,12 @@ void HtcChart::initChart()
     _chart->setTitle(_chartTitleText);
     _chart->setTitleFont(_chartTitleTextFont);
     _chart->setTitleBrush(QBrush(_chartTitleTextColor));
+
     // ----------------------------------------------------------+
     // How do I set the title to be center aligned?
     //_chart->setLayoutDirection(Qt::LayoutDirection center());
     // ----------------------------------------------------------+
     _chart->legend()->hide();
-
-    qDebug() << "intChart with enable animations " << _EnableAnimations;
 
     if(_EnableAnimations == true)
     {
@@ -417,8 +416,6 @@ void HtcChart::initChart()
     {
         _chart->setAnimationOptions(QChart::NoAnimation);
     }
-
-
 
 
     // -------------------------------------------------- //
@@ -1021,10 +1018,10 @@ int HtcChart::findFirstNumericRow(QStringList list, QString delimiter)
             _EnableAnimations = false;
         }
 
-        qDebug() << "HTCChart LoadSettings() loaded enable animations " << _EnableAnimations;
-
         //
         // new hover callout
+        //
+        // Not in service yet
         //
         if (setting.value("EnableHoverCallout").toInt() == 1)
         {
@@ -1035,13 +1032,33 @@ int HtcChart::findFirstNumericRow(QStringList list, QString delimiter)
             _EnableHoverCallout = false;
         }
 
-        _ChartPaddingValue = setting.value("ChartScalePaddingOn").toInt();
-        _ChartScalePaddingValue = setting.value("ChartScalePaddingValue").toDouble();
 
-        if(_ChartScalePaddingValue < 0)
+        _ChartPaddingValueY = setting.value("ChartScalePaddingYOn").toInt();
+
+
+        if(_ChartPaddingValueY == 1)
         {
-            _ChartScalePaddingValue = _defaultChartScalePaddingValue;
+            _ChartScalePaddingValueY = setting.value("ChartScalePaddingYValue").toDouble();
         }
+        else
+        {
+            _ChartScalePaddingValueY = _defaultChartScalePaddingXValue;
+        }
+
+        _ChartPaddingValueX = setting.value("ChartScalePaddingXOn").toInt();
+
+
+        if(_ChartPaddingValueX == 1)
+        {
+            _ChartScalePaddingValueX = setting.value("ChartScalePaddingXValue").toDouble();
+        }
+        else
+        {
+            _ChartScalePaddingValueX = _defaultChartScalePaddingXValue;
+        }
+
+        qDebug() << "Chart padding states X/Y " << _ChartPaddingValueX << "/" << _ChartPaddingValueY;
+        qDebug() << "Chart padding values X/Y " << _ChartScalePaddingValueX << "/" << _ChartScalePaddingValueY;
 
 
         if(_ChartLegendFontSizeValue == 0)
@@ -1055,12 +1072,7 @@ int HtcChart::findFirstNumericRow(QStringList list, QString delimiter)
         }
 
 
-        if(_ChartPaddingValue == -1)
-        {
-            _ChartPaddingValue = _defaultChartPaddingValue;
-        }
-
-        penValue = setting.value("ChartPen01").toString();
+         penValue = setting.value("ChartPen01").toString();
         if(penValue.isEmpty())
         {
             _penColors[0] = QColor(_penColorsReset[0]);
@@ -1660,10 +1672,10 @@ void HtcChart::discoverChartScaleValues()
 
 }
 
-double HtcChart::getPaddingValue()
+double HtcChart::getPaddingYValue()
 {
     double result;
-    double mult = _ChartScalePaddingValue / 100;
+    double mult = _ChartScalePaddingValueY / 100;
     double delta = _YAxisMaxValue -_YAxisMinValue;
 
     result = delta * mult;
@@ -1674,7 +1686,7 @@ double HtcChart::getPaddingValue()
 void HtcChart::setYaxisPaddingValue()
 {
     double result;
-    double mult = _ChartScalePaddingValue / 100;
+    double mult = _ChartScalePaddingValueY / 100;
     double delta = _YAxisMaxValue -_YAxisMinValue;
 
     result = delta * mult;
@@ -3029,7 +3041,7 @@ void HtcChart::HTCChartXAxisLabelsTextScaleMin(double value)
     {
 
         _UpdatingFromProperties = true;
-        _ChartPaddingValue = 0;
+        _ChartPaddingValueY = 0;
         _XAxisMinValue = value;
 
         clearLayout(ui->chartLayout);
@@ -3047,7 +3059,7 @@ void HtcChart::HTCChartXAxisLabelsTextScaleMax(double value)
 
 
         _UpdatingFromProperties = true;
-        _ChartPaddingValue = 0;
+        _ChartPaddingValueY = 0;
         _XAxisMaxValue = value;
 
         clearLayout(ui->chartLayout);
@@ -3271,7 +3283,7 @@ void HtcChart::HTCChartYAxisLabelsTextScaleMin(double value)
     {
 
         _UpdatingFromProperties = true;
-        _ChartPaddingValue = 0;
+        _ChartPaddingValueY = 0;
         _YAxisMinValue = value;
 
         clearLayout(ui->chartLayout);
@@ -3288,7 +3300,7 @@ void HtcChart::HTCChartYAxisLabelsTextScaleMax(double value)
     if(value >_YAxisMinValue)
     {
         _UpdatingFromProperties = true;
-        _ChartPaddingValue = 0;
+        _ChartPaddingValueY = 0;
         _YAxisMaxValue = value;
 
         //qDebug() << "Received Y Max request and am updating with " << _YAxisMaxValue;

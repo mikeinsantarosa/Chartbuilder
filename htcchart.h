@@ -335,8 +335,21 @@ private:
     int _yGeoStart;
     int _GeoWidth;
     int _GeoHeight;
-    double _ChartScalePaddingValue;
-    int _ChartPaddingValue;
+
+    // ----------------------------------------------------- //
+    // Chart X/Y scale padding vars
+    // _ChartPaddingValueX/Y 1/0 On/Off
+    // _ChartScalePaddingValueX/Y value in % for padding
+    // ----------------------------------------------------- //
+    double _ChartScalePaddingValueY;
+    double _ChartScalePaddingValueX;
+    int _ChartPaddingValueY;
+    int _ChartPaddingValueX;
+    double _defaultChartScalePaddingYValue = 0;
+    double _defaultChartScalePaddingXValue = 0;
+    // ----------------------------------------------------- //
+    // ----------------------------------------------------- //
+
     int _ChartLegendFontSizeValue;
     int _ChartLegendFontFamilyValue;
 
@@ -344,8 +357,7 @@ private:
     int _defaultYStart = 50;
     int _defaultWidth = 960;
     int _defaultHeight = 767;
-    double _defaultChartScalePaddingValue = 20;
-    int _defaultChartPaddingValue = 20;
+
     int _defaultChartLegendFontSizeValue = 9;
     int _defaultChartLegendFontFamilyValue = 1;
 
@@ -434,7 +446,7 @@ private:
    int getXAxisScalingResolution();
 
    void discoverChartScaleValues();
-   double getPaddingValue();
+   double getPaddingYValue();
    void setYaxisPaddingValue();
    double getPaddedYMaxValue();
    double getPaddedYMinValue();
