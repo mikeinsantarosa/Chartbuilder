@@ -451,6 +451,15 @@ private:
    double getPaddedYMaxValue();
    double getPaddedYMinValue();
 
+   // new X Axis padding parts
+   // -------------------------  //
+
+   bool getXAxisPaddingEnabled();
+   double getPaddedXMaxValue();
+   double getPaddedXMinValue();
+   // -------------------------  //
+
+
 
 
     // first run auto discovery
