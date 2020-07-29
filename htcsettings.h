@@ -33,8 +33,6 @@ private slots:
 
     void on_btnResetColors_clicked();
 
-//    void on_comboChartPaddingY_currentIndexChanged(int index);
-
     void on_lineXpos_editingFinished();
 
     void on_lineYpos_editingFinished();
@@ -51,9 +49,8 @@ private slots:
 
     void on_comboFontNames_currentIndexChanged(int index);
 
-    void on_linePaddingValue_editingFinished();
-
     void positionItemSelected(QListWidgetItem* item);
+
     void EditedPositionValueChanged(QString value, int itemNumber);
 
     void on_radioRILegendAuto_clicked();
@@ -73,8 +70,6 @@ private slots:
     void on_comboChartPaddingX_currentIndexChanged(int index);
 
     void on_linePaddingValueY_editingFinished();
-
-
 
     void on_linePaddingValueX_editingFinished();
 
@@ -107,6 +102,7 @@ private:
     QFont _formFont;
 
    QIntValidator *_intValidator;
+   QDoubleValidator * _dblValidator;
    QPalette palLabel;
    QRect _layout;
 
@@ -116,11 +112,17 @@ private:
    int _yGeoStart;
    int _GeoWidth;
    int _GeoHeight;
-   int _ChartScalePaddingValueY;
-   int _ChartPaddingValueY;
-   int _ChartScalePaddingValueX;
-   int _ChartPaddingValueX;
 
+   // ---------------------------------------- //
+   //
+   // Chart X/Y Padding values
+   // ---------------------------------------- //
+   double _ChartScalePaddingValueY;
+   int _ChartPaddingValueY;
+   double _ChartScalePaddingValueX;
+   int _ChartPaddingValueX;
+   //
+   // ---------------------------------------- //
 
    int _ChartLegendFontSizeValue;
    int _ChartLegendFontFamilyValue;
@@ -129,11 +131,6 @@ private:
    int _defaultYStart = 50;
    int _defaultWidth = 960;
    int _defaultHeight = 767;
-
-//   double _defaultChartScalePaddingValueY = 10;
-//   int _defaultChartPaddingValueY = 0;
-//   double _defaultChartScalePaddingValueX = 10;
-//   int _defaultChartPaddingValueX = 0;
 
    int _defaultChartLegendFontSizeValue = 9;
    int _defaultChartLegendFontFamilyValue = 1;
