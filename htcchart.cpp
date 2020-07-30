@@ -45,6 +45,8 @@ HtcChart::HtcChart(QWidget *parent) :
 
     initProperties();
 
+    qDebug() << "X axis padding is enabled == " << getXAxisPaddingEnabled();
+    //qDebug() << "Prior to InitChart X Min/Max " << _XAxisMinValue << "/" << _XAxisMaxValue;
 
 }
 
@@ -112,9 +114,6 @@ void HtcChart::setChartByDataSet(HTCChartDataSet *ds, bool RescaleFreq)
         _chartXAxisMinorGridLinesVisible = false;
     }
 
-
-    //qDebug() << "in htcChart setting dataType to " << _dataType;
-
     _masterlist = ds->GetData();
 
     _dataSetIndex = ds->GetDataSetIndex();
@@ -129,9 +128,6 @@ void HtcChart::setChartByDataSet(HTCChartDataSet *ds, bool RescaleFreq)
 
     reScaleFreqColumn = RescaleFreq;
     _rawDataFileAndPath = ds->GetSampleFileName();
-    //qDebug() << "using this file for sample" << _rawDataFileAndPath;
-
-   // setBaseFolder(_rawDataFileAndPath);
 
     setDataFileDelim(_rawDataFileAndPath);
     setChartID();
@@ -362,6 +358,8 @@ void HtcChart::initChart()
        initChartScaleMemory();
        discoverChartScaleValues();
 
+
+
        // ----------------------------------------- //
        //
        // qDebug() << "Listing loaded headers before building chart";
@@ -370,6 +368,17 @@ void HtcChart::initChart()
        // ----------------------------------------- //
 
       // qDebug() << "Updating chart from porperties";
+
+//       qDebug() << "In InitChart X Min/Max " << _XAxisMinValue << "/" << _XAxisMaxValue;
+
+//       qDebug() << "Adjusted X-Min/Max " << getPaddedXMinValue() << getPaddedXMaxValue();
+
+      if (getXAxisPaddingEnabled() == 1 && _loadedChartFromFile == false)
+      {
+          _XAxisMinValue = getPaddedXMinValue();
+          _XAxisMaxValue = getPaddedXMaxValue();
+      }
+
 
        if (_ChartPaddingValueY == 1 && _loadedChartFromFile == false)
        {
@@ -1057,8 +1066,11 @@ int HtcChart::findFirstNumericRow(QStringList list, QString delimiter)
             _ChartScalePaddingValueX = _defaultChartScalePaddingXValue;
         }
 
-        qDebug() << "Chart padding states X/Y " << _ChartPaddingValueX << "/" << _ChartPaddingValueY;
-        qDebug() << "Chart padding values X/Y " << _ChartScalePaddingValueX << "/" << _ChartScalePaddingValueY;
+        //qDebug() << "Chart padding states X/Y " << _ChartPaddingValueX << "/" << _ChartPaddingValueY;
+        //qDebug() << "Chart padding values X/Y " << _ChartScalePaddingValueX << "/" << _ChartScalePaddingValueY;
+
+        // math to calculate X Scale padding
+        // new min = detected X-Min + (X Padding value / 100) * Detected X-Min)
 
 
         if(_ChartLegendFontSizeValue == 0)
@@ -1696,6 +1708,7 @@ void HtcChart::setYaxisPaddingValue()
 
 double HtcChart::getPaddedYMaxValue()
 {
+
     double result = _YAxisMaxValue + _YAxisPaddingValue;
     return result;
 }
@@ -1706,7 +1719,49 @@ double HtcChart::getPaddedYMinValue()
     return result;
 }
 
+bool HtcChart::getXAxisPaddingEnabled()
+{
+    // _ChartScalePaddingValueX : the value
+    // _ChartPaddingValueX : On/OFf
+    bool result = false;
 
+    if (_ChartPaddingValueX == 1 && _ChartScalePaddingValueX > 0)
+    {
+        result = true;
+    }
+
+    return result;
+}
+
+double HtcChart::getPaddedXMaxValue()
+{
+    double result = _XAxisMaxValue;
+
+    double factor = _ChartScalePaddingValueX / 100;
+    double mult = 5;
+
+    if (getXAxisPaddingEnabled() == 1)
+    {
+        result = _XAxisMaxValue + (_XAxisMinValue * factor * mult);
+    }
+
+    return result;
+
+}
+
+double HtcChart::getPaddedXMinValue()
+{
+    double result = _XAxisMinValue;
+    double factor = _ChartScalePaddingValueX / 100;
+
+    if (getXAxisPaddingEnabled() == 1)
+    {
+        result = _XAxisMinValue - (_XAxisMinValue * factor);
+    }
+
+    return result;
+
+}
 
 
 
