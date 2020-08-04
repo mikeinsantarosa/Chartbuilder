@@ -73,6 +73,10 @@ private slots:
 
     void on_linePaddingValueX_editingFinished();
 
+    void on_radioCommAutoOn_clicked();
+
+    void on_radioCommAutoOff_clicked();
+
 private:
     Ui::HTCSettings *ui;
 
@@ -121,6 +125,13 @@ private:
    int _ChartPaddingValueY;
    double _ChartScalePaddingValueX;
    int _ChartPaddingValueX;
+   //
+   // ---------------------------------------- //
+   //
+   // Chart comm Check auto detect
+   //
+   // ---------------------------------------- //
+   int _commCheckAutoDetect;
    //
    // ---------------------------------------- //
 

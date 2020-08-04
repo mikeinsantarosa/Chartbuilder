@@ -4,6 +4,8 @@
 #include <QObject>
 #include <QDebug>
 #include <QStringList>
+#include <algorithm>
+#include <QFileInfo>
 
 class HTCChartDataSet
 {
@@ -44,6 +46,13 @@ public:
     void SetFilesPerRangeIsGood(int RangeID, int value);
     QString GetBaseFolder();
 
+    // -------------------------------- //
+    // comm check data
+    // -------------------------------- //
+    bool GetIsCommCheckData();
+    // -------------------------------- //
+    // comm check data
+    // -------------------------------- //
 
 
 signals:
@@ -75,8 +84,30 @@ private:
     int _dataType = -1;
     QString _baseFolder;
 
+    // debug parts
+    void listThisList(QStringList list);
+
+    // -------------------------------- //
+    // comm check data
+    // -------------------------------- //
+    QList<int> _testValues;
+    bool _isCommCheckData;
 
 
+    bool IsCommCheckData(QStringList commCkData); //main call
+    QString getFileDelim();
+
+    int getMin(QList<int> values);
+    int getMax(QList<int> values);
+    int getMean(QList<int> values);
+    QStringList getMasterList();
+    QString getShortenedParts(QString target, QString delim);
+
+    bool ThisLineIsCommCk(QString target, QString del);
+    QList<int> ConvertToIntList(QString target, QString delim);
+    // -------------------------------- //
+    // comm check data
+    // -------------------------------- //
 
 };
 

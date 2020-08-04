@@ -271,6 +271,8 @@ void HTCSettings::saveSettings()
     setting.setValue("ChartScalePaddingXValue",QString::number(_ChartScalePaddingValueX));
 
 
+    setting.setValue("CommCheckAutoDetectEnabled",QString::number(_commCheckAutoDetect));
+
     setting.setValue("ChartStartupPosition",_layout);
 
     setting.setValue("LegendPosition1", _positions[0]);
@@ -318,6 +320,18 @@ void HTCSettings::loadSettings()
 
     _ChartScalePaddingValueX = setting.value("ChartScalePaddingXValue").toDouble();
     ui->linePaddingValueX->setText(QString::number(_ChartScalePaddingValueX));
+
+
+    _commCheckAutoDetect = setting.value("CommCheckAutoDetectEnabled").toInt();
+
+    if(_commCheckAutoDetect == 1)
+    {
+        ui->radioCommAutoOn->toggle();
+    }
+    else
+    {
+        ui->radioCommAutoOff->toggle();
+    }
 
     // ---------------------------------------------------------//
     //
@@ -1069,5 +1083,23 @@ void HTCSettings::on_linePaddingValueX_editingFinished()
         {
             ui->linePaddingValueX->setText(QString::number(_ChartScalePaddingValueX));
         }
+    }
+}
+
+void HTCSettings::on_radioCommAutoOn_clicked()
+{
+    if(!_busy)
+    {
+        _commCheckAutoDetect = 1;
+        ui->btnApply->setEnabled(true);
+    }
+}
+
+void HTCSettings::on_radioCommAutoOff_clicked()
+{
+    if(!_busy)
+    {
+        _commCheckAutoDetect = 0;
+        ui->btnApply->setEnabled(true);
     }
 }
