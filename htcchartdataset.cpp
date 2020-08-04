@@ -8,7 +8,7 @@
 //
 // TODO:
 //
-//
+//  Added comm check auto detect Aug 2020
 //
 // ++++++++++++++++++++++++++++++++++++++++++++ //
 
@@ -47,8 +47,15 @@ void HTCChartDataSet::SetChartTitle(QString title)
 {
     _chartTitle = title;
 
-//    qDebug() << "listing dataset called " << _chartTitle;
-//    listThisList(_data);
+    // ------------------------------- //
+    // this is the last dataset
+    // item that gets set
+    // ------------------------------- //
+    SetCommCheckAutoDetect();
+    // ------------------------------- //
+    //
+    //
+    // ------------------------------- //
 
 }
 
@@ -187,10 +194,6 @@ QString HTCChartDataSet::GetBaseFolder()
 
 bool HTCChartDataSet::GetIsCommCheckData()
 {
-    QString del = getFileDelim();
-    QStringList dataList = getMasterList();
-    _isCommCheckData = IsCommCheckData(dataList);
-
     return _isCommCheckData;
 }
 
@@ -246,24 +249,33 @@ void HTCChartDataSet::listThisList(QStringList list)
     }
 }
 
-
-int HTCChartDataSet::getMin(QList<int> values)
+void HTCChartDataSet::SetCommCheckAutoDetect()
 {
-    int yMin = std::numeric_limits<int>::max();
+    QString del = getFileDelim();
+    QStringList dataList = getMasterList();
+    _isCommCheckData = IsCommCheckData(dataList);
+}
 
-    foreach (int i, values)
+
+double HTCChartDataSet::getMin(QList<double> values)
+{
+    double yMin = std::numeric_limits<double>::max();
+
+    foreach (double i, values)
     {
         yMin = qMin(yMin, i);
     }
+    // another way to do it
+    //    double yMin = *std::min_element(values.begin(), values.end());
 
     return yMin;
 }
 
-int HTCChartDataSet::getMax(QList<int> values)
+double HTCChartDataSet::getMax(QList<double> values)
 {
 
-    int yMax = std::numeric_limits<int>::min();
-    foreach (int i, values)
+    double yMax = std::numeric_limits<double>::min();
+    foreach (double i, values)
     {
         yMax = qMax(yMax, i);
     }
@@ -271,10 +283,10 @@ int HTCChartDataSet::getMax(QList<int> values)
     return yMax;
 }
 
-int HTCChartDataSet::getMean(QList<int> values)
+double HTCChartDataSet::getMean(QList<double> values)
 {
-    int numValues = values.count();
-    int result = -1;
+    double numValues = values.count();
+    double result = -1;
     if (numValues > 0)
     {
         result = values[numValues/2];
@@ -287,36 +299,25 @@ QStringList HTCChartDataSet::getMasterList()
 {
     QStringList result;
 
-   QString del = getFileDelim();
+    QString del = getFileDelim();
 
-
-
-   // if(info.)
-    // strip off the first line
     int numlines = _data.count();
     QStringList parts;
     QString target;
+    QString newTarget;
 
     if (numlines > 0)
     {
-        for (int i = 0; i < numlines; i++)
+        // strip off the first line
+        // but do the rest
+        for (int i = 1; i < numlines; i++)
         {
-//
-
-            parts =
-//            result.append(_data[numlines +1]);
-//            qDebug() << "adding line " << i;
-
-
+            target = getShortenedParts(_data[i], del);
+            // qDebug() << "adding line " << target;
+            result.append(target);
         }
 
-
     }
-
-
-
-
-
 
     return result;
 
@@ -324,17 +325,21 @@ QStringList HTCChartDataSet::getMasterList()
 
 QString HTCChartDataSet::getShortenedParts(QString target, QString delim)
 {
-    QStringList result;
+    QString result;
     QStringList temp = target.split(delim);
     int numLines = temp.count();
     for (int i = 1; i < numLines; i++)
     {
         result.append(temp[i]);
+
+        if (i < numLines -1)
+        {
+            result.append(delim);
+        }
+
     }
 
     return result;
-
-
 
 }
 
@@ -348,17 +353,13 @@ bool HTCChartDataSet::IsCommCheckData(QStringList commCkData)
     for (int i = 0; i < numLines; i++)
     {
         target = commCkData[i];
+        // qDebug() << "testing line " << i << " as " << target;
 
         if (ThisLineIsCommCk(target,delim) == false)
         {
-
+            // qDebug() << "I bailed becasue I found non comm check data";
             result = false;
-            qDebug() << "that line is " << result;
             break;
-        }
-        else
-        {
-            qDebug() << "that line is " << result;
         }
 
     }
@@ -388,10 +389,13 @@ QString HTCChartDataSet::getFileDelim()
 bool HTCChartDataSet::ThisLineIsCommCk(QString target, QString del)
 {
     bool result = false;
-    QList<int> myValues = ConvertToIntList(target,del);
-    int min = getMin(myValues);
-    int max = getMax(myValues);
-    int mean = getMean(myValues);
+    // check this method - not working correctly
+    QList<double> myValues = ConvertToDoubleList(target,del);
+
+
+    double min = getMin(myValues);
+    double max = getMax(myValues);
+    double mean = getMean(myValues);
 
     if(_testValues.contains(min) && _testValues.contains(max) && _testValues.contains(mean))
     {
@@ -403,18 +407,18 @@ bool HTCChartDataSet::ThisLineIsCommCk(QString target, QString del)
 
 }
 
-QList<int> HTCChartDataSet::ConvertToIntList(QString target, QString delim)
+QList<double> HTCChartDataSet::ConvertToDoubleList(QString target, QString delim)
 {
     QStringList list = target.split(delim);
 
     int numItems = list.count();
-    QList<int> l;
+    QList<double> l;
 
     std::sort(list.begin(),list.end());
 
     for (int i = 0; i < numItems; i++)
     {
-        l.append(list[i].toInt());
+        l.append(list[i].toDouble());
     }
 
     return l;

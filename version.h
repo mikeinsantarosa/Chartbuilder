@@ -18,7 +18,7 @@ Description : Set the release version of the application
 
 #define MY_REV_YEAR     "2020"
 #define MY_REV_MONTH    "Aug"
-#define MY_REV_DAY      "03"
+#define MY_REV_DAY      "04"
 
 
 /*

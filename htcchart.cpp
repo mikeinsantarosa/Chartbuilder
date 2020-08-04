@@ -45,9 +45,6 @@ HtcChart::HtcChart(QWidget *parent) :
 
     initProperties();
 
-    qDebug() << "X axis padding is enabled == " << getXAxisPaddingEnabled();
-    //qDebug() << "Prior to InitChart X Min/Max " << _XAxisMinValue << "/" << _XAxisMaxValue;
-
 }
 
 HtcChart::~HtcChart()
@@ -99,11 +96,9 @@ void HtcChart::setChartByDataSet(HTCChartDataSet *ds, bool RescaleFreq)
     // set data type
     _dataType = ds->getDataType();
     _basePath = ds->GetBaseFolder();
+    _dataIsCommCheck = ds->GetIsCommCheckData();
 
     setLegendText(_dataType);
-
-
-    qDebug() << "dataType is " << getDataType();
 
     if(getDataType() == CIdataType)
     {
@@ -353,25 +348,13 @@ void HtcChart::initChart()
     QString newLegendText;
     int posIDX = -1;
 
+    qDebug() << "setting up chart " << _chartTitleText;
+    qDebug() << "_commCheckAutoDetect/_dataIsCommCheck " << _commCheckAutoDetect << "/" << _dataIsCommCheck;
+
     if(!_UpdatingFromProperties)
     {
        initChartScaleMemory();
        discoverChartScaleValues();
-
-
-
-       // ----------------------------------------- //
-       //
-       // qDebug() << "Listing loaded headers before building chart";
-       // listHeaders();
-       //
-       // ----------------------------------------- //
-
-      // qDebug() << "Updating chart from porperties";
-
-//       qDebug() << "In InitChart X Min/Max " << _XAxisMinValue << "/" << _XAxisMaxValue;
-
-//       qDebug() << "Adjusted X-Min/Max " << getPaddedXMinValue() << getPaddedXMaxValue();
 
       if (getXAxisPaddingEnabled() == 1 && _loadedChartFromFile == false)
       {
@@ -379,12 +362,19 @@ void HtcChart::initChart()
           _XAxisMaxValue = getPaddedXMaxValue();
       }
 
+      if (_commCheckAutoDetect == 1 && _dataIsCommCheck == true && _loadedChartFromFile == false)
+      {
+          _YAxisMinValue = _commCheckYMinValue;
+          _YAxisMaxValue = _commCheckYMaxValue;
+          qDebug() << "used comm Check auto scaling";
 
-       if (_ChartPaddingValueY == 1 && _loadedChartFromFile == false)
+      }
+      else if (_ChartPaddingValueY == 1 && _loadedChartFromFile == false)
        {
            setYaxisPaddingValue();
            _YAxisMinValue = getPaddedYMinValue();
            _YAxisMaxValue = getPaddedYMaxValue();
+           qDebug() << "used Y Padding values";
        }
 
     }
@@ -489,16 +479,9 @@ void HtcChart::initChart()
         {
             // set it by header values explicitly
             newLegendText = _currentHeaderList[dataSet];
-//          qDebug() << "Loaded legend from #4";
-
         }
 
-        // qDebug() << "before legend is " << newLegendText;
-
         cName = StripQuotesFromString(newLegendText);
-
-        // qDebug() << "after legend is " << cName;
-
 
         _series->setName(StripQuotesFromString(cName));
 
@@ -584,8 +567,6 @@ void HtcChart::initChart()
         else
         {
             QLogValueAxis *axisX = new QLogValueAxis();
-
-            // qDebug() << "Dropped into XAxis scaling as LOG";
 
             axisX->setTitleText(_chartXAxisUnitsText);
             axisX->setTitleBrush(_chartXAxisUnitsBrush);
@@ -1043,6 +1024,9 @@ int HtcChart::findFirstNumericRow(QStringList list, QString delimiter)
 
 
         _ChartPaddingValueY = setting.value("ChartScalePaddingYOn").toInt();
+
+        // new comm check autodetect
+        _commCheckAutoDetect = setting.value("CommCheckAutoDetectEnabled").toInt();
 
 
         if(_ChartPaddingValueY == 1)

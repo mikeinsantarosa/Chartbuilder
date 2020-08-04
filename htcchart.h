@@ -208,10 +208,21 @@ private:
 
     // new cool stuff
     bool _EnableAnimations;
-    bool _EnableHoverCallout;
 
+    // not yet implemented
+    // (very difficult)
+    bool _EnableHoverCallout;
+    // ------------------------------------------------- //
     //
     //
+    // ------------------------------------------------- //
+    // Comm Check autodetect stuff
+    //
+    bool _dataIsCommCheck = false;
+    // chart scaling when comm Check data detected
+    double _commCheckYMaxValue = 2.5;
+    double _commCheckYMinValue = -1;
+    int _commCheckAutoDetect = 0;
     //
     //
     //

@@ -90,21 +90,23 @@ private:
     // -------------------------------- //
     // comm check data
     // -------------------------------- //
-    QList<int> _testValues;
+    QList<double> _testValues;
     bool _isCommCheckData;
+
+    void SetCommCheckAutoDetect();
 
 
     bool IsCommCheckData(QStringList commCkData); //main call
     QString getFileDelim();
 
-    int getMin(QList<int> values);
-    int getMax(QList<int> values);
-    int getMean(QList<int> values);
+    double getMin(QList<double> values);
+    double getMax(QList<double> values);
+    double getMean(QList<double> values);
     QStringList getMasterList();
     QString getShortenedParts(QString target, QString delim);
 
     bool ThisLineIsCommCk(QString target, QString del);
-    QList<int> ConvertToIntList(QString target, QString delim);
+    QList<double> ConvertToDoubleList(QString target, QString delim);
     // -------------------------------- //
     // comm check data
     // -------------------------------- //

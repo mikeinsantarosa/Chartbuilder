@@ -473,8 +473,6 @@ void HTCDataSelector::getRIData()
         statusBar()->showMessage("Retrieving the data you pointed me to...");
         SetFolderInService(folderToOpen, _currentSearchFilter, RIdataType, _baseFolder);
 
-        qDebug() << "folder opened " << folderToOpen;
-
     }
 
 }
