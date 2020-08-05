@@ -39,11 +39,11 @@ HtcChart::HtcChart(QWidget *parent) :
     _positions = _defaultPositions;
 
     loadSettings();
-    qDebug() << "dataType " << getDataType();
+
     initConnects();
     _loadedChartFromFile = false;
 
-    initProperties();
+    //initProperties();
 
 }
 
@@ -95,6 +95,8 @@ void HtcChart::setChartByDataSet(HTCChartDataSet *ds, bool RescaleFreq)
 
     // set data type
     _dataType = ds->getDataType();
+    initProperties();
+
     _basePath = ds->GetBaseFolder();
     _dataIsCommCheck = ds->GetIsCommCheckData();
 
@@ -214,9 +216,17 @@ void HtcChart::initProperties()
         _chartXAxisMajorGridLinesVisible = true;
         _chartXAxisMajorGridLinesCount = 11;
 
-        _chartXAxisMinorGridLinesCount = 5;
-        _chartXAxisMajorGridLinesColor = QColor("#000000");
-        _chartXAxisMinorGridLinesColor = QColor("#000000");
+        if (getDataType() == RIdataType)
+        {
+            _chartXAxisMinorGridLinesCount = 4;
+        }
+        else
+        {
+            _chartXAxisMinorGridLinesCount = 9;
+        }
+
+        _chartXAxisMajorGridLinesColor = QColor("#E0E3DD"); // original color "#000000"
+        _chartXAxisMinorGridLinesColor = QColor("#E0E3DD"); // original color "#000000"
         //_chartXAxisMajorGridLineSize = 2;
         //_chartXAxisMinorGridLineSize = 1;
 
@@ -236,11 +246,20 @@ void HtcChart::initProperties()
         _chartYAxisDecimalScientific = "DEC";
 
         _chartYAxisMajorGridLinesVisible = true;
-        _chartYAxisMajorGridLinesCount = 11;
+
+        if (getDataType() == RIdataType)
+        {
+            _chartYAxisMajorGridLinesCount = 11;
+        }
+        else
+        {
+            _chartYAxisMajorGridLinesCount = 11;
+        }
+
         _chartYAxisMinorGridLinesVisible = false;
-        _chartYAxisMinorGridLinesCount = 5;
-        _chartYAxisMajorGridLinesColor = QColor("#000000");
-        _chartYAxisMinorGridLinesColor = QColor("#000000");
+        _chartYAxisMinorGridLinesCount = 4;
+        _chartYAxisMajorGridLinesColor = QColor("#E0E3DD"); // original color "#000000"
+        _chartYAxisMinorGridLinesColor = QColor("#E0E3DD"); // original color "#000000"
         //_chartYAxisMajorGridLineSize = 2;
         //_chartYAxisMinorGridLineSize = 4; //DEFAULT CHANGE
 
@@ -348,9 +367,6 @@ void HtcChart::initChart()
     QString newLegendText;
     int posIDX = -1;
 
-    qDebug() << "setting up chart " << _chartTitleText;
-    qDebug() << "_commCheckAutoDetect/_dataIsCommCheck " << _commCheckAutoDetect << "/" << _dataIsCommCheck;
-
     if(!_UpdatingFromProperties)
     {
        initChartScaleMemory();
@@ -366,7 +382,7 @@ void HtcChart::initChart()
       {
           _YAxisMinValue = _commCheckYMinValue;
           _YAxisMaxValue = _commCheckYMaxValue;
-          qDebug() << "used comm Check auto scaling";
+          // qDebug() << "used comm Check auto scaling";
 
       }
       else if (_ChartPaddingValueY == 1 && _loadedChartFromFile == false)
@@ -374,7 +390,7 @@ void HtcChart::initChart()
            setYaxisPaddingValue();
            _YAxisMinValue = getPaddedYMinValue();
            _YAxisMaxValue = getPaddedYMaxValue();
-           qDebug() << "used Y Padding values";
+           //qDebug() << "used Y Padding values";
        }
 
     }
@@ -1035,23 +1051,36 @@ int HtcChart::findFirstNumericRow(QStringList list, QString delimiter)
         }
         else
         {
-            _ChartScalePaddingValueY = _defaultChartScalePaddingXValue;
+            _ChartScalePaddingValueY = _defaultChartScalePaddingYValue;
         }
 
-        _ChartPaddingValueX = setting.value("ChartScalePaddingXOn").toInt();
+        // RI X Axis padding values
+
+        _ChartRIPaddingValueX = setting.value("ChartRIScalePaddingXOn").toInt();
 
 
-        if(_ChartPaddingValueX == 1)
+        if(_ChartRIPaddingValueX == 1)
         {
-            _ChartScalePaddingValueX = setting.value("ChartScalePaddingXValue").toDouble();
+            _ChartRIScalePaddingValueX = setting.value("ChartRIScalePaddingXValue").toDouble();
         }
         else
         {
-            _ChartScalePaddingValueX = _defaultChartScalePaddingXValue;
+            _ChartRIScalePaddingValueX = _defaultChartRIScalePaddingXValue;
         }
 
-        //qDebug() << "Chart padding states X/Y " << _ChartPaddingValueX << "/" << _ChartPaddingValueY;
-        //qDebug() << "Chart padding values X/Y " << _ChartScalePaddingValueX << "/" << _ChartScalePaddingValueY;
+        // CI X Axis padding values
+        _ChartCIPaddingValueX = setting.value("ChartCIScalePaddingXOn").toInt();
+
+
+        if(_ChartCIPaddingValueX == 1)
+        {
+            _ChartCIScalePaddingValueX = setting.value("ChartCIScalePaddingXValue").toDouble();
+        }
+        else
+        {
+            _ChartCIScalePaddingValueX = _defaultChartCIScalePaddingXValue;
+        }
+
 
         // math to calculate X Scale padding
         // new min = detected X-Min + (X Padding value / 100) * Detected X-Min)
@@ -1705,13 +1734,25 @@ double HtcChart::getPaddedYMinValue()
 
 bool HtcChart::getXAxisPaddingEnabled()
 {
-    // _ChartScalePaddingValueX : the value
-    // _ChartPaddingValueX : On/OFf
+    // _ChartRIScalePaddingValueX : the value
+    // _ChartRIPaddingValueX : On/OFf
+
     bool result = false;
 
-    if (_ChartPaddingValueX == 1 && _ChartScalePaddingValueX > 0)
+    if (_dataType == RIdataType)
     {
-        result = true;
+        if (_ChartRIPaddingValueX == 1 && _ChartRIScalePaddingValueX > 0)
+        {
+            result = true;
+        }
+    }
+    else
+    {
+        if (_ChartCIPaddingValueX == 1 && _ChartCIScalePaddingValueX > 0)
+        {
+            result = true;
+        }
+
     }
 
     return result;
@@ -1720,14 +1761,32 @@ bool HtcChart::getXAxisPaddingEnabled()
 double HtcChart::getPaddedXMaxValue()
 {
     double result = _XAxisMaxValue;
+    double factor, mult;
+    QString chartType;
 
-    double factor = _ChartScalePaddingValueX / 100;
-    double mult = 5;
+
+
+
+
+    if (_dataType == RIdataType)
+    {
+        factor = _ChartRIScalePaddingValueX / 100;
+        mult = _RIXaxisMaxMult;
+        chartType = "RI";
+
+    }
+    else
+    {
+        factor = _ChartCIScalePaddingValueX / 100;
+        mult = _CIXaxisMaxMult;
+        chartType = "CI";
+    }
 
     if (getXAxisPaddingEnabled() == 1)
     {
         result = _XAxisMaxValue + (_XAxisMinValue * factor * mult);
     }
+
 
     return result;
 
@@ -1736,12 +1795,25 @@ double HtcChart::getPaddedXMaxValue()
 double HtcChart::getPaddedXMinValue()
 {
     double result = _XAxisMinValue;
-    double factor = _ChartScalePaddingValueX / 100;
+    double factor;
+    QString chartType;
+
+    if (_dataType == RIdataType)
+    {
+        factor = _ChartRIScalePaddingValueX / 100;
+        chartType = "RI";
+    }
+    else
+    {
+        factor = _ChartCIScalePaddingValueX / 100;
+        chartType = "CI";
+    }
 
     if (getXAxisPaddingEnabled() == 1)
     {
         result = _XAxisMinValue - (_XAxisMinValue * factor);
     }
+
 
     return result;
 

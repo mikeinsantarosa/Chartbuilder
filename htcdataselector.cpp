@@ -62,7 +62,7 @@ void HTCDataSelector::SetFolderInService(QString folder, QString filter, int dTy
          connect(cdf,SIGNAL(messageToStatusBar(QString)),this,SLOT(messageForStatusBar(QString)));
          members = cdf->init(_folderInService, _filterInService, dType);
 
-         qDebug() << "Discovered " << members << " to be listed";
+         //qDebug() << "Discovered " << members << " to be listed";
 
          FillListFromPath();
 
@@ -442,7 +442,7 @@ void HTCDataSelector::getCIData()
         statusBar()->showMessage("Retrieving the data you pointed me to...");
         SetFolderInService(folderToOpen, _currentSearchFilter, CIdataType, _baseFolder);
 
-        qDebug() << "folder opened " << folderToOpen;
+        //qDebug() << "folder opened " << folderToOpen;
     }
 }
 

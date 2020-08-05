@@ -1037,6 +1037,7 @@ bool HTCChartDataMangler::getFilesPerRangeIsValid(HTCChartDataSet * dset)
 void HTCChartDataMangler::setDataType(int dataType)
 {
     _dataType = dataType;
+    //qDebug() << "dataType in mangler == " << _dataType;
 }
 
 
