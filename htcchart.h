@@ -208,10 +208,21 @@ private:
 
     // new cool stuff
     bool _EnableAnimations;
-    bool _EnableHoverCallout;
 
+    // not yet implemented
+    // (very difficult)
+    bool _EnableHoverCallout;
+    // ------------------------------------------------- //
     //
     //
+    // ------------------------------------------------- //
+    // Comm Check autodetect stuff
+    //
+    bool _dataIsCommCheck = false;
+    // chart scaling when comm Check data detected
+    double _commCheckYMaxValue = 2.5;
+    double _commCheckYMinValue = -1;
+    int _commCheckAutoDetect = 0;
     //
     //
     //
@@ -338,15 +349,26 @@ private:
 
     // ----------------------------------------------------- //
     // Chart X/Y scale padding vars
-    // _ChartPaddingValueX/Y 1/0 On/Off
-    // _ChartScalePaddingValueX/Y value in % for padding
+    // _ChartRIPaddingValueX/Y 1/0 On/Off
+    // _ChartRIScalePaddingValueX/Y value in % for padding
     // ----------------------------------------------------- //
     double _ChartScalePaddingValueY;
-    double _ChartScalePaddingValueX;
     int _ChartPaddingValueY;
-    int _ChartPaddingValueX;
     double _defaultChartScalePaddingYValue = 0;
-    double _defaultChartScalePaddingXValue = 0;
+
+    // RI Padding values
+    double _ChartRIScalePaddingValueX;
+    int _ChartRIPaddingValueX;
+    double _defaultChartRIScalePaddingXValue = 0;
+    double _RIXaxisMaxMult = 3;
+
+    // CI Padding values
+    double _ChartCIScalePaddingValueX;
+    int _ChartCIPaddingValueX;
+    double _defaultChartCIScalePaddingXValue = 0;
+    double _CIXaxisMaxMult = 400;
+
+
     // ----------------------------------------------------- //
     // ----------------------------------------------------- //
 

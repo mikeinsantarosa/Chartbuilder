@@ -65,13 +65,27 @@ private slots:
 
     void on_radioHoverOff_clicked();
 
-    void on_comboChartPaddingY_currentIndexChanged(int index);
-
-    void on_comboChartPaddingX_currentIndexChanged(int index);
-
     void on_linePaddingValueY_editingFinished();
 
-    void on_linePaddingValueX_editingFinished();
+    void on_comboChartPaddingY_currentIndexChanged(int index);
+
+    // change from here down
+
+    void on_comboRIChartPaddingX_currentIndexChanged(int index);
+
+    void on_lineRIPaddingValueX_editingFinished();
+
+    // to here
+
+    void on_radioCommAutoOn_clicked();
+
+    void on_radioCommAutoOff_clicked();
+
+
+
+    void on_comboCIChartPaddingX_currentIndexChanged(int index);
+
+    void on_lineCIPaddingValueX_editingFinished();
 
 private:
     Ui::HTCSettings *ui;
@@ -84,7 +98,6 @@ private:
     void loadFontList();
     void setControlsFont();
     void setValidators();
-    void getformValues();
     void setFormValues();
     void setCombos();
 
@@ -119,8 +132,19 @@ private:
    // ---------------------------------------- //
    double _ChartScalePaddingValueY;
    int _ChartPaddingValueY;
-   double _ChartScalePaddingValueX;
-   int _ChartPaddingValueX;
+   double _ChartRIScalePaddingValueX;
+   int _ChartRIPaddingValueX;
+   double _ChartCIScalePaddingValueX;
+   int _ChartCIPaddingValueX;
+
+
+   //
+   // ---------------------------------------- //
+   //
+   // Chart comm Check auto detect
+   //
+   // ---------------------------------------- //
+   int _commCheckAutoDetect;
    //
    // ---------------------------------------- //
 
