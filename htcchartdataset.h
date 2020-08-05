@@ -6,6 +6,7 @@
 #include <QStringList>
 #include <algorithm>
 #include <QFileInfo>
+#include "math.h"
 
 class HTCChartDataSet
 {

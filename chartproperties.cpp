@@ -206,10 +206,10 @@ void ChartProperties::setChartXAxisGridLines(bool AxisMajorLinesAreVisible, int 
 
     // Set the X Axis Major tic Label color
     // -----------------------------------------------------
-    QPalette  palMajor;
-    palMajor.setColor(QPalette::Base, Qt::white);
-    palMajor.setColor(QPalette::WindowText, AxisMajorLinesColor);
-    ui->labelXMajorTics->setPalette(palMajor);
+//    QPalette  palMajor;
+//    palMajor.setColor(QPalette::Base, Qt::white);
+//    palMajor.setColor(QPalette::WindowText, AxisMajorLinesColor);
+//    ui->labelXMajorTics->setPalette(palMajor);
 
     // Set the X Axis Major spinbox text/count value
     // -----------------------------------------------------
@@ -217,23 +217,23 @@ void ChartProperties::setChartXAxisGridLines(bool AxisMajorLinesAreVisible, int 
 
     // Set the X Axis Major spin box text color
     // -----------------------------------------------------
-    palMajor.setColor(QPalette::Text, AxisMajorLinesColor);
-    ui->spinXMajorTics->setPalette(palMajor);
+//    palMajor.setColor(QPalette::Text, AxisMajorLinesColor);
+//    ui->spinXMajorTics->setPalette(palMajor);
 
     ui->checkXMinor->setChecked(AxisMinorLinesAreVisible);
     ui->spinXMinorThickness->setValue(QString::number(AxisMinorGridLinesize).toInt());
 
     // Set the X Axis Minor tic Label color
     // -----------------------------------------------------
-    QPalette  palMinor;
-    palMinor.setColor(QPalette::Base, Qt::white);
-    palMinor.setColor(QPalette::WindowText, AxisMinorLinesColor);
-    ui->labelXMinorTics->setPalette(palMinor);
+//    QPalette  palMinor;
+//    palMinor.setColor(QPalette::Base, Qt::white);
+//    palMinor.setColor(QPalette::WindowText, AxisMinorLinesColor);
+//    ui->labelXMinorTics->setPalette(palMinor);
 
     // Set the X Axis Minor spinbox text/count value
     // -----------------------------------------------------
-    palMinor.setColor(QPalette::Text, AxisMajorLinesColor);
-    ui->spinXMinorTics->setPalette(palMinor);
+//    palMinor.setColor(QPalette::Text, AxisMajorLinesColor);
+//    ui->spinXMinorTics->setPalette(palMinor);
     ui->spinXMinorTics->setValue(AxisMinorLinesTicCount);
 
 }
@@ -287,10 +287,10 @@ void ChartProperties::setChartYAxisGridLines(bool AxisMajorLinesAreVisible, int 
 
     // Set the X Axis Major tic Label color
     // -----------------------------------------------------
-    QPalette  palMajor;
-    palMajor.setColor(QPalette::Base, Qt::white);
-    palMajor.setColor(QPalette::WindowText, AxisMajorLinesColor);
-    ui->labelYMajorTics->setPalette(palMajor);
+//    QPalette  palMajor;
+//    palMajor.setColor(QPalette::Base, Qt::white);
+//    palMajor.setColor(QPalette::WindowText, AxisMajorLinesColor);
+//    ui->labelYMajorTics->setPalette(palMajor);
 
     // Set the X Axis Major spinbox text/count value
     // -----------------------------------------------------
@@ -298,8 +298,8 @@ void ChartProperties::setChartYAxisGridLines(bool AxisMajorLinesAreVisible, int 
 
     // Set the X Axis Major spin box text color
     // -----------------------------------------------------
-    palMajor.setColor(QPalette::Text, AxisMajorLinesColor);
-    ui->spinYMajorTics->setPalette(palMajor);
+//    palMajor.setColor(QPalette::Text, AxisMajorLinesColor);
+//    ui->spinYMajorTics->setPalette(palMajor);
 
 
     ui->checkYMinor->setChecked(AxisMinorLinesAreVisible);
@@ -307,15 +307,15 @@ void ChartProperties::setChartYAxisGridLines(bool AxisMajorLinesAreVisible, int 
 
     // Set the X Axis Minor tic Label color
     // -----------------------------------------------------
-    QPalette  palMinor = QPalette();
-    palMinor.setColor(QPalette::Base, Qt::white);
-    palMinor.setColor(QPalette::WindowText, AxisMinorLinesColor);
-    ui->labelYMinorTics->setPalette(palMinor);
+//    QPalette  palMinor = QPalette();
+//    palMinor.setColor(QPalette::Base, Qt::white);
+//    palMinor.setColor(QPalette::WindowText, AxisMinorLinesColor);
+//    ui->labelYMinorTics->setPalette(palMinor);
 
     // Set the X Axis Minor spinbox text/count value
     // -----------------------------------------------------
-    palMinor.setColor(QPalette::Text, AxisMajorLinesColor);
-    ui->spinYMinorTics->setPalette(palMinor);
+//    palMinor.setColor(QPalette::Text, AxisMajorLinesColor);
+//    ui->spinYMinorTics->setPalette(palMinor);
     ui->spinYMinorTics->setValue(AxisMinorLinesTicCount);
 
 }
@@ -1698,13 +1698,13 @@ void ChartProperties::on_btnXAxisMajorGridColor_clicked()
 
        if (color != currentColor)
        {
-           // change the label color
-           pal.setColor(QPalette::WindowText, color);
-           ui->labelXMajorTics->setPalette(pal);
+//           // change the label color
+//           pal.setColor(QPalette::WindowText, color);
+//           ui->labelXMajorTics->setPalette(pal);
 
-           // change the spinbox color
-           pal.setColor(QPalette::Text, color);
-           ui->spinXMajorTics->setPalette(pal);
+//           // change the spinbox color
+//           pal.setColor(QPalette::Text, color);
+//           ui->spinXMajorTics->setPalette(pal);
 
            // Fire the signal event
            // -------------------------------------------------------------------------------------------------
@@ -1726,13 +1726,13 @@ void ChartProperties::on_btnXAxisMinorGridColor_clicked()
 
         if (color != currentColor)
         {
-            // change the label color
-            pal.setColor(QPalette::WindowText, color);
-            ui->labelXMinorTics->setPalette(pal);
+//            // change the label color
+//            pal.setColor(QPalette::WindowText, color);
+//            ui->labelXMinorTics->setPalette(pal);
 
-            // change the spinbox color
-            pal.setColor(QPalette::Text, color);
-            ui->spinXMinorTics->setPalette(pal);
+//            // change the spinbox color
+//            pal.setColor(QPalette::Text, color);
+//            ui->spinXMinorTics->setPalette(pal);
 
             // Fire the signal event
             // -------------------------------------------------------------------------------------------------
@@ -1753,13 +1753,13 @@ void ChartProperties::on_btnYAxisMajorGridColor_clicked()
 
     if (color != currentColor)
     {
-        // change the label color
-        pal.setColor(QPalette::WindowText, color);
-        ui->labelYMajorTics->setPalette(pal);
+//        // change the label color
+//        pal.setColor(QPalette::WindowText, color);
+//        ui->labelYMajorTics->setPalette(pal);
 
-        // change the spinbox color
-        pal.setColor(QPalette::Text, color);
-        ui->spinYMajorTics->setPalette(pal);
+//        // change the spinbox color
+//        pal.setColor(QPalette::Text, color);
+//        ui->spinYMajorTics->setPalette(pal);
 
         // Fire the signal event
         // -------------------------------------------------------------------------------------------------
@@ -1779,13 +1779,13 @@ void ChartProperties::on_btnYAxisMinorGridColor_clicked()
 
     if (color != currentColor)
     {
-        // change the label color
-        pal.setColor(QPalette::WindowText, color);
-        ui->labelYMinorTics->setPalette(pal);
+//        // change the label color
+//        pal.setColor(QPalette::WindowText, color);
+//        ui->labelYMinorTics->setPalette(pal);
 
-        // change the spinbox color
-        pal.setColor(QPalette::Text, color);
-        ui->spinYMinorTics->setPalette(pal);
+//        // change the spinbox color
+//        pal.setColor(QPalette::Text, color);
+//        ui->spinYMinorTics->setPalette(pal);
 
         // Fire the signal event
         // -------------------------------------------------------------------------------------------------
@@ -1882,7 +1882,7 @@ void ChartProperties::on_lineXMin_editingFinished()
 void ChartProperties::on_lineYMin_editingFinished()
 {
     _yAxisScaleMin = ui->lineYMin->text().toDouble();
-    qDebug() << "value from editing is " << _yAxisScaleMin;
+
 
     //qDebug() << "New Y-Min Value requested is " << _yAxisScaleMin;
     emit HTCChartYAxisLabelsTextScaleMinChanged(_yAxisScaleMin);
@@ -1892,7 +1892,6 @@ void ChartProperties::on_lineYMax_editingFinished()
 {
     _yAxisScaleMax = ui->lineYMax->text().toDouble();
 
-    qDebug() << "New Y-Max Value requested is " << _yAxisScaleMax;
     emit HTCChartYAxisLabelsTextScaleMaxChanged(_yAxisScaleMax);
 }
 
