@@ -259,14 +259,7 @@ void HTCChartDataSet::SetCommCheckAutoDetect()
 
 double HTCChartDataSet::getMin(QList<double> values)
 {
-    double yMin = std::numeric_limits<double>::max();
-
-    foreach (double i, values)
-    {
-        yMin = qMin(yMin, i);
-    }
-    // another way to do it
-    //    double yMin = *std::min_element(values.begin(), values.end());
+    double yMin = *std::min_element(values.begin(), values.end());
 
     return yMin;
 }
@@ -274,11 +267,8 @@ double HTCChartDataSet::getMin(QList<double> values)
 double HTCChartDataSet::getMax(QList<double> values)
 {
 
-    double yMax = std::numeric_limits<double>::min();
-    foreach (double i, values)
-    {
-        yMax = qMax(yMax, i);
-    }
+
+    double yMax = *std::max_element(values.begin(), values.end());
 
     return yMax;
 }
@@ -353,7 +343,7 @@ bool HTCChartDataSet::IsCommCheckData(QStringList commCkData)
     for (int i = 0; i < numLines; i++)
     {
         target = commCkData[i];
-        // qDebug() << "testing line " << i << " as " << target;
+       // qDebug() << "testing line " << i << " as " << target;
 
         if (ThisLineIsCommCk(target,delim) == false)
         {
@@ -396,6 +386,8 @@ bool HTCChartDataSet::ThisLineIsCommCk(QString target, QString del)
     double min = getMin(myValues);
     double max = getMax(myValues);
     double mean = getMean(myValues);
+
+    //qDebug() << "min/max/mean " << min << "/" << max << "/" << mean;
 
     if(_testValues.contains(min) && _testValues.contains(max) && _testValues.contains(mean))
     {
