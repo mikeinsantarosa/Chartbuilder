@@ -90,8 +90,12 @@ void HtcChart::setFileToOpen(QString fileName, bool RescaleFreq, QString baseFol
 void HtcChart::setChartByDataSet(HTCChartDataSet *ds, bool RescaleFreq)
 {
 
+    // use dataset to set header
+
+
    _autoRangesDiscovered = false;
-    _dataSet = ds;
+
+
 
     // set data type
     _dataType = ds->getDataType();
@@ -99,6 +103,7 @@ void HtcChart::setChartByDataSet(HTCChartDataSet *ds, bool RescaleFreq)
 
     _basePath = ds->GetBaseFolder();
     _dataIsCommCheck = ds->GetIsCommCheckData();
+    _dataIsAnalog = ds->GetAnalogMaxMinValuesSet();
 
     setLegendText(_dataType);
 
@@ -114,6 +119,10 @@ void HtcChart::setChartByDataSet(HTCChartDataSet *ds, bool RescaleFreq)
     _masterlist = ds->GetData();
 
     _dataSetIndex = ds->GetDataSetIndex();
+
+
+    qDebug() << "listing dataset data";
+     listThisList(_masterlist);
 
     _chartTitleText = ds->GetChartTitle();
 
@@ -359,6 +368,8 @@ void HtcChart::initChart()
 {
     bool axisXHasBeenAdded = false;
     bool axisYHasBeenAdded = false;
+
+    bool chartYMinMaxValuesHasBeenSet = false;
     QString cName = "";
     QString s1, match;
 
@@ -369,8 +380,8 @@ void HtcChart::initChart()
 
     if(!_UpdatingFromProperties)
     {
-       initChartScaleMemory();
-       discoverChartScaleValues();
+        initChartScaleMemory();
+        discoverChartScaleValues();
 
       if (getXAxisPaddingEnabled() == 1 && _loadedChartFromFile == false)
       {
@@ -382,7 +393,6 @@ void HtcChart::initChart()
       {
           _YAxisMinValue = _commCheckYMinValue;
           _YAxisMaxValue = _commCheckYMaxValue;
-          // qDebug() << "used comm Check auto scaling";
 
       }
       else if (_ChartPaddingValueY == 1 && _loadedChartFromFile == false)
@@ -390,7 +400,7 @@ void HtcChart::initChart()
            setYaxisPaddingValue();
            _YAxisMinValue = getPaddedYMinValue();
            _YAxisMaxValue = getPaddedYMaxValue();
-           //qDebug() << "used Y Padding values";
+
        }
 
     }
@@ -407,7 +417,14 @@ void HtcChart::initChart()
     XAxisFormat.append(QString("%1").arg(getXAxisScalingResolution()));
     XAxisFormat.append("f");
 
-
+    // ---------------------------------------------------//
+    //
+    //
+    //
+    qDebug() << "Chart values before settgin Chart:: min/max values " << _YAxisMinValue << "/" <<  _YAxisMaxValue;
+    //
+    //
+    // ---------------------------------------------------//
 
     _chart = new QChart();
 
@@ -442,6 +459,12 @@ void HtcChart::initChart()
     // subsequent sets are different.
     //
     // -------------------------------------------------- //
+
+    qDebug() << "headerCount = " << _currentHeaderCount;
+
+    qDebug() << "listing the dataset";
+    //listThisList(_data);
+
     for(int dataSet = 1; dataSet < _currentHeaderCount ; dataSet++)
     {
         QLineSeries *_series = new QLineSeries();
@@ -503,6 +526,7 @@ void HtcChart::initChart()
 
         //Series pen color & thickness
         QPen SeriesPen(_penColors[dataSet - 1]);
+        //qDebug() << "pen width for dataset " << dataSet - 1 << " is " << _penWidths[dataSet - 1];
         SeriesPen.setWidth(_penWidths[dataSet - 1]);
         SeriesPen.setStyle(Qt::PenStyle(_penStyles[dataSet - 1]));
 
@@ -637,10 +661,13 @@ void HtcChart::initChart()
         if (_chartYAxisLinLogScale == "LIN")
         {
              QValueAxis *axisY = new QValueAxis();
-
-             axisY->setMin(_YAxisMinValue);
-             axisY->setMax(_YAxisMaxValue);
-
+            if (chartYMinMaxValuesHasBeenSet == false)
+            {
+                axisY->setMin(_YAxisMinValue);
+                axisY->setMax(_YAxisMaxValue);
+            }
+//             axisY->setMin(_YAxisMinValue);
+//             axisY->setMax(_YAxisMaxValue);
              axisY->setTitleText(_chartYAxisUnitsText);
 
 
@@ -680,6 +707,8 @@ void HtcChart::initChart()
 
             _series->attachAxis(axisY);
 
+            qDebug() << "Chart Upper values before setting Chart:: min/max values " << axisY->min() << "/" <<  axisY->max();
+
         }
         else
         {
@@ -704,6 +733,7 @@ void HtcChart::initChart()
             axisY->setMin(_YAxisMinValue);
             axisY->setMax(_YAxisMaxValue);
 
+
             axisY->setGridLineVisible(_chartYAxisMajorGridLinesVisible);
             axisY->setGridLinePen(_chartYAxisMajorGridLinesPen);
             axisY->setMinorGridLineVisible(_chartYAxisMinorGridLinesVisible);
@@ -724,9 +754,16 @@ void HtcChart::initChart()
 
             _series->attachAxis(axisY);
 
+            qDebug() << "Chart Lower values before setting Chart:: min/max values " << axisY->min() << "/" <<  axisY->max();
+
+            chartYMinMaxValuesHasBeenSet = true;
         }
 
+
+
     }
+
+
 
     // added for legend test
     // We need to find a way to get
@@ -827,6 +864,8 @@ void HtcChart::setHeaderValues(QStringList list)
 
         current = list[_firstNumericRow - 1];
 
+        qDebug() << "this should be the header " << current;
+
        // qDebug() << "listing the header from the file";
 
         // listTheList(list);
@@ -838,6 +877,10 @@ void HtcChart::setHeaderValues(QStringList list)
 
         _currentHeaderList = current.split(_dataFileDelim);
         _currentHeaderCount = _currentHeaderList.count();
+
+
+
+        qDebug() << "in setHeaderValues where count/getCount = " << _currentHeaderCount;
 
     }
 
@@ -1514,6 +1557,8 @@ int HtcChart::findFirstNumericRow(QStringList list, QString delimiter)
     void HtcChart::updateHeaderCount()
     {
         _currentHeaderCount = _currentHeaderList.count();
+
+
     }
 
     void HtcChart::adjustGeometry()
@@ -1561,6 +1606,8 @@ int HtcChart::findFirstNumericRow(QStringList list, QString delimiter)
     double HtcChart::setMinLevel(double level)
     {
 
+        qDebug() << "Still calling HtcChart::setMinLevel(double level)";
+
         if (level < _YAxisMinValue)
         {
             _YAxisMinValue = level;
@@ -1579,7 +1626,7 @@ int HtcChart::findFirstNumericRow(QStringList list, QString delimiter)
         }
 
         return _YAxisMaxValue;
-        ;
+
     }
 
     int HtcChart::getYAxisScalingResolution()
@@ -1645,55 +1692,13 @@ void HtcChart::discoverChartScaleValues()
     // -------------------------------------- //
     // -------------------------------------- //
 
-    QStringList group;
-    int start;
-    double freq;
-    double level;
-    QString l1;
+    _XAxisMinValue = _dataSet->GetAnalogXMinValue() / getFreqRescaleValue();
+    _XAxisMaxValue = _dataSet->GetAnalogXMaxValue() / getFreqRescaleValue();
 
-    double minFreq;
-    double maxFreq;
-    double minLevel;
-    double maxLevel;
+    _YAxisMinValue = _dataSet->GetAnalogYMinValue();
+    _YAxisMaxValue = _dataSet->GetAnalogYMaxValue();
 
-    if (!_masterlist.isEmpty())
-    {
-        start = _firstNumericRow;
-
-        for (int i = start; i < _masterlist.count(); i++)
-        {
-
-            group = _masterlist[i].split(_dataFileDelim);
-
-            for(int col = 0; col < group.count(); col++)
-            {
-                if(col==0)
-                {
-                    freq = QString(group.at(col)).toDouble()/getFreqRescaleValue();
-
-                    if(!_UpdatingFromProperties)
-                    {
-                        minFreq = setMinFreq(freq);
-                        maxFreq = setMaxFreq(freq);
-                    }
-
-                }
-                else
-                {
-                    level = group.at(col).toDouble();
-                    if(!_UpdatingFromProperties)
-                    {
-                        minLevel = setMinLevel(level);
-                        maxLevel = setMaxLevel(level);
-                    }
-
-                }
-            }
-
-
-       }
-
-    }
+    qDebug() << "Xmin/Xmax YMin/YMax " << _XAxisMinValue << "/" << _XAxisMaxValue << _YAxisMinValue << "/" << _YAxisMaxValue;
 
 }
 
@@ -3836,5 +3841,14 @@ void HtcChart::on_btnSaveData_clicked()
         ui->statusbar->showMessage(msg);
     }
 
+
+}
+
+void HtcChart::listThisList(QStringList list)
+{
+    for (int i = 0; i < list.count(); i++)
+    {
+        qDebug() << "item " << i << " = " << list[i]
+;    }
 
 }

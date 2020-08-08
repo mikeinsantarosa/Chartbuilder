@@ -40,7 +40,6 @@ void HTCChartDataSet::SetData(QStringList data)
 {
     _data = data;
 
-
 }
 
 void HTCChartDataSet::SetChartTitle(QString title)
@@ -54,6 +53,16 @@ void HTCChartDataSet::SetChartTitle(QString title)
     SetCommCheckAutoDetect();
     // ------------------------------- //
     //
+    // adding get analog max/min values
+    // make them available but only
+    // if this isn't comm check data
+
+    if (_isCommCheckData == false)
+    {
+        SetAnalogMinMax();
+
+    }
+
     //
     // ------------------------------- //
 
@@ -197,6 +206,32 @@ bool HTCChartDataSet::GetIsCommCheckData()
     return _isCommCheckData;
 }
 
+bool HTCChartDataSet::GetAnalogMaxMinValuesSet()
+{
+    return _analogMinMaxValuesSet;
+}
+
+double HTCChartDataSet::GetAnalogYMaxValue()
+{
+    return _dataSetYMaxValue;
+}
+
+double HTCChartDataSet::GetAnalogYMinValue()
+{
+    return _dataSetYMinValue;
+
+}
+
+double HTCChartDataSet::GetAnalogXMinValue()
+{
+    return _dataSetXMinValue;
+}
+
+double HTCChartDataSet::GetAnalogXMaxValue()
+{
+    return _dataSetXMaxValue;
+}
+
 
 
 
@@ -239,7 +274,7 @@ void HTCChartDataSet::setInitializedOKState()
     }
 }
 
-void HTCChartDataSet::listThisList(QStringList list)
+void HTCChartDataSet::listThisStringList(QStringList list)
 {
     int numItems = list.count();
 
@@ -249,16 +284,156 @@ void HTCChartDataSet::listThisList(QStringList list)
     }
 }
 
+
+
+
+void HTCChartDataSet::listThisList(QList<double> list)
+{
+    int numItems = list.count();
+
+    for (int i = 0; i < numItems; i++)
+    {
+        qDebug() << "item " << i << " : " << list[i];
+    }
+}
+
+void HTCChartDataSet::listMasterList()
+{
+    QStringList list = getMasterList();
+    listThisStringList(list);
+}
+
 void HTCChartDataSet::SetCommCheckAutoDetect()
 {
     QString del = getFileDelim();
-    QStringList dataList = getMasterList();
-    _isCommCheckData = IsCommCheckData(dataList);
+    _ProcessedDataList = getMasterList();
+    _isCommCheckData = IsCommCheckData(_ProcessedDataList);
+}
+
+void HTCChartDataSet::SetAnalogMinMax()
+{
+    // the idea here is if not com ckData
+    // use 2 QLists to hold min & max lists
+    // for values returned from the min max
+    // testers for a complete dataset
+    // Once the list is checked feed these 2 lists
+    // through the min max check and use them for
+    // the real min max values
+
+    //listMasterList();
+    setHeader();
+
+    FillMinMaxLists();
+
+    SetFreqValues();
+
+//    qDebug() << "after both Set X min/Max Y min/max " << _dataSetXMinValue << "/"  <<_dataSetXMaxValue << _dataSetYMinValue << "/" << _dataSetYMaxValue;
+
+    _analogMinMaxValuesSet = true;
+
+}
+
+void HTCChartDataSet::FillMinMaxLists()
+{
+    double myMin, myMax;
+    QString target;
+    QString delim = getFileDelim();
+    int numLines = _ProcessedDataList.count();
+    QList<double> testValues;
+
+    FlushMinMaxLists();
+
+    for (int i = 0; i < numLines; i++)
+    {
+        testValues.clear();
+        target = _ProcessedDataList[i];
+
+        testValues = ConvertToDoubleList(target, delim);
+        myMin = getMin(testValues);
+        myMax   = getMax(testValues);
+
+        _minValuesList << myMin;
+        _maxValuesList << myMax;
+
+
+
+    }
+//    listThisList(_maxValuesList);
+    _dataSetYMinValue = getMin(_minValuesList);
+    _dataSetYMaxValue = getMax(_maxValuesList);
+
+}
+
+void HTCChartDataSet::FlushMinMaxLists()
+{
+    if (_minValuesList.count() > 0)
+    {
+        _minValuesList.clear();
+    }
+    if (_maxValuesList.count() > 0)
+    {
+        _maxValuesList.clear();
+    }
+    if (_freqList.count() > 0)
+    {
+        _freqList.clear();
+    }
+
+}
+
+
+void HTCChartDataSet::SetFreqValues()
+{
+    QString target = "";
+    QString delim = getFileDelim();
+    int numLines = _data.count();
+    int pos = 0;
+    double thisFreq = 0;
+
+    for (int i = 1; i < numLines; i++)
+    {
+        target = _data[i];
+
+        thisFreq = getSingleValueDelimString(target, delim, pos);
+
+        _freqList.append(thisFreq);
+
+    }
+
+    _dataSetXMinValue = getMin(_freqList);
+    _dataSetXMaxValue = getMax(_freqList);
+
+}
+
+double HTCChartDataSet::getSingleValueDelimString(QString target, QString delim, int position)
+{
+    double result;
+
+    QString hitTarget;
+    QStringList values;
+    QString value = "";
+
+    values = target.split(delim);
+    value = values[position];
+    result = value.toDouble();
+
+    return result;
+}
+
+void HTCChartDataSet::setHeader()
+{
+    //_header
+
+    _header = _data[0];
+
+    qDebug() << "header " << _header;
 }
 
 
 double HTCChartDataSet::getMin(QList<double> values)
 {
+
+    std::sort(values.begin(), values.end());
     double yMin = *std::min_element(values.begin(), values.end());
 
     return yMin;
@@ -267,7 +442,7 @@ double HTCChartDataSet::getMin(QList<double> values)
 double HTCChartDataSet::getMax(QList<double> values)
 {
 
-
+    std::sort(values.begin(), values.end());
     double yMax = *std::max_element(values.begin(), values.end());
 
     return yMax;
@@ -336,14 +511,13 @@ QString HTCChartDataSet::getShortenedParts(QString target, QString delim)
 bool HTCChartDataSet::IsCommCheckData(QStringList commCkData)
 {
     bool result = true;
-    QString delim = ",";
+    QString delim = getFileDelim();
     QString target;
     int numLines = commCkData.count();
 
     for (int i = 0; i < numLines; i++)
     {
         target = commCkData[i];
-       // qDebug() << "testing line " << i << " as " << target;
 
         if (ThisLineIsCommCk(target,delim) == false)
         {
@@ -386,8 +560,6 @@ bool HTCChartDataSet::ThisLineIsCommCk(QString target, QString del)
     double min = getMin(myValues);
     double max = getMax(myValues);
     double mean = getMean(myValues);
-
-    //qDebug() << "min/max/mean " << min << "/" << max << "/" << mean;
 
     if(_testValues.contains(min) && _testValues.contains(max) && _testValues.contains(mean))
     {

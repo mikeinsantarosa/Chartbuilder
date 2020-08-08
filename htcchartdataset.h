@@ -46,6 +46,7 @@ public:
     int GetFilesPerRangeIsGood(int rangeID);
     void SetFilesPerRangeIsGood(int RangeID, int value);
     QString GetBaseFolder();
+    QString GetHeader();
 
     // -------------------------------- //
     // comm check data
@@ -53,6 +54,15 @@ public:
     bool GetIsCommCheckData();
     // -------------------------------- //
     // comm check data
+    // -------------------------------- //
+    // Analog min/max values
+    //
+    bool GetAnalogMaxMinValuesSet();
+    double GetAnalogYMaxValue();
+    double GetAnalogYMinValue();
+    double GetAnalogXMinValue();
+    double GetAnalogXMaxValue();
+    //
     // -------------------------------- //
 
 
@@ -74,6 +84,7 @@ private:
     QString _sampleFileName;
     int _datasetIDX;
     QStringList _numFilesperRangeIsGood;
+    QString _header = "";
 
 
     void setInitializedOKState();
@@ -86,7 +97,10 @@ private:
     QString _baseFolder;
 
     // debug parts
-    void listThisList(QStringList list);
+    void listThisStringList(QStringList list);
+    void listThisList(QList<double> list);
+
+    void listMasterList();
 
     // -------------------------------- //
     // comm check data
@@ -97,12 +111,17 @@ private:
     void SetCommCheckAutoDetect();
 
 
+
     bool IsCommCheckData(QStringList commCkData); //main call
     QString getFileDelim();
 
     double getMin(QList<double> values);
     double getMax(QList<double> values);
     double getMean(QList<double> values);
+
+
+    QStringList _ProcessedDataList;
+
     QStringList getMasterList();
     QString getShortenedParts(QString target, QString delim);
 
@@ -111,6 +130,32 @@ private:
     // -------------------------------- //
     // comm check data
     // -------------------------------- //
+
+    // -------------------------------- //
+    // Analog min max data
+    // -------------------------------- //
+    void SetAnalogMinMax();
+    void FillMinMaxLists();
+    void FlushMinMaxLists();
+//    void SetFinalValues();
+
+    void SetFreqValues();
+    double getSingleValueDelimString(QString target, QString delim, int position);
+
+    double _dataSetYMinValue;
+    double _dataSetYMaxValue;
+    double _dataSetXMinValue;
+    double _dataSetXMaxValue;
+    bool _analogMinMaxValuesSet = false;
+
+    QList<double> _minValuesList;
+    QList<double> _maxValuesList;
+    QList<double> _freqList;
+    // -------------------------------- //
+    // Analog min max data
+    // -------------------------------- //
+
+    void setHeader();
 
 };
 

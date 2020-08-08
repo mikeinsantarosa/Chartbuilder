@@ -162,6 +162,8 @@ private:
 
     HTCChartDataSet *_dataSet;
 
+    void listThisList(QStringList list);
+
     void setChartTitle(QString title);
     QString stripTokensFromString(QString message, QString token);
 
@@ -223,6 +225,10 @@ private:
     double _commCheckYMaxValue = 2.5;
     double _commCheckYMinValue = -1;
     int _commCheckAutoDetect = 0;
+
+    // ------------------------------------------------- //
+    // analog autodetect stuff
+    bool _dataIsAnalog = false;
     //
     //
     //

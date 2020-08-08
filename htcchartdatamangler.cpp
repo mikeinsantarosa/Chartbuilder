@@ -684,6 +684,9 @@ QStringList HTCChartDataMangler::BuildDataSet(QString columns)
 
     }
 
+    qDebug() << "printing list";
+    listThisList(result);
+
     return result;
 
 
