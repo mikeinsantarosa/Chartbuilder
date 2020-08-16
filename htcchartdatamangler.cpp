@@ -79,7 +79,7 @@ int HTCChartDataMangler::findFirstDataRow(QStringList list, QString delimiter)
     int result = -1;
     bool found = false;
     QRegExp re("^-?\\d*\\.?\\d+");
-    QRegExp re2("((\\b[0-9]+)?\\.)?\\b[0-9]+([eE][-+]?[0-9]+)?\\b");
+    QRegExp re2("(([-+]?[0-9]+)?\\.)?\\b[0-9]+([eE][-+]?[0-9]+)?");
 
 
 
@@ -649,17 +649,13 @@ void HTCChartDataMangler::BuildAllChartDataSets()
            //testchart->setDataType(_dataType);
            testchart->setChartByDataSet(dset, true);
            testchart->show();
-
            _dataSets.append(*dset);
-
-          //listThisList( dset->GetData());
 
        }
        else
        {
             showBadFilesperRnageMessage(dset);
        }
-
 
    }
 
@@ -683,9 +679,6 @@ QStringList HTCChartDataMangler::BuildDataSet(QString columns)
         result = getDataChunkByRange(result,columns,i);
 
     }
-
-    qDebug() << "printing list";
-    listThisList(result);
 
     return result;
 
@@ -824,8 +817,6 @@ QStringList HTCChartDataMangler::getDataSetHeader(QString columns, int startFile
         }
 
     }
-
-//    qDebug() << "Result = " << result;
 
     return result;
 

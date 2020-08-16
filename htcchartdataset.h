@@ -6,6 +6,7 @@
 #include <QStringList>
 #include <algorithm>
 #include <QFileInfo>
+#include <QSettings>
 #include "math.h"
 
 class HTCChartDataSet
@@ -46,7 +47,7 @@ public:
     int GetFilesPerRangeIsGood(int rangeID);
     void SetFilesPerRangeIsGood(int RangeID, int value);
     QString GetBaseFolder();
-    QString GetHeader();
+    QStringList GetHeaderList();
 
     // -------------------------------- //
     // comm check data
@@ -62,8 +63,19 @@ public:
     double GetAnalogYMinValue();
     double GetAnalogXMinValue();
     double GetAnalogXMaxValue();
+
+    // --------------------------------- //
     //
-    // -------------------------------- //
+    //
+    // --------------------------------- //
+    bool GetDataIsUnderRange();
+    double GetRangeMultiplier();
+    // --------------------------------- //
+    //
+    //
+    // --------------------------------- //
+
+
 
 
 signals:
@@ -85,6 +97,7 @@ private:
     int _datasetIDX;
     QStringList _numFilesperRangeIsGood;
     QString _header = "";
+    QStringList _headerList;
 
 
     void setInitializedOKState();
@@ -107,8 +120,13 @@ private:
     // -------------------------------- //
     QList<double> _testValues;
     bool _isCommCheckData;
+    int _commCheckAutoDetect;
 
     void SetCommCheckAutoDetect();
+    void loadSettings();
+
+    //
+    // -------------------------------- //
 
 
 
@@ -135,12 +153,39 @@ private:
     // Analog min max data
     // -------------------------------- //
     void SetAnalogMinMax();
+    // -------------------------------- //
+    // aug-14-2020
+    void SetBinaryMinMax();
+    // -------------------------------- //
     void FillMinMaxLists();
     void FlushMinMaxLists();
-//    void SetFinalValues();
-
     void SetFreqValues();
     double getSingleValueDelimString(QString target, QString delim, int position);
+
+    // -------------------------------- //
+    // aug-14-2020
+    double _defaultBinaryYMin = -0.5;
+    double _defaultBinaryYMax = 2.5;
+
+    double _binaryYMax;
+    double _binaryYMin;
+
+
+    // -------------------------------- //
+
+    // -------------------------------- //
+    //
+    // New underRange check stuff
+    //
+    // -------------------------------- //
+    bool _dataSetIsUnderRange;
+    double _lowestAmplitudePlotable = 1.0E-12;
+    double _lowestAmplitudeMultiplier = 1;
+
+    bool setDataIsUnderRange(double limit, double testValue);
+    //bool SetNeedsFactoring(double limit, double testValue);;
+    // -------------------------------- //
+
 
     double _dataSetYMinValue;
     double _dataSetYMaxValue;
@@ -156,6 +201,7 @@ private:
     // -------------------------------- //
 
     void setHeader();
+    void setHeaderList(QString target, QString delim);
 
 };
 

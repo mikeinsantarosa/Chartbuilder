@@ -18,6 +18,9 @@
 
 HTCChartDataSet::HTCChartDataSet(QObject *parent)
 {
+
+    _data.clear();
+
     if (!_numFilesperRangeIsGood.isEmpty())
     {
         _numFilesperRangeIsGood.clear();
@@ -34,6 +37,9 @@ HTCChartDataSet::HTCChartDataSet(QObject *parent)
     _testValues.append(0);
     _testValues.append(1);
     _testValues.append(2);
+
+    // aug-14-2020
+    loadSettings();
 }
 
 void HTCChartDataSet::SetData(QStringList data)
@@ -44,25 +50,72 @@ void HTCChartDataSet::SetData(QStringList data)
 
 void HTCChartDataSet::SetChartTitle(QString title)
 {
-    _chartTitle = title;
+
+
+
 
     // ------------------------------- //
     // this is the last dataset
     // item that gets set
     // ------------------------------- //
-    SetCommCheckAutoDetect();
-    // ------------------------------- //
-    //
-    // adding get analog max/min values
-    // make them available but only
-    // if this isn't comm check data
 
-    if (_isCommCheckData == false)
+//    qDebug() << "Listing the data";
+
+//   listThisStringList(_data);
+
+
+    // if autodetect is enabled
+    // see if the data is binary
+    if (_commCheckAutoDetect == 1)
     {
-        SetAnalogMinMax();
-
+        SetCommCheckAutoDetect();
+    }
+    else
+    {
+        // since we can't autoDetect
+        // we won't be setting
+        // binary min/max values
+        _isCommCheckData = false;
     }
 
+
+    // if the data is binary
+    // set the default binary
+    // min/max values
+
+    if (_isCommCheckData == true)
+    {
+        SetBinaryMinMax();
+
+    }
+    else
+    {
+        // set min/max for all date
+        // if not commCheck data
+
+        SetAnalogMinMax();
+    }
+
+    // always set the Title, header & freq list
+    // ------------------------------- //
+    //
+    _chartTitle = title;
+    setHeader();
+    SetFreqValues();
+    //
+    // ------------------------------- //
+    // new Re-ranger for
+    // number < E-12
+    _dataSetIsUnderRange = setDataIsUnderRange(_lowestAmplitudePlotable, _dataSetYMinValue);
+
+    if (_dataSetIsUnderRange == true && _isCommCheckData == false)
+    {
+        // qDebug() << "we can rerange this data, multiplier == "<< _LowestAmplitudeMultiplier;
+    }
+    else
+    {
+       // qDebug() << "This data does not need to be reranged";
+    }
     //
     // ------------------------------- //
 
@@ -201,6 +254,11 @@ QString HTCChartDataSet::GetBaseFolder()
     return _baseFolder;
 }
 
+QStringList HTCChartDataSet::GetHeaderList()
+{
+    return _headerList;
+}
+
 bool HTCChartDataSet::GetIsCommCheckData()
 {
     return _isCommCheckData;
@@ -213,25 +271,61 @@ bool HTCChartDataSet::GetAnalogMaxMinValuesSet()
 
 double HTCChartDataSet::GetAnalogYMaxValue()
 {
-    return _dataSetYMaxValue;
+    double result;
+
+    if(_isCommCheckData == false)
+    {
+        result = _dataSetYMaxValue;
+    }
+    else
+    {
+        result = _binaryYMax;
+    }
+
+    return result;
+
 }
 
 double HTCChartDataSet::GetAnalogYMinValue()
 {
-    return _dataSetYMinValue;
+
+    double result;
+
+    if(_isCommCheckData == false)
+    {
+        result = _dataSetYMinValue;
+    }
+    else
+    {
+        result = _binaryYMin;
+    }
+
+    return result;
+
 
 }
 
 double HTCChartDataSet::GetAnalogXMinValue()
 {
+
     return _dataSetXMinValue;
 }
 
 double HTCChartDataSet::GetAnalogXMaxValue()
 {
+
     return _dataSetXMaxValue;
 }
 
+bool HTCChartDataSet::GetDataIsUnderRange()
+{
+    return _dataSetIsUnderRange;
+}
+
+double HTCChartDataSet::GetRangeMultiplier()
+{
+    return _lowestAmplitudeMultiplier;
+}
 
 
 
@@ -310,26 +404,37 @@ void HTCChartDataSet::SetCommCheckAutoDetect()
     _isCommCheckData = IsCommCheckData(_ProcessedDataList);
 }
 
+void HTCChartDataSet::loadSettings()
+{
+    QString positionValue = "";
+    QString penValue = "";
+
+    QSettings setting("Keysight","ChartBuilder");
+
+    setting.beginGroup("ProgramFolders");
+
+    // new comm check autodetect
+    _commCheckAutoDetect = setting.value("CommCheckAutoDetectEnabled").toInt();
+
+    setting.endGroup();
+
+
+}
+
 void HTCChartDataSet::SetAnalogMinMax()
 {
-    // the idea here is if not com ckData
-    // use 2 QLists to hold min & max lists
-    // for values returned from the min max
-    // testers for a complete dataset
-    // Once the list is checked feed these 2 lists
-    // through the min max check and use them for
-    // the real min max values
 
-    //listMasterList();
-    setHeader();
 
     FillMinMaxLists();
 
-    SetFreqValues();
-
-//    qDebug() << "after both Set X min/Max Y min/max " << _dataSetXMinValue << "/"  <<_dataSetXMaxValue << _dataSetYMinValue << "/" << _dataSetYMaxValue;
-
     _analogMinMaxValuesSet = true;
+
+}
+
+void HTCChartDataSet::SetBinaryMinMax()
+{
+     _binaryYMin = _defaultBinaryYMin;
+     _binaryYMax = _defaultBinaryYMax;
 
 }
 
@@ -420,13 +525,66 @@ double HTCChartDataSet::getSingleValueDelimString(QString target, QString delim,
     return result;
 }
 
+bool HTCChartDataSet::setDataIsUnderRange(double limit, double testValue)
+{
+    bool result = false;
+    QString prefix = "1.0";
+    double YMinValue;
+    double d = 1;
+    YMinValue = testValue;
+    double factorValue = YMinValue/limit;
+
+    QString scientificNumber = (QString().setNum(factorValue, 'e', 10));
+    int len = scientificNumber.length();
+    int pos = scientificNumber.indexOf('e',Qt::CaseInsensitive);
+    QString exp = scientificNumber.mid(pos,len-1);
+
+    // -------------------------------------- //
+    // see if the exponent is positive
+    // -------------------------------------- //
+    int sign = scientificNumber.indexOf("+");
+
+    // -------------------------------------- //
+    // construct a number from the exponent
+    // -------------------------------------- //
+    QString final = prefix.append(exp);
+
+    // -------------------------------------- //
+    // convert the exponent into a
+    // positive multiplier
+    // -------------------------------------- //
+
+    if(sign < 0)
+    {
+        result = true;
+        d = 1/final.toDouble();
+
+    }
+    // -------------------------------------- //
+    // assign the multiplier to a local variable
+    // to be used as a get
+    // -------------------------------------- //
+
+    _lowestAmplitudeMultiplier = d;
+
+    return result;
+}
+
 void HTCChartDataSet::setHeader()
 {
     //_header
 
     _header = _data[0];
+    QString delim = getFileDelim();
+    setHeaderList(_header, delim);
 
-    qDebug() << "header " << _header;
+}
+
+void HTCChartDataSet::setHeaderList(QString target, QString delim)
+{
+
+   _headerList = target.split(delim);
+
 }
 
 
@@ -450,8 +608,9 @@ double HTCChartDataSet::getMax(QList<double> values)
 
 double HTCChartDataSet::getMean(QList<double> values)
 {
-    double numValues = values.count();
+    int numValues = values.count();
     double result = -1;
+    std::sort(values.begin(), values.end());
     if (numValues > 0)
     {
         result = values[numValues/2];

@@ -180,6 +180,8 @@ private:
     void initConnects();
     void initChart();
 
+    void saveChartData();
+
     QString _rawDataFileAndPath;
 
     void readfileIntoList(QString fileName);
@@ -222,8 +224,8 @@ private:
     //
     bool _dataIsCommCheck = false;
     // chart scaling when comm Check data detected
-    double _commCheckYMaxValue = 2.5;
-    double _commCheckYMinValue = -1;
+//    double _commCheckYMaxValue = 2.5;
+//    double _commCheckYMinValue = -1;
     int _commCheckAutoDetect = 0;
 
     // ------------------------------------------------- //
@@ -306,7 +308,7 @@ private:
     double _XAxisMinValue;
     double _XAxisMaxValue;
     double _XAxisRescaleValue;
-    bool reScaleFreqColumn = false;
+    bool _reScaleFreqColumn = false;
     int _xPrecision = 0;
 
     double getFreqRescaleValue();
@@ -483,6 +485,8 @@ private:
    // -------------------------  //
 
    bool getXAxisPaddingEnabled();
+   bool getYAxisPaddingEnabled();
+
    double getPaddedXMaxValue();
    double getPaddedXMinValue();
    // -------------------------  //

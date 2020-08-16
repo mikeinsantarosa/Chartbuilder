@@ -32,6 +32,8 @@ int HTCChartFolder::init(QString folder, QString extension, int dType)
     // we might need to protect against too many/few files
     // ++++++++++++++++++++++++++++++++++++++++++++++++
     int fileCount = CountFiles(folder);
+
+    int result = -1;
     qDebug() << "found " << fileCount << " files.";
 
     setDataType(dType);
@@ -43,7 +45,7 @@ int HTCChartFolder::init(QString folder, QString extension, int dType)
         HTCChartDataFile filObj;
 
         QString itemName = "";
-        int result = 0;
+        result = 0;
         QString model = "";
         QString serial = "";
         QString temp = "";
@@ -191,8 +193,10 @@ int HTCChartFolder::init(QString folder, QString extension, int dType)
 
         }
 
-        return result;
+
     }
+
+    return result;
 }
 
 QStringList HTCChartFolder::GetFolderList()
