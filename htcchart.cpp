@@ -102,7 +102,7 @@ void HtcChart::setChartByDataSet(HTCChartDataSet *ds, bool RescaleFreq)
     _autoRangesDiscovered = false;
     _dataType = _dataSet->getDataType();
 
-    qDebug() << "needs reranging " << ds->GetDataIsUnderRange() << " multiplier == " << ds->GetRangeMultiplier();
+//    qDebug() << "needs reranging " << ds->GetDataIsUnderRange() << " multiplier == " << ds->GetRangeMultiplier();
 
     initChartScaleMemory();
     initProperties();
@@ -807,6 +807,7 @@ void HtcChart::saveChartData()
         QString parentFolder = path;
         QString fileExtension = ".chart";
         QString delim = "_";
+        QString cleanUnits = "";
 
         outputFileName.append(parentFolder);
         outputFileName.append(_ChartTestCode);
@@ -815,7 +816,9 @@ void HtcChart::saveChartData()
         outputFileName.append(delim);
         outputFileName.append(_ChartSerial);
         outputFileName.append(delim);
-        outputFileName.append(_chartYAxisUnitsText);
+        cleanUnits = getCleanedYAxisUnits(_chartYAxisUnitsText);
+        outputFileName.append(cleanUnits);
+
         outputFileName.append(fileExtension);
 
     }
@@ -888,6 +891,35 @@ void HtcChart::saveChartData()
 
         ui->statusbar->showMessage(msg);
     }
+
+
+}
+
+void HtcChart::saveChartImage()
+{
+    QPixmap p = chartView->grab();
+
+    QString path = getProperPath(_basePath);
+    QString parentFolder = path;
+    QString outputFileName;
+    QString imagefileExtension = ".png";
+    QString delim = "_";
+    QString cleanUnits = "";
+
+    outputFileName.append(parentFolder);
+    outputFileName.append(_ChartTestCode);
+    outputFileName.append(delim);
+    outputFileName.append(_ChartModel);
+    outputFileName.append(delim);
+    outputFileName.append(_ChartSerial);
+    outputFileName.append(delim);
+    cleanUnits = getCleanedYAxisUnits(_chartYAxisUnitsText);
+    outputFileName.append(cleanUnits);
+
+    outputFileName.append(imagefileExtension);
+
+    QString filename = QFileDialog::getSaveFileName(this, tr("Save file"), outputFileName, tr("Images (*.png)"));
+    p.save(filename, "PNG");
 
 
 }
@@ -3083,33 +3115,7 @@ int HtcChart::listHeaderList()
 //
 void HtcChart::on_btnSaveImage_clicked()
 {
-    QPixmap p = chartView->grab();
-
-    QString path = getProperPath(_basePath);
-    QString parentFolder = path;
-//    QFileInfo info = QFileInfo(_rawDataFileAndPath);
-//    QString path = info.path();
-    QString outputFileName;
-
-    // TODO Fix this like we did for
-//    QString parentFolder = getParentDirForPath(path);
-    QString imagefileExtension = ".png";
-    QString delim = "_";
-
-    outputFileName.append(parentFolder);
-    outputFileName.append(_ChartTestCode);
-    outputFileName.append(delim);
-    outputFileName.append(_ChartModel);
-    outputFileName.append(delim);
-    outputFileName.append(_ChartSerial);
-    outputFileName.append(delim);
-    outputFileName.append(_chartYAxisUnitsText);
-    outputFileName.append(imagefileExtension);
-
-    QString filename = QFileDialog::getSaveFileName(this, tr("Save file"), outputFileName, tr("Images (*.png)"));
-    p.save(filename, "PNG");
-
-
+    saveChartImage();
 }
 
 
@@ -3738,6 +3744,29 @@ void HtcChart::listHeaders()
     {
         qDebug() << "header #" << i << " is " << _currentHeaderList.at(i);
     }
+
+}
+
+QString HtcChart::getCleanedYAxisUnits(QString target)
+{
+    QString swapChar = "-";
+    QString badChar1 = "/";
+    QString badChar2 = "\\";
+
+    QString result = target;
+
+    if (result.contains(badChar1))
+    {
+        result.replace( badChar1, swapChar );
+    }
+
+    if (result.contains(badChar2))
+    {
+        result.replace( badChar2, swapChar );
+    }
+
+    return result;
+
 
 }
 

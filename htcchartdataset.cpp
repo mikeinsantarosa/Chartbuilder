@@ -50,19 +50,10 @@ void HTCChartDataSet::SetData(QStringList data)
 
 void HTCChartDataSet::SetChartTitle(QString title)
 {
-
-
-
-
     // ------------------------------- //
     // this is the last dataset
     // item that gets set
     // ------------------------------- //
-
-//    qDebug() << "Listing the data";
-
-//   listThisStringList(_data);
-
 
     // if autodetect is enabled
     // see if the data is binary
@@ -86,7 +77,6 @@ void HTCChartDataSet::SetChartTitle(QString title)
     if (_isCommCheckData == true)
     {
         SetBinaryMinMax();
-
     }
     else
     {
@@ -110,11 +100,19 @@ void HTCChartDataSet::SetChartTitle(QString title)
 
     if (_dataSetIsUnderRange == true && _isCommCheckData == false)
     {
-        // qDebug() << "we can rerange this data, multiplier == "<< _LowestAmplitudeMultiplier;
+
+        _dataHasReReRangedSet = reRangeData();
+
+        if ( _dataHasReReRangedSet == false)
+        {
+            // Need to add an error dialog here
+            qDebug() << "unable to rerange data";
+        }
     }
     else
     {
-       // qDebug() << "This data does not need to be reranged";
+        // add else for debugging
+        // qDebug() << "This data does not need to be reranged";
     }
     //
     // ------------------------------- //
@@ -181,6 +179,18 @@ QStringList HTCChartDataSet::GetData()
 {
     return _data;
 }
+
+QStringList HTCChartDataSet::GetReRangedData()
+{
+    return _reRangedData;
+}
+
+bool HTCChartDataSet::GetDatahasReRangedSet()
+{
+    return _dataHasReReRangedSet;
+}
+
+
 
 QString HTCChartDataSet::GetChartTitle()
 {
@@ -566,6 +576,77 @@ bool HTCChartDataSet::setDataIsUnderRange(double limit, double testValue)
     // -------------------------------------- //
 
     _lowestAmplitudeMultiplier = d;
+
+    return result;
+}
+
+bool HTCChartDataSet::reRangeData()
+{
+    bool result = true;
+    QString target;
+    QString delim = getFileDelim();
+    //QString newValue;
+
+    if (!_reRangedData.isEmpty())
+    {
+        _reRangedData.clear();
+    }
+    if(_data.isEmpty())
+    {
+        // you sent me an empty list!
+        // -------------------------- //
+        result = false;
+
+    }
+    else
+    {
+        QString header = _data[0];
+        int numLines = _data.count();
+
+        for (int i = 1; i < numLines; i++)
+        {
+
+            _reRangedData.append(getReRangedLine(_data[i], delim, _lowestAmplitudeMultiplier));
+
+        }
+    }
+
+    return result;
+
+
+}
+
+QString HTCChartDataSet::getReRangedLine(QString target, QString delim, double factor)
+{
+    QString result = "";
+    double newValue, oldValue;
+    QStringList values = target.split(delim);
+    int numValues = values.count();
+
+
+
+    for (int i = 0; i < numValues -1; i++)
+    {
+        if (i > 0)
+        {
+            oldValue = values[i].toDouble();
+            newValue = oldValue * factor;
+            result.append(QString::number(newValue));
+            result.append(delim);
+        }
+        else
+        {
+            result.append(values[i]);
+            result.append(delim);
+        }
+
+    }
+
+    // do last
+    // ----------- //
+    oldValue = values[numValues -1].toDouble();
+    newValue = oldValue * factor;
+    result.append(QString::number(newValue));
 
     return result;
 }

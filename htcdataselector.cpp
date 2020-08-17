@@ -32,7 +32,7 @@ HTCDataSelector::HTCDataSelector(QWidget *parent) :
     QString ver = QString("%1.%2.%3").arg(MY_MAJOR_VERSION).arg(MY_MEAN_VERSION).arg(MY_MINOR_VERSION);
 
     QString chartTitle = "";
-    chartTitle.append("Hardware Test Center - RI ChartBuilder version: ");
+    chartTitle.append("Hardware Test Center - RI & CI ChartBuilder version: ");
     chartTitle.append(ver);
     this->setWindowTitle(chartTitle);
 

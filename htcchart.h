@@ -173,6 +173,8 @@ private:
 
     //end Debug finctions
 
+    QString getCleanedYAxisUnits(QString target);
+
     int scanForChartType(QString filename);
     void writeTypetoFile(QString filename);
 
@@ -181,6 +183,7 @@ private:
     void initChart();
 
     void saveChartData();
+    void saveChartImage();
 
     QString _rawDataFileAndPath;
 

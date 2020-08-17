@@ -33,6 +33,7 @@ public:
 
 
     QStringList GetData();
+
     QString GetChartTitle();
     QString GetModel();
     QString GetSerial();
@@ -70,6 +71,8 @@ public:
     // --------------------------------- //
     bool GetDataIsUnderRange();
     double GetRangeMultiplier();
+    QStringList GetReRangedData();
+    bool GetDatahasReRangedSet();
     // --------------------------------- //
     //
     //
@@ -85,6 +88,7 @@ public slots:
 
 private:
     QStringList _data;
+    QStringList _reRangedData;
     QString _chartTitle;
     QString _model;
     QString _serial;
@@ -179,11 +183,15 @@ private:
     //
     // -------------------------------- //
     bool _dataSetIsUnderRange;
+
+    bool _dataHasReReRangedSet;
     double _lowestAmplitudePlotable = 1.0E-12;
     double _lowestAmplitudeMultiplier = 1;
 
     bool setDataIsUnderRange(double limit, double testValue);
-    //bool SetNeedsFactoring(double limit, double testValue);;
+    bool reRangeData();
+    QString getReRangedLine(QString target, QString delim, double factor);
+
     // -------------------------------- //
 
 
