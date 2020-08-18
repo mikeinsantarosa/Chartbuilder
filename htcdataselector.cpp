@@ -1,21 +1,3 @@
-// ++++++++++++++++++++++++++++++++++++++++++++ //
-// File: htcdataselector.cpp
-// Description: Provides a method for users
-// to select a folder to collect data to analyze
-// then group up
-//
-// Date: 2019-03-07
-//
-//
-// TODO:
-//  1-Add callout capability to charts
-//
-//  2-Add rescaling object for datasets
-//  with values < e-12
-//
-//
-// ++++++++++++++++++++++++++++++++++++++++++++ /
-
 #include "htcdataselector.h"
 #include "ui_htcdataselector.h"
 
@@ -26,7 +8,7 @@ HTCDataSelector::HTCDataSelector(QWidget *parent) :
 
     ui->setupUi(this);
     ui->btnSelectColumns->setEnabled(false);
-    ui->treeDatasets->setHeaderLabel("Click either Get RI or CI Data then select a folder to import data from.");
+    ui->treeDatasets->setHeaderLabel("Click Get RI Data then select a folder to import data from.");
     this->statusBar()->showMessage("Ready...");
 
     QString ver = QString("%1.%2.%3").arg(MY_MAJOR_VERSION).arg(MY_MEAN_VERSION).arg(MY_MINOR_VERSION);
@@ -49,28 +31,41 @@ HTCDataSelector::~HTCDataSelector()
     delete ui;
 }
 
-void HTCDataSelector::SetFolderInService(QString folder, QString filter, int dType, QString baseFolder)
+void HTCDataSelector::SetFolderInService(QString folder, QString filter)
 {
-    int members = 0;
     if(!folder.isEmpty())
      {
-        //QString dataType = RIdataType;
-        _baseFolder = baseFolder;
+
         _folderInService = folder;
          _filterInService = filter;
          cdf = new HTCChartFolder;
          connect(cdf,SIGNAL(messageToStatusBar(QString)),this,SLOT(messageForStatusBar(QString)));
-
-         qDebug() << "folder in service/filter/dType " << _folderInService << "/" << _filterInService << "/" << dType;
-         members = cdf->init(_folderInService, _filterInService, dType);
-
-         qDebug() << "Discovered " << members << " to be listed";
+         cdf->init(_folderInService, _filterInService);
 
          FillListFromPath();
 
      }
 }
 
+void HTCDataSelector::on_btnSetRIFolders_clicked()
+{
+    QString folderToOpen = QFileDialog::getExistingDirectory(this, tr("Select a folder to Load files from..."), _currentSearchPath, QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks);
+    _currentSearchPath = folderToOpen;
+
+
+    if (!folderToOpen.isEmpty())
+    {
+        ui->treeDatasets->clear();
+        ui->labelSelectedDataSet->clear();
+        ui->treeDatasets->setHeaderLabel("Click on an RI Set of data in the list below then Click Select Columns");
+        this->repaint();
+        statusBar()->showMessage("Retrieving the data you pointed me to...");
+        SetFolderInService(folderToOpen, _currentSearchFilter);
+
+
+    }
+
+}
 
 
 void HTCDataSelector::ColumnsHaveBeenSelected()
@@ -90,7 +85,7 @@ void HTCDataSelector::ColumnSelectionCompleted()
 
         this->statusBar()->showMessage("Column selection and Chart Construction Complete...");
         this->repaint();
-        dm->Init(_taggedList, _selectedColumnsList, _dataType, _baseFolder);
+        dm->Init(_taggedList, _selectedColumnsList);
     }
     else
     {
@@ -299,9 +294,6 @@ void HTCDataSelector::loadSettings()
     setting.endGroup();
 }
 
-
-
-
 void HTCDataSelector::showNoAccessFileForLoadingMessage(QString file)
 {
     QMessageBox msgBox;
@@ -319,6 +311,22 @@ void HTCDataSelector::showNoAccessFileForLoadingMessage(QString file)
     msgBox.setDefaultButton(QMessageBox::Ok);
 
     int ret = msgBox.exec();
+}
+
+// New
+void HTCDataSelector::setupControls()
+{
+    setControlsFont();
+
+}
+
+void HTCDataSelector::setControlsFont()
+{
+    _formFont = QFont("Arial",9, QFont::Normal );
+
+    ui->btnClose->setFont(_formFont);
+    ui->btnSetRIFolders->setFont(_formFont);
+    ui->btnSelectColumns->setFont(_formFont);
 }
 
 void HTCDataSelector::listThisList(QStringList list)
@@ -384,9 +392,6 @@ void HTCDataSelector::messageForStatusBar(QString msg)
     this->statusBar()->showMessage(msg);
 }
 
-// -------------------------------------------------- //
-// Load Chart from File
-// -------------------------------------------------- //
 void HTCDataSelector::on_actionLoad_triggered()
 {
 
@@ -401,12 +406,8 @@ void HTCDataSelector::on_actionLoad_triggered()
 
         QFileInfo info(fileName);
         _currentSearchPath = info.path();
-        _baseFolder = _currentSearchPath;
 
-        qDebug() << "Search path = " << _currentSearchPath;
-        qDebug() << "loading file = " << fileName;
-
-        chart->setFileToOpen(fileName, true, _baseFolder);
+        chart->setFileToOpen(fileName, true);
 
         chart->show();
         msg.append("Chart data has been loaded...");
@@ -415,72 +416,4 @@ void HTCDataSelector::on_actionLoad_triggered()
 
      }
 
-}
-
-void HTCDataSelector::on_btnSetCIFolders_clicked()
-{
-    if (CIDataisEnabled)
-    {
-        getCIData();
-    }
-
-}
-
-void HTCDataSelector::getCIData()
-{
-    QString folderToOpen = QFileDialog::getExistingDirectory(this, tr("Select a folder to Load files from..."), _currentSearchPath, QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks);
-    _currentSearchPath = folderToOpen;
-
-
-    if (!folderToOpen.isEmpty())
-    {
-        _baseFolder = folderToOpen;
-        // set dataType
-        setDataType(CIdataType);
-        ui->treeDatasets->clear();
-        ui->labelSelectedDataSet->clear();
-        ui->treeDatasets->setHeaderLabel("Click on a CI Set of data in the list below then Click Select Columns");
-        this->repaint();
-        statusBar()->showMessage("Retrieving the data you pointed me to...");
-        SetFolderInService(folderToOpen, _currentSearchFilter, CIdataType, _baseFolder);
-
-        //qDebug() << "folder opened " << folderToOpen;
-    }
-}
-
-void HTCDataSelector::on_btnSetRIFolders_clicked()
-{
-    if (RIDataisEnabled)
-    {
-        getRIData();
-    }
-
-}
-
-void HTCDataSelector::getRIData()
-{
-    QString folderToOpen = QFileDialog::getExistingDirectory(this, tr("Select a folder to Load files from..."), _currentSearchPath, QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks);
-    _currentSearchPath = folderToOpen;
-
-
-    if (!folderToOpen.isEmpty())
-    {
-        //set dataType
-        _baseFolder = folderToOpen;
-        setDataType(RIdataType);
-        ui->treeDatasets->clear();
-        ui->labelSelectedDataSet->clear();
-        ui->treeDatasets->setHeaderLabel("Click on an RI Set of data in the list below then Click Select Columns");
-        this->repaint();
-        statusBar()->showMessage("Retrieving the data you pointed me to...");
-        SetFolderInService(folderToOpen, _currentSearchFilter, RIdataType, _baseFolder);
-
-    }
-
-}
-
-
-void HTCDataSelector::setDataType(int dataType)
-{
-    _dataType = dataType;
 }

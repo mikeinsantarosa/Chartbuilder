@@ -4,9 +4,6 @@
 #include <QObject>
 #include <QDebug>
 #include <QStringList>
-#include <algorithm>
-#include <QFileInfo>
-#include "math.h"
 
 class HTCChartDataSet
 {
@@ -25,11 +22,6 @@ public:
     void SetSampleFileName(QString file);
     void SetDataSetIndex(int value);
 
-    // new CI parts
-    int getDataType();
-    void setDataType(int dataType);
-    void setBaseFolder(QString baseFolder);
-
 
     QStringList GetData();
     QString GetChartTitle();
@@ -45,15 +37,7 @@ public:
     QStringList GetFilesperRangeAreGood();
     int GetFilesPerRangeIsGood(int rangeID);
     void SetFilesPerRangeIsGood(int RangeID, int value);
-    QString GetBaseFolder();
 
-    // -------------------------------- //
-    // comm check data
-    // -------------------------------- //
-    bool GetIsCommCheckData();
-    // -------------------------------- //
-    // comm check data
-    // -------------------------------- //
 
 
 signals:
@@ -78,39 +62,6 @@ private:
 
     void setInitializedOKState();
 
-    // new CI parts
-    int RIdataType = 0;
-    int CIdataType = 1;
-
-    int _dataType = -1;
-    QString _baseFolder;
-
-    // debug parts
-    void listThisList(QStringList list);
-
-    // -------------------------------- //
-    // comm check data
-    // -------------------------------- //
-    QList<double> _testValues;
-    bool _isCommCheckData;
-
-    void SetCommCheckAutoDetect();
-
-
-    bool IsCommCheckData(QStringList commCkData); //main call
-    QString getFileDelim();
-
-    double getMin(QList<double> values);
-    double getMax(QList<double> values);
-    double getMean(QList<double> values);
-    QStringList getMasterList();
-    QString getShortenedParts(QString target, QString delim);
-
-    bool ThisLineIsCommCk(QString target, QString del);
-    QList<double> ConvertToDoubleList(QString target, QString delim);
-    // -------------------------------- //
-    // comm check data
-    // -------------------------------- //
 
 };
 

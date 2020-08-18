@@ -1,17 +1,3 @@
-// ++++++++++++++++++++++++++++++++++++++++++++ //
-// File: positioneditor.cpp
-// Description: Allows a user to change
-// the default X-Axis values for a RI chart
-//
-//
-// Date: 2019-03-07
-//
-//
-// TODO:
-//
-//
-//
-// ++++++++++++++++++++++++++++++++++++++++++++
 #include "positioneditor.h"
 #include "ui_positioneditor.h"
 

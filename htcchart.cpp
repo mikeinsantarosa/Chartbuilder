@@ -2,11 +2,10 @@
 // File: htcchart.cpp
 // Description: Draws an analog chart
 //
-// Rev Date: 2020-01-27
+// Date: 2019-03-07
 //
-// Working on: Changed file save location
-// to be the same location that was pointed to
-// when the user selects data.
+// Working on: Connecting slot return
+// data to the chart.
 //
 // TODO: This thing should not process any
 // raw data. It should receive an object
@@ -22,9 +21,6 @@ HtcChart::HtcChart(QWidget *parent) :
 {
     ui->setupUi(this);
 
-    dataTypes.clear();
-    dataTypes << "RI-Data_Type" << "CI-Data-Type";
-
     _firstNumericRow = -1;
     _autoRangesDiscovered = false;
 
@@ -39,12 +35,10 @@ HtcChart::HtcChart(QWidget *parent) :
     _positions = _defaultPositions;
 
     loadSettings();
-
     initConnects();
     _loadedChartFromFile = false;
 
-    //initProperties();
-
+    initProperties();
 }
 
 HtcChart::~HtcChart()
@@ -53,23 +47,17 @@ HtcChart::~HtcChart()
     delete ui;
 }
 
-void HtcChart::setFileToOpen(QString fileName, bool RescaleFreq, QString baseFolder)
+void HtcChart::setFileToOpen(QString fileName, bool RescaleFreq)
 {
 
     if(!fileName.isEmpty())
     {
-        _basePath = baseFolder;
         _UpdatingFromProperties = true;
         _loadedChartFromFile = true;
         _rawDataFileAndPath = fileName;
         _autoRangesDiscovered = true;
         reScaleFreqColumn = RescaleFreq;
         _dataSetIndex = 0;
-
-
-
-        //setDataType by filename using test code
-
         adjustGeometry();
         int isMissingChartType = scanForChartType(fileName);
         if (isMissingChartType == 0)
@@ -93,23 +81,6 @@ void HtcChart::setChartByDataSet(HTCChartDataSet *ds, bool RescaleFreq)
    _autoRangesDiscovered = false;
     _dataSet = ds;
 
-    // set data type
-    _dataType = ds->getDataType();
-    initProperties();
-
-    _basePath = ds->GetBaseFolder();
-    _dataIsCommCheck = ds->GetIsCommCheckData();
-
-    setLegendText(_dataType);
-
-    if(getDataType() == CIdataType)
-    {
-        _chartXAxisMinorGridLinesVisible = true;
-    }
-    else
-    {
-        _chartXAxisMinorGridLinesVisible = false;
-    }
 
     _masterlist = ds->GetData();
 
@@ -136,23 +107,12 @@ void HtcChart::setChartByDataSet(HTCChartDataSet *ds, bool RescaleFreq)
 
 }
 
-int HtcChart::getDataType()
-{
-    return _dataType;
-}
-
-void HtcChart::setDataType(int dataType)
-{
-    _dataType = dataType;
-}
-
 
 
 
 void HtcChart::on_actionProperties_triggered()
 {
 
-    cp->setDataType(getDataType());
     cp->setChartTitleItems(_chartTitleText, _chartTitleTextFont, _chartTitleTextColor);
 
     cp->setChartXAxisItems(_chartXAxisUnitsText, _chartXAxisUnitsTextFont, _chartXAxisUnitsBrush,
@@ -211,22 +171,17 @@ void HtcChart::initProperties()
         _chartXAxisLabelColor = QColor("#000000");
         _chartXAxisLabelFont = QFont("Arial",_chartXAxisLabelFontSize, QFont::Normal );
         _chartXAxisLabelRotation = -45;
+
+
         _chartXAxisLinLogScale = "LIN";
         _chartXAxisDecimalScientific = "DEC";
+
         _chartXAxisMajorGridLinesVisible = true;
         _chartXAxisMajorGridLinesCount = 11;
-
-        if (getDataType() == RIdataType)
-        {
-            _chartXAxisMinorGridLinesCount = 4;
-        }
-        else
-        {
-            _chartXAxisMinorGridLinesCount = 9;
-        }
-
-        _chartXAxisMajorGridLinesColor = QColor("#E0E3DD"); // original color "#000000"
-        _chartXAxisMinorGridLinesColor = QColor("#E0E3DD"); // original color "#000000"
+        _chartXAxisMinorGridLinesVisible = false;
+        _chartXAxisMinorGridLinesCount = 5;
+        _chartXAxisMajorGridLinesColor = QColor("#000000");
+        _chartXAxisMinorGridLinesColor = QColor("#000000");
         //_chartXAxisMajorGridLineSize = 2;
         //_chartXAxisMinorGridLineSize = 1;
 
@@ -246,20 +201,11 @@ void HtcChart::initProperties()
         _chartYAxisDecimalScientific = "DEC";
 
         _chartYAxisMajorGridLinesVisible = true;
-
-        if (getDataType() == RIdataType)
-        {
-            _chartYAxisMajorGridLinesCount = 11;
-        }
-        else
-        {
-            _chartYAxisMajorGridLinesCount = 11;
-        }
-
+        _chartYAxisMajorGridLinesCount = 11;
         _chartYAxisMinorGridLinesVisible = false;
-        _chartYAxisMinorGridLinesCount = 4;
-        _chartYAxisMajorGridLinesColor = QColor("#E0E3DD"); // original color "#000000"
-        _chartYAxisMinorGridLinesColor = QColor("#E0E3DD"); // original color "#000000"
+        _chartYAxisMinorGridLinesCount = 5;
+        _chartYAxisMajorGridLinesColor = QColor("#000000");
+        _chartYAxisMinorGridLinesColor = QColor("#000000");
         //_chartYAxisMajorGridLineSize = 2;
         //_chartYAxisMinorGridLineSize = 4; //DEFAULT CHANGE
 
@@ -360,8 +306,6 @@ void HtcChart::initChart()
     bool axisXHasBeenAdded = false;
     bool axisYHasBeenAdded = false;
     QString cName = "";
-    QString s1, match;
-
     int YaxisLabelResolution;
     //int XaxisLabelResolution = 0;
     QString newLegendText;
@@ -372,25 +316,11 @@ void HtcChart::initChart()
        initChartScaleMemory();
        discoverChartScaleValues();
 
-      if (getXAxisPaddingEnabled() == 1 && _loadedChartFromFile == false)
-      {
-          _XAxisMinValue = getPaddedXMinValue();
-          _XAxisMaxValue = getPaddedXMaxValue();
-      }
-
-      if (_commCheckAutoDetect == 1 && _dataIsCommCheck == true && _loadedChartFromFile == false)
-      {
-          _YAxisMinValue = _commCheckYMinValue;
-          _YAxisMaxValue = _commCheckYMaxValue;
-          // qDebug() << "used comm Check auto scaling";
-
-      }
-      else if (_ChartPaddingValueY == 1 && _loadedChartFromFile == false)
+       if (_ChartPaddingValue == true && _loadedChartFromFile == false)
        {
            setYaxisPaddingValue();
            _YAxisMinValue = getPaddedYMinValue();
            _YAxisMaxValue = getPaddedYMaxValue();
-           //qDebug() << "used Y Padding values";
        }
 
     }
@@ -416,21 +346,11 @@ void HtcChart::initChart()
     _chart->setTitle(_chartTitleText);
     _chart->setTitleFont(_chartTitleTextFont);
     _chart->setTitleBrush(QBrush(_chartTitleTextColor));
-
     // ----------------------------------------------------------+
     // How do I set the title to be center aligned?
     //_chart->setLayoutDirection(Qt::LayoutDirection center());
     // ----------------------------------------------------------+
     _chart->legend()->hide();
-
-    if(_EnableAnimations == true)
-    {
-        _chart->setAnimationOptions(QChart::AllAnimations);
-    }
-    else
-    {
-        _chart->setAnimationOptions(QChart::NoAnimation);
-    }
 
 
     // -------------------------------------------------- //
@@ -447,58 +367,18 @@ void HtcChart::initChart()
         QLineSeries *_series = new QLineSeries();
         fillSeriesfromList(_series, dataSet);
 
-        //qDebug() << "loading with override legend == " << _OverrideLegendValue;
+        posIDX = _legendKeys.indexOf(_currentHeaderList[dataSet]);
 
-        if (_OverrideLegendValue == false)
+        if(posIDX != -1)
         {
-            // set pen name normally
-            s1.clear();
-            match.clear();
-            newLegendText.clear();
-            s1 = _currentHeaderList[dataSet];
-
-            // the CI legends include voltage of test
-            // we need to strip that info to do indexing
-            // then we need to add it back in to the original.
-            match = stripMatch(s1,_ciLegendPrefixes);
-
-            posIDX = _legendKeys.indexOf(match);
-
-            if(posIDX != -1)
-            {
-
-                //strips
-                if (_dataType == CIdataType)
-                {
-                    newLegendText.append(_ciUsedPrefixes.at(_CIRangInService));
-                    newLegendText.append(" ");
-                    newLegendText.append(_positions.at(posIDX));
-                    // qDebug() << "Loaded legend from #1";
-                }
-                else
-                {
-                    newLegendText =  _positions.at(posIDX);
-                    //qDebug() << "Loaded legend from #2";
-                }
-
-            }
-            else
-            {
-                // this legend gets called when loading a chart
-                // from a stored .chart file
-
-                newLegendText = _currentHeaderList[dataSet];
-                //qDebug() << "Loaded legend from #3";
-            }
+             newLegendText =  _positions.at(posIDX);
         }
         else
         {
-            // set it by header values explicitly
             newLegendText = _currentHeaderList[dataSet];
         }
 
         cName = StripQuotesFromString(newLegendText);
-
         _series->setName(StripQuotesFromString(cName));
 
         //Series pen color & thickness
@@ -529,10 +409,12 @@ void HtcChart::initChart()
         {
             QValueAxis *axisX = new QValueAxis();
 
-            // qDebug() << "Dropped into XAxis scaling as LIN";
-
             axisX->setMin(_XAxisMinValue);
             axisX->setMax(_XAxisMaxValue);
+
+
+
+
             axisX->setTitleText(_chartXAxisUnitsText);
             axisX->setTitleBrush(_chartXAxisUnitsBrush);
             axisX->setTitleFont(_chartXAxisUnitsTextFont);
@@ -827,10 +709,6 @@ void HtcChart::setHeaderValues(QStringList list)
 
         current = list[_firstNumericRow - 1];
 
-       // qDebug() << "listing the header from the file";
-
-        // listTheList(list);
-
         if (!_currentHeaderList.isEmpty())
         {
             _currentHeaderList.clear();
@@ -838,6 +716,7 @@ void HtcChart::setHeaderValues(QStringList list)
 
         _currentHeaderList = current.split(_dataFileDelim);
         _currentHeaderCount = _currentHeaderList.count();
+
 
     }
 
@@ -853,7 +732,7 @@ int HtcChart::findFirstNumericRow(QStringList list, QString delimiter)
     int result = -1;
     bool found = false;
     QRegExp re("^-?\\d*\\.?\\d+");
-    QRegExp re2("(([-+]?[0-9]+)?\\.)?\\b[0-9]+([eE][-+]?[0-9]+)?");
+    QRegExp re2("((\\b[0-9]+)?\\.)?\\b[0-9]+([eE][-+]?[0-9]+)?\\b");
 
 
     for (int listRow = 0; listRow < list.count(); listRow++)
@@ -947,31 +826,7 @@ int HtcChart::findFirstNumericRow(QStringList list, QString delimiter)
     }
 
 
-    }
-
-//    void HtcChart::setBaseFolder(QString file)
-//    {
-
-//        qDebug() << "base path is " << _basePath;
-//    }
-
-    QString HtcChart::getProperPath(QString target)
-    {
-        QString result = target;
-        int len = result.length();
-        QString bs = "/";
-
-        QString lastChar = result.right(1);
-
-        if(lastChar != bs);
-        {
-            result.append(bs);
-        }
-
-        return result;
-
-
-    }
+}
 
     double HtcChart::getFreqRescaleValue()
     {
@@ -998,92 +853,13 @@ int HtcChart::findFirstNumericRow(QStringList list, QString delimiter)
         _ChartLegendFontSizeValue = setting.value("ChartLegendFontSize").toInt();
         _ChartLegendFontFamilyValue = setting.value("ChartLegendFontFamily").toInt();
 
-        // --------------------------------------------------------- //
-        //
-        // new legend override
-        //
+        _ChartPaddingValue = setting.value("ChartScalePaddingOn").toInt();
+        _ChartScalePaddingValue = setting.value("ChartScalePaddingValue").toDouble();
 
-        if (setting.value("ChartLegendOverride").toInt() == 1)
+        if(_ChartScalePaddingValue < 0)
         {
-            _OverrideLegendValue = true;
+            _ChartScalePaddingValue = _defaultChartScalePaddingValue;
         }
-        else
-        {
-            _OverrideLegendValue = false;
-        }
-
-        // --------------------------------------------------------- //
-
-        // the cool stuff
-        if (setting.value("EnableChartAnimations").toInt() == 1)
-        {
-            _EnableAnimations = true;
-        }
-        else
-        {
-            _EnableAnimations = false;
-        }
-
-        //
-        // new hover callout
-        //
-        // Not in service yet
-        //
-        if (setting.value("EnableHoverCallout").toInt() == 1)
-        {
-            _EnableHoverCallout =  true;
-        }
-        else
-        {
-            _EnableHoverCallout = false;
-        }
-
-
-        _ChartPaddingValueY = setting.value("ChartScalePaddingYOn").toInt();
-
-        // new comm check autodetect
-        _commCheckAutoDetect = setting.value("CommCheckAutoDetectEnabled").toInt();
-
-
-        if(_ChartPaddingValueY == 1)
-        {
-            _ChartScalePaddingValueY = setting.value("ChartScalePaddingYValue").toDouble();
-        }
-        else
-        {
-            _ChartScalePaddingValueY = _defaultChartScalePaddingYValue;
-        }
-
-        // RI X Axis padding values
-
-        _ChartRIPaddingValueX = setting.value("ChartRIScalePaddingXOn").toInt();
-
-
-        if(_ChartRIPaddingValueX == 1)
-        {
-            _ChartRIScalePaddingValueX = setting.value("ChartRIScalePaddingXValue").toDouble();
-        }
-        else
-        {
-            _ChartRIScalePaddingValueX = _defaultChartRIScalePaddingXValue;
-        }
-
-        // CI X Axis padding values
-        _ChartCIPaddingValueX = setting.value("ChartCIScalePaddingXOn").toInt();
-
-
-        if(_ChartCIPaddingValueX == 1)
-        {
-            _ChartCIScalePaddingValueX = setting.value("ChartCIScalePaddingXValue").toDouble();
-        }
-        else
-        {
-            _ChartCIScalePaddingValueX = _defaultChartCIScalePaddingXValue;
-        }
-
-
-        // math to calculate X Scale padding
-        // new min = detected X-Min + (X Padding value / 100) * Detected X-Min)
 
 
         if(_ChartLegendFontSizeValue == 0)
@@ -1097,7 +873,13 @@ int HtcChart::findFirstNumericRow(QStringList list, QString delimiter)
         }
 
 
-         penValue = setting.value("ChartPen01").toString();
+        if(_ChartPaddingValue == -1)
+        {
+            _ChartPaddingValue = _defaultChartPaddingValue;
+        }
+
+
+        penValue = setting.value("ChartPen01").toString();
         if(penValue.isEmpty())
         {
             _penColors[0] = QColor(_penColorsReset[0]);
@@ -1257,26 +1039,21 @@ int HtcChart::findFirstNumericRow(QStringList list, QString delimiter)
         if(positionValue.isEmpty())
         {
             _positions[1] = _defaultPositions[1];
-            //
         }
         else
         {
             _positions[1] = positionValue;
-            //
         }
         positionValue.clear();
 
         positionValue = setting.value("LegendPosition3").toString();
-
         if(positionValue.isEmpty())
         {
             _positions[2] = _defaultPositions[2];
-            //
         }
         else
         {
             _positions[2] = positionValue;
-            //
         }
         positionValue.clear();
 
@@ -1387,77 +1164,6 @@ int HtcChart::findFirstNumericRow(QStringList list, QString delimiter)
 
     }
 
-    void HtcChart::setLegendText(int dType)
-    {
-
-       //qDebug() << "setting legend for datatype " << dType;
-
-        // in service vars
-        // -------------------------- //
-        _positions.clear();
-        _legendKeys.clear();
-
-        _ciLegendPrefixes << "3vm_" << "10vm_";
-        _ciUsedPrefixes << "3vm" << "10vm";
-
-        // RI Legend parts
-        _legendKeysRI.clear();
-        _legendKeysRI << "PV" << "0_BL" << "0_H" << "0_V" << "90_H" << "90_V" << "180_H" << "180_V" << "270_H" << "270_V";
-
-        _defaultPositionsRI.clear();
-        _defaultPositionsRI << "Padding Value"  << "Baseline" << "0° Horiz" << "0° Vert" << "90° Horiz"
-                              << "90° Vert" << "180° Horiz" << "180° Vert" << "270° Horiz" << "270° Vert";
-
-        // CI Legend parts
-        _legendKeysCI.clear();
-        _legendKeysCI << "Padder" << "Baseline" << "CDN-LAN1" << "CDN-LAN2" << "CDN-USB1" << "CDN-USB2" << "CLAMP-GPIB" << "CLAMP-THUNDERBOLT" << "CDN-POWER" << "CDN-COAX" << "CDN-DC";
-
-        _defaultPositionsCI.clear();
-        _defaultPositionsCI << "Padding Value"  << "Baseline" << "CDN-S8 (LAN1)" << "CDN-S8 (LAN2)" << "CDN-S4 (USB1)" << "CDN-S4 (USB2)" << "Current Clamp (GPIB)"
-                                << "Current Clamp (Thunderbolt)" << "CDN-M3 (AC mains)" << "CDN-S1 (Coaxial cable)" << "CDN-M2 (d.c. power)";
-
-
-        if(dType == RIdataType)
-        {
-            _positions = _defaultPositionsRI;
-            _legendKeys = _legendKeysRI;
-        }
-        else
-        {
-            _positions = _defaultPositionsCI;
-            _legendKeys = _legendKeysCI;
-        }
-
-    }
-
-    QString HtcChart::stripMatch(QString target, QStringList strips)
-    {
-        QString answer;
-        answer.clear();
-        int len, stripLen;
-
-        for (int i = 0; i< strips.count(); i++)
-
-        if (target.contains(strips.at(i)))
-        {
-            len = target.length();
-            stripLen = strips.at(i).length();
-            _CIRangInService = i;
-
-            answer = target.right(len - stripLen);
-            break;
-
-        }
-        else
-        {
-            answer = target;
-        }
-
-        //qDebug() << "stripped is " << answer;
-
-        return answer;
-    }
-
     QPen HtcChart::getPenStyle(int style)
     {
         return QPen(penStyles[style]);
@@ -1467,39 +1173,19 @@ int HtcChart::findFirstNumericRow(QStringList list, QString delimiter)
     {
 
         QString currentRow;
-        QString test;
         int start = _currentHeaderRow +1;
 
         _currentHeaderList.append(header);
 
         _penWidths[_currentHeaderList.count() - 2] = _addedPenSize;
 
-        //qDebug() << "master count before " << listMasterList();
 
-        test = getLastChar(_masterlist.at(1));
-
-
-        if(test == ",")
+        for (int i = start; i < _masterlist.count(); i++)
         {
-            for (int i = start; i < _masterlist.count(); i++)
-            {
-               currentRow = _masterlist.at(i);
-               currentRow.append(QString::number(baseValue));
-               currentRow.append(_dataFileDelim);
-               _masterlist[i] = currentRow;
-
-            }
-        }
-        else
-        {
-            for (int i = start; i < _masterlist.count(); i++)
-            {
-               currentRow = _masterlist.at(i);
-               currentRow.append(_dataFileDelim);
-               currentRow.append(QString::number(baseValue));
-               _masterlist[i] = currentRow;
-
-            }
+           currentRow = _masterlist.at(i);
+           currentRow.append(_dataFileDelim);
+           currentRow.append(QString::number(baseValue));
+           _masterlist[i] = currentRow;
 
         }
 
@@ -1634,17 +1320,6 @@ int HtcChart::findFirstNumericRow(QStringList list, QString delimiter)
 
 void HtcChart::discoverChartScaleValues()
 {
-    // -------------------------------------- //
-    // -------------------------------------- //
-    // -------------------------------------- //
-    // Need to add rescaler method to
-    // fix Y Axis ranges that are < e-12
-    // So they will render correctly
-    // in the chart.
-    //
-    // -------------------------------------- //
-    // -------------------------------------- //
-
     QStringList group;
     int start;
     double freq;
@@ -1697,10 +1372,10 @@ void HtcChart::discoverChartScaleValues()
 
 }
 
-double HtcChart::getPaddingYValue()
+double HtcChart::getPaddingValue()
 {
     double result;
-    double mult = _ChartScalePaddingValueY / 100;
+    double mult = _ChartScalePaddingValue / 100;
     double delta = _YAxisMaxValue -_YAxisMinValue;
 
     result = delta * mult;
@@ -1711,7 +1386,7 @@ double HtcChart::getPaddingYValue()
 void HtcChart::setYaxisPaddingValue()
 {
     double result;
-    double mult = _ChartScalePaddingValueY / 100;
+    double mult = _ChartScalePaddingValue / 100;
     double delta = _YAxisMaxValue -_YAxisMinValue;
 
     result = delta * mult;
@@ -1721,7 +1396,6 @@ void HtcChart::setYaxisPaddingValue()
 
 double HtcChart::getPaddedYMaxValue()
 {
-
     double result = _YAxisMaxValue + _YAxisPaddingValue;
     return result;
 }
@@ -1732,92 +1406,7 @@ double HtcChart::getPaddedYMinValue()
     return result;
 }
 
-bool HtcChart::getXAxisPaddingEnabled()
-{
-    // _ChartRIScalePaddingValueX : the value
-    // _ChartRIPaddingValueX : On/OFf
 
-    bool result = false;
-
-    if (_dataType == RIdataType)
-    {
-        if (_ChartRIPaddingValueX == 1 && _ChartRIScalePaddingValueX > 0)
-        {
-            result = true;
-        }
-    }
-    else
-    {
-        if (_ChartCIPaddingValueX == 1 && _ChartCIScalePaddingValueX > 0)
-        {
-            result = true;
-        }
-
-    }
-
-    return result;
-}
-
-double HtcChart::getPaddedXMaxValue()
-{
-    double result = _XAxisMaxValue;
-    double factor, mult;
-    QString chartType;
-
-
-
-
-
-    if (_dataType == RIdataType)
-    {
-        factor = _ChartRIScalePaddingValueX / 100;
-        mult = _RIXaxisMaxMult;
-        chartType = "RI";
-
-    }
-    else
-    {
-        factor = _ChartCIScalePaddingValueX / 100;
-        mult = _CIXaxisMaxMult;
-        chartType = "CI";
-    }
-
-    if (getXAxisPaddingEnabled() == 1)
-    {
-        result = _XAxisMaxValue + (_XAxisMinValue * factor * mult);
-    }
-
-
-    return result;
-
-}
-
-double HtcChart::getPaddedXMinValue()
-{
-    double result = _XAxisMinValue;
-    double factor;
-    QString chartType;
-
-    if (_dataType == RIdataType)
-    {
-        factor = _ChartRIScalePaddingValueX / 100;
-        chartType = "RI";
-    }
-    else
-    {
-        factor = _ChartCIScalePaddingValueX / 100;
-        chartType = "CI";
-    }
-
-    if (getXAxisPaddingEnabled() == 1)
-    {
-        result = _XAxisMinValue - (_XAxisMinValue * factor);
-    }
-
-
-    return result;
-
-}
 
 
 
@@ -1889,14 +1478,11 @@ QString HtcChart::StripQuotesFromString(QString wordToStrip)
     if(wordToStrip.startsWith(target))
      {
             wordToStrip.remove(0,1);
-            //qDebug() << "stripped begin";
      }
     if(wordToStrip.endsWith(target))
     {
         wordToStrip.remove(wordToStrip.size()-1,1);
-        //qDebug() << "stripped end";
     }
-    result = wordToStrip;
 
     return result;
 }
@@ -1918,7 +1504,6 @@ void HtcChart::stripLastHeaderItem(int column)
 
     _currentHeaderList.clear();
     _currentHeaderList = newList;
-
 
 }
 
@@ -1969,7 +1554,7 @@ void HtcChart::stripLastDataColumn(int column)
 
 void HtcChart::setChartID()
 {
-    HTCChartDataFile df = HTCChartDataFile(_rawDataFileAndPath, _dataType);
+    HTCChartDataFile df = HTCChartDataFile(_rawDataFileAndPath);
     _ChartTestCode = df.getOrientationTestCode();
     _ChartModel = df.getOrientationEUTModel();
     _ChartSerial = df.getOrientationEUTSerial();
@@ -1988,8 +1573,6 @@ QString HtcChart::getSaveHeaderValues()
     }
     result.append(_currentHeaderList.at(_currentHeaderList.count() - 1));
 
-
-
     return result;
 }
 
@@ -1999,7 +1582,7 @@ QString HtcChart::getChartTypeSaveString()
     //_saveChartTypeKey _saveItemDelimiter
     result.append(_saveChartTypeKey);
     result.append(_saveItemDelimiter);
-    result.append(_chartBasicTypes[getDataType()]);
+    result.append(_chartBasicTypes[0]);
 
     return result;
 }
@@ -2368,10 +1951,11 @@ QString HtcChart::getParentDirForPath(QString path)
     QStringList temp = path.split(delim);
     QString result = "";
 
-    for (int i = 0; i < temp.count()-1; i++)
+    for (int i = 0; i < temp.count() - 1; i++)
     {
         result.append(temp.at(i));
         result.append(delim);
+
     }
 
     if(_loadedChartFromFile)
@@ -2401,7 +1985,6 @@ void HtcChart::showNoAccessFileForSavingMessage(QString file)
     msgBox.setDefaultButton(QMessageBox::Ok);
 
     int ret = msgBox.exec();
-    qDebug() << "messagebox return - " << ret;
 }
 
 void HtcChart::setPropertiesFromOpenFile()
@@ -2414,11 +1997,7 @@ void HtcChart::setPropertiesFromOpenFile()
 
     answer.clear();
 
-    qDebug() << "in setPropertiesFromOpenFile";
-
-    qDebug() << "loading a chart from a stored file";
-
-    answer = _masterlist.at(_chartTypeIDX).split(_saveItemDelimiter); // 1
+    answer = _masterlist.at(_chartTypeIDX).split(_saveItemDelimiter);
 
     if (answer.contains(_saveChartTypeKey))
     {
@@ -2426,31 +2005,16 @@ void HtcChart::setPropertiesFromOpenFile()
 
         _ChartType = penParts.at(0);
 
-        if(_ChartType == "RI")
-        {
-            setDataType(RIdataType);
-        }
-        else
-        {
-            setDataType(CIdataType);
-        }
-
-        setLegendText(getDataType());
-
     }
     else
     {
-        // We should probably ahve some error handling here
-        // Cancel loading if the Chart type is unknown.
         _ChartType = "UNKNOWN_TEST_CODE";
     }
-
-
 
     penParts.clear();
     answer.clear();
 
-    answer = _masterlist.at(_chartKeyIDX).split(_saveItemDelimiter); // 2
+    answer = _masterlist.at(_chartKeyIDX).split(_saveItemDelimiter);
 
     if (answer.contains(_saveChartKey))
     {
@@ -2471,7 +2035,7 @@ void HtcChart::setPropertiesFromOpenFile()
 
     answer.clear();
 
-    answer = _masterlist.at(_chartTitleRowIDX).split(_saveItemDelimiter); // 3
+    answer = _masterlist.at(_chartTitleRowIDX).split(_saveItemDelimiter);
 
 
     if(answer.contains(_saveItemChartTitleKey))
@@ -2499,7 +2063,7 @@ void HtcChart::setPropertiesFromOpenFile()
     answer.clear();
     penParts.clear();
 
-    answer = _masterlist.at(_chartTitleConfigRowIDX).split(_saveItemDelimiter); // 4
+    answer = _masterlist.at(_chartTitleConfigRowIDX).split(_saveItemDelimiter);
 
     if (answer.contains(_saveItemChartTitleConfigKey))
     {
@@ -2521,7 +2085,7 @@ void HtcChart::setPropertiesFromOpenFile()
     penParts.clear();
 
 
-    answer = _masterlist.at(_chartXaxisUnitsIDX).split(_saveItemDelimiter); // 5
+    answer = _masterlist.at(_chartXaxisUnitsIDX).split(_saveItemDelimiter);
 
     if (answer.contains(_saveItemChartXAxisUnitsKey))
     {
@@ -2546,7 +2110,7 @@ void HtcChart::setPropertiesFromOpenFile()
     answer.clear();
     penParts.clear();
 
-    answer = _masterlist.at(_chartXaxisUnitsConfigIDX).split(_saveItemDelimiter); // 6
+    answer = _masterlist.at(_chartXaxisUnitsConfigIDX).split(_saveItemDelimiter);
 
     if (answer.contains(_saveItemChartXAxisUnitsConfigKey))
     {
@@ -2567,7 +2131,7 @@ void HtcChart::setPropertiesFromOpenFile()
     answer.clear();
     penParts.clear();
 
-    answer = _masterlist.at(_chartYaxisUnitsIDX).split(_saveItemDelimiter); // 7
+    answer = _masterlist.at(_chartYaxisUnitsIDX).split(_saveItemDelimiter);
 
     if(answer.contains(_saveItemChartYAxisUnitsKey))
     {
@@ -2589,7 +2153,7 @@ void HtcChart::setPropertiesFromOpenFile()
          _chartYAxisUnitsText = "Unknown Level?";
     }
 
-    answer = _masterlist.at(_chartYaxisUnitsConfigIDX).split(_saveItemDelimiter); // 8
+    answer = _masterlist.at(_chartYaxisUnitsConfigIDX).split(_saveItemDelimiter);
 
     if (answer.contains(_saveItemChartYAxisUnitsConfigKey))
     {
@@ -2611,7 +2175,7 @@ void HtcChart::setPropertiesFromOpenFile()
     answer.clear();
     penParts.clear();
 
-    answer = _masterlist.at(_chartXAxisParamsIDX).split(_saveItemDelimiter); // 9
+    answer = _masterlist.at(_chartXAxisParamsIDX).split(_saveItemDelimiter);
 
     if (answer.contains(_saveItemChartXAxisParamsKey))
     {
@@ -2639,7 +2203,7 @@ void HtcChart::setPropertiesFromOpenFile()
     answer.clear();
     penParts.clear();
 
-    answer = _masterlist.at(_chartYAxisParamsIDX).split(_saveItemDelimiter); // 10
+    answer = _masterlist.at(_chartYAxisParamsIDX).split(_saveItemDelimiter);
 
     if (answer.contains(_saveItemChartYAxisParamsKey))
     {
@@ -2667,7 +2231,7 @@ void HtcChart::setPropertiesFromOpenFile()
     answer.clear();
     penParts.clear();
 
-    answer = _masterlist.at(_chartXaxisMinIDX).split(_saveItemDelimiter); // 11
+    answer = _masterlist.at(_chartXaxisMinIDX).split(_saveItemDelimiter);
 
     if (answer.contains(_saveItemChartXMinValueKey))
     {
@@ -2681,7 +2245,7 @@ void HtcChart::setPropertiesFromOpenFile()
 
     answer.clear();
 
-    answer = _masterlist.at(_chartXaxisMaxIDX).split(_saveItemDelimiter); // 12
+    answer = _masterlist.at(_chartXaxisMaxIDX).split(_saveItemDelimiter);
 
     if(answer.contains(_saveItemChartXMaxValueKey))
     {
@@ -2694,7 +2258,7 @@ void HtcChart::setPropertiesFromOpenFile()
 
     answer.clear();
 
-    answer = _masterlist.at(_chartYaxisMinIDX).split(_saveItemDelimiter); // 13
+    answer = _masterlist.at(_chartYaxisMinIDX).split(_saveItemDelimiter);
 
     if(answer.contains(_saveItemChartYMinValueKey))
     {
@@ -2708,7 +2272,7 @@ void HtcChart::setPropertiesFromOpenFile()
 
     answer.clear();
 
-    answer = _masterlist.at(_chartYaxisMaxIDX).split(_saveItemDelimiter); // 14
+    answer = _masterlist.at(_chartYaxisMaxIDX).split(_saveItemDelimiter);
 
     if(answer.contains(_saveItemChartYMaxValueKey))
     {
@@ -2722,7 +2286,7 @@ void HtcChart::setPropertiesFromOpenFile()
     answer.clear();
     penParts.clear();
 
-    answer = _masterlist.at(_chartXAxisGridLines).split(_saveItemDelimiter);  // 15
+    answer = _masterlist.at(_chartXAxisGridLines).split(_saveItemDelimiter);
 
     if (answer.contains(_saveItemChartXAxisGridLinesKey))
     {
@@ -2767,7 +2331,7 @@ void HtcChart::setPropertiesFromOpenFile()
     answer.clear();
     penParts.clear();
 
-    answer = _masterlist.at(_chartYAxisGridLines).split(_saveItemDelimiter);  // 16
+    answer = _masterlist.at(_chartYAxisGridLines).split(_saveItemDelimiter);
 
     if (answer.contains(_saveItemChartYAxisGridLinesKey))
     {
@@ -2811,7 +2375,7 @@ void HtcChart::setPropertiesFromOpenFile()
     answer.clear();
     penParts.clear();
 
-    answer = _masterlist.at(_chartPenStatesIDX).split(_saveItemDelimiter); // 17
+    answer = _masterlist.at(_chartPenStatesIDX).split(_saveItemDelimiter);
 
     if(answer.contains(_saveItemChartPenStatesKey))
     {
@@ -2836,7 +2400,7 @@ void HtcChart::setPropertiesFromOpenFile()
 
     answer.clear();
 
-    answer = _masterlist.at(_chartPenStylesIDX).split(_saveItemDelimiter); // 18
+    answer = _masterlist.at(_chartPenStylesIDX).split(_saveItemDelimiter);
 
     if(answer.contains(_saveItemChartPenStylesKey))
     {
@@ -2860,7 +2424,7 @@ void HtcChart::setPropertiesFromOpenFile()
 
     answer.clear();
 
-    answer = _masterlist.at(_chartPenWidthsIDX).split(_saveItemDelimiter); // 19
+    answer = _masterlist.at(_chartPenWidthsIDX).split(_saveItemDelimiter);
 
     if(answer.contains(_saveItemChartPenWidthsKey))
     {
@@ -2884,7 +2448,7 @@ void HtcChart::setPropertiesFromOpenFile()
 
     answer.clear();
 
-    answer = _masterlist.at(_chartPenColorsIDX).split(_saveItemDelimiter); // 20
+    answer = _masterlist.at(_chartPenColorsIDX).split(_saveItemDelimiter);
 
     if(answer.contains(_saveItemChartPenColorsKey))
     {
@@ -2905,6 +2469,13 @@ void HtcChart::setPropertiesFromOpenFile()
         // do nothing
         // use the default list
     }
+
+
+    //   _chartPenColorsIDX
+    //   _saveItemChartPenColorsKey
+
+
+
 
 
 }
@@ -2944,16 +2515,6 @@ bool HtcChart::getBoolForAnswer(QString value)
     return result;
 }
 
-QString HtcChart::getLastChar(QString testValue)
-{
-    int len = testValue.length();
-    QString lastChar = testValue.at(len-1);
-    qDebug() << "test String == " << testValue;
-
-    return lastChar;
-
-}
-
 
 
 void HtcChart::listKeys()
@@ -2969,64 +2530,12 @@ void HtcChart::listKeys()
 
 }
 
-int HtcChart::listMasterList()
-{
-    qDebug() << "<------------------ Listing Master List ------------------>";
 
-    for(int i = 0; i < _masterlist.count(); i++)
-    {
-        qDebug() << "master-" << i << _masterlist.at(i);
-    }
-
-    return _masterlist.count();
-}
-
-int HtcChart::listHeaderList()
-{
-    qDebug() << "<------------- Listing header ----------------->";
-
-    for(int i = 0; i < _currentHeaderList.count(); i++)
-    {
-        qDebug() << "header-" << i << ": " << _currentHeaderList.at(i);
-    }
-
-    return _currentHeaderList.count();
-}
-
-//
-// Latest work
-//
 void HtcChart::on_btnSaveImage_clicked()
 {
     QPixmap p = chartView->grab();
-
-    QString path = getProperPath(_basePath);
-    QString parentFolder = path;
-//    QFileInfo info = QFileInfo(_rawDataFileAndPath);
-//    QString path = info.path();
-    QString outputFileName;
-
-    // TODO Fix this like we did for
-//    QString parentFolder = getParentDirForPath(path);
-    QString imagefileExtension = ".png";
-    QString delim = "_";
-
-    outputFileName.append(parentFolder);
-    outputFileName.append(_ChartTestCode);
-    outputFileName.append(delim);
-    outputFileName.append(_ChartModel);
-    outputFileName.append(delim);
-    outputFileName.append(_ChartSerial);
-    outputFileName.append(delim);
-    outputFileName.append(_chartYAxisUnitsText);
-    outputFileName.append(imagefileExtension);
-
-    qDebug() << "saving image using " << outputFileName;
-
-    QString filename = QFileDialog::getSaveFileName(this, tr("Save file"), outputFileName, tr("Images (*.png)"));
+    QString filename = QFileDialog::getSaveFileName(this, tr("Save file"), "", tr("Images (*.png)"));
     p.save(filename, "PNG");
-
-
 }
 
 
@@ -3152,7 +2661,7 @@ void HtcChart::HTCChartXAxisLabelsTextScaleMin(double value)
     {
 
         _UpdatingFromProperties = true;
-        _ChartPaddingValueY = 0;
+        _ChartPaddingValue = 0;
         _XAxisMinValue = value;
 
         clearLayout(ui->chartLayout);
@@ -3170,7 +2679,7 @@ void HtcChart::HTCChartXAxisLabelsTextScaleMax(double value)
 
 
         _UpdatingFromProperties = true;
-        _ChartPaddingValueY = 0;
+        _ChartPaddingValue = 0;
         _XAxisMaxValue = value;
 
         clearLayout(ui->chartLayout);
@@ -3394,7 +2903,7 @@ void HtcChart::HTCChartYAxisLabelsTextScaleMin(double value)
     {
 
         _UpdatingFromProperties = true;
-        _ChartPaddingValueY = 0;
+        _ChartPaddingValue = 0;
         _YAxisMinValue = value;
 
         clearLayout(ui->chartLayout);
@@ -3411,7 +2920,7 @@ void HtcChart::HTCChartYAxisLabelsTextScaleMax(double value)
     if(value >_YAxisMinValue)
     {
         _UpdatingFromProperties = true;
-        _ChartPaddingValueY = 0;
+        _ChartPaddingValue = 0;
         _YAxisMaxValue = value;
 
         //qDebug() << "Received Y Max request and am updating with " << _YAxisMaxValue;
@@ -3719,7 +3228,7 @@ void HtcChart::writeTypetoFile(QString filename)
 
     for(int i = 0; i < _reWriteList.count(); i++)
     {
-        outStream << _reWriteList.at(i) << endl;
+        outStream << _reWriteList.at(i) << endl;;
     }
 
 
@@ -3738,8 +3247,11 @@ void HtcChart::on_btnSaveData_clicked()
 
      if (_loadedChartFromFile == false)
     {
-        QString path = getProperPath(_basePath);
-        QString parentFolder = path;
+
+        QFileInfo info = QFileInfo(_rawDataFileAndPath);
+        QString path = info.path();
+
+        QString parentFolder = getParentDirForPath(path);
         QString fileExtension = ".chart";
         QString delim = "_";
 
@@ -3752,29 +3264,16 @@ void HtcChart::on_btnSaveData_clicked()
         outputFileName.append(delim);
         outputFileName.append(_chartYAxisUnitsText);
         outputFileName.append(fileExtension);
-
-//        qDebug() << "output file being saved after loading file";
-//        qDebug() << "filename: " << outputFileName;
-//        qDebug() << " <end of saveFileName construction>";
     }
     else
     {
-
-         qDebug() << "loading chart from data ";
-         outputFileName = _rawDataFileAndPath;
-
-        qDebug() << "output file being saved after being construted from file";
-        qDebug() << "filename used from file: " << outputFileName;
+        outputFileName = _rawDataFileAndPath;
     }
 
 
-    qDebug() << "Launching Chart Save dialog";
-
-     QString fileName = QFileDialog::getSaveFileName(this, tr("Save Chart File"),
+    QString fileName = QFileDialog::getSaveFileName(this, tr("Save Chart File"),
                                outputFileName,
                                "Charts (*.chart)");
-
-
 
     if(!fileName.isEmpty())
     {

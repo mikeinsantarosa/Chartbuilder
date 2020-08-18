@@ -13,13 +13,7 @@
 
 #include <algorithm>
 
-// ------------------------------------------------- //
-//
-// June 24 2020
-// Changed _maxNumberOfFilesPerRIRange from 9 to 20
-// to accomodate larger number of files per range.
-//
-// -------------------------------------------------- //
+
 
 
 class HTCChartDataMangler : public QObject
@@ -28,11 +22,8 @@ class HTCChartDataMangler : public QObject
 public:
     explicit HTCChartDataMangler(QObject *parent = nullptr);
 
-    void Init(QStringList fileList, QVector <int> columns, int dataType, QString baseFolder);
+    void Init(QStringList fileList, QVector <int> columns);
     bool GetItitializedDataOK();
-
-    // new CI parts
-    int getDataType();
 
 
 signals:
@@ -72,7 +63,7 @@ private:
     void setColumnLists();
     void setFileDelim();
 
-    void getMetrics();
+    bool getMetrics();
     int getFileSetStatus();
 
     void showBadFileDataMessage(QString key);
@@ -106,7 +97,7 @@ private:
     bool _foundBadRange;
 
     bool _loadHeaderFromFilePositions = true;
-    int _maxNumberOfFilesPerRIRange = 20; // normally set to 9
+    int _maxNumberOfFilesPerRIRange = 9;
     double _lastFreqInList;
 
     int FileStartIDX[3] = {-1,-1,-1};
@@ -128,18 +119,9 @@ private:
 
     int _dataSetIndex = 0;
 
-    // new CI parts
-    int RIdataType = 0;
-    int CIdataType = 1;
 
-    int _dataType = -1;
-
-    void setDataType(int dataType);
-    QString _baseFolder;
 
 
 };
-
-
 
 #endif // HTCCHARTDATAMANGLER_H

@@ -5,7 +5,6 @@
 #include <QFileInfo>
 #include <QDebug>
 #include <QRegExp>
-#include <QMessageBox>
 
 
 #include "datapoint.h"
@@ -15,7 +14,7 @@ class HTCChartDataFile
 {
 
 public:
-    explicit HTCChartDataFile(QString dataFileName, int dType );
+    explicit HTCChartDataFile(QString dataFileName );
     HTCChartDataFile();
 
     QVector <DataPoint> getAllPoints();
@@ -44,9 +43,6 @@ public:
     QString getFileDelim();
 
     int SortOrderIndex;
-
-    // new CI code
-    int getDataType();
 
 
 
@@ -108,17 +104,6 @@ private:
 
     int solveRangeIDX(QString rangeString);
     int solveOrientationIDX(QString polarity, QString rotation);
-
-    // ----------------------------------------------------------------------- //
-    // new datafile parts
-    //
-    //QString const _NoDataToParse_ = "missing";
-    QString GetPartFromPair(QString target, QString delim, int whichOne);
-
-    QStringList getFileParts(QString target, QString delim);
-    //
-    //
-    // ----------------------------------------------------------------------- //
     int setSortOrderIndex();
 
     void initProperties();
@@ -137,20 +122,6 @@ private:
     int getFileDelimCount(QString fileName);
 
     int _fileDelimCount;
-
-    // new CI code
-    void setDataType(int dataType);
-    int RIdataType = 0;
-    int CIdataType = 1;
-
-    int _dataType = -1; // not initialized yet
-
-    QString BAD_FILE_DATA = "UNKNOWN-NO-DATA";
-
-    void showBadFileDataMessage(QString fileName);
-
-    // debug functions
-    void listThisList(QStringList list);
 
 };
 

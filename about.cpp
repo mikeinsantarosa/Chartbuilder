@@ -1,17 +1,3 @@
-// ++++++++++++++++++++++++++++++++++++++++++++ //
-// File: about.cpp
-// Description: Provides an about dialog
-//
-// Date: 2019-03-07
-//
-//
-//
-//
-// TODO:
-//
-//
-//
-// ++++++++++++++++++++++++++++++++++++++++++++ //
 #include "about.h"
 #include "ui_about.h"
 
