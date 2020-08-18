@@ -126,13 +126,17 @@ QString HtcDataDialog::setDelimiter(QString fName)
 
 int HtcDataDialog::findFirstDataRow(QString delimiter)
 {
+
     QStringList group;
     QString current;
     QString dataItem;
     int numFinds;
-    bool isNumber;
-    int result;
+    //bool isNumber;
+    int result = -1;
     bool found = false;
+    QRegExp re("^-?\\d*\\.?\\d+");
+    QRegExp re2("(([-+]?[0-9]+)?\\.)?\\b[0-9]+([eE][-+]?[0-9]+)?");
+
 
 
     for (int listRow = 0; listRow < _rawList->count(); listRow++)
@@ -147,19 +151,41 @@ int HtcDataDialog::findFirstDataRow(QString delimiter)
             for (int i = 0; i < group.count(); i++)
             {
                 dataItem = group[i];
+
                 dataItem = dataItem.trimmed();
-                isNumber = false;
 
-                if (dataItem.toDouble(&isNumber))
+
+
+                //isNumber = false;
+
+
+                if (!dataItem.isEmpty())
                 {
-                    numFinds = numFinds + 1;
-                    if (numFinds > 1)
-                    {
-                        result = listRow;
-                        found = true;
-                        break;
 
+                    //qDebug() << "Non empty item -> " << dataItem;
+
+                    if(re.exactMatch(dataItem) || re2.exactMatch(dataItem))
+                    {
+
+
+                        numFinds = numFinds + 1;
+
+                        if (numFinds > 1)
+                        {
+                            result = listRow;
+                            found = true;
+                            break;
+
+                        }
                     }
+                    else {
+                        break;
+                    }
+
+
+                }
+                else {
+                    //qDebug() << "item was empty" << dataItem;
                 }
             }
         }
@@ -174,6 +200,8 @@ int HtcDataDialog::findFirstDataRow(QString delimiter)
     return result;
 
 }
+
+
 
 bool HtcDataDialog::getFileData(QStringList * list)
 {
@@ -241,7 +269,7 @@ QVector<int> HtcDataDialog::setSelectedColumnsList()
     QString value;
     QVector <int> result;
     QRegExp re("^-?\\d*\\.?\\d+");
-    QRegExp re2("((\\b[0-9]+)?\\.)?\\b[0-9]+([eE][-+]?[0-9]+)?\\b");
+    QRegExp re2("(([-+]?[0-9]+)?\\.)?\\b[0-9]+([eE][-+]?[0-9]+)?");
 
     int col;
     int row;

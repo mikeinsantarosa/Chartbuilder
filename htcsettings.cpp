@@ -1,3 +1,18 @@
+// ++++++++++++++++++++++++++++++++++++++++++++ //
+// File: htcsettings.cpp
+// Description: Provides a method for users
+// to change program settings
+//
+//
+// Date: 2019-03-07
+//
+//
+// TODO:
+//
+//
+//
+// ++++++++++++++++++++++++++++++++++++++++++++
+
 #include "htcsettings.h"
 #include "ui_htcsettings.h"
 
@@ -24,6 +39,8 @@ HTCSettings::HTCSettings(QWidget *parent) :
     loadPositionsList();
     connect(ui->listPositions, SIGNAL(itemDoubleClicked(QListWidgetItem*)), this, SLOT(positionItemSelected(QListWidgetItem*)));
 
+
+
     _busy = false;
 
 }
@@ -40,24 +57,32 @@ void HTCSettings::on_btnClose_clicked()
 
 void HTCSettings::setupControls()
 {
-   connect(ui->listChartColors, SIGNAL(itemSelectionChanged()), this, SLOT(ListViewItemSelected()));
+    connect(ui->listChartColors, SIGNAL(itemSelectionChanged()), this, SLOT(ListViewItemSelected()));
 
-   ui->btnApply->setEnabled(false);
+    ui->btnApply->setEnabled(false);
 
-   _intValidator = new QIntValidator();
-   _intValidator->setRange(0,2000);
+    _intValidator = new QIntValidator();
+    _intValidator->setRange(0,2000);
 
-   _formFont = QFont("Arial",9, QFont::Normal );
-   ui->comboChartPadding->addItem(_ChartPaddingValues[0]);
-    ui->comboChartPadding->addItem(_ChartPaddingValues[1]);
+    _dblValidator = new QDoubleValidator();
+    _dblValidator->setBottom(0.00);
+    _dblValidator->setTop(100.00);
+    _dblValidator->setDecimals(2);
+
+    _formFont = QFont("Arial",9, QFont::Normal );
+    ui->comboChartPaddingY->addItem(_ChartPaddingValuesY[0]);
+    ui->comboChartPaddingY->addItem(_ChartPaddingValuesY[1]);
+    ui->comboRIChartPaddingX->addItem(_ChartPaddingValuesX[0]);
+    ui->comboRIChartPaddingX->addItem(_ChartPaddingValuesX[1]);
+    ui->comboCIChartPaddingX->addItem(_ChartPaddingValuesX[0]);
+    ui->comboCIChartPaddingX->addItem(_ChartPaddingValuesX[1]);
+
     setValidators();
     loadColorList();
     loadFontList();
     setControlsFont();
     setCombos();
-    getformValues();
     setFormValues();
-
 }
 
 QColor HTCSettings::getColorFromPalette(QPalette pal)
@@ -116,27 +141,35 @@ void HTCSettings::setControlsFont()
     ui->comboFontNames->setEditable(true);
     ui->comboFontNames->lineEdit()->setReadOnly(true);
     ui->comboFontNames->lineEdit()->setAlignment(Qt::AlignCenter);
-    ui->comboChartPadding->setFont(_formFont);
-    ui->comboChartPadding->setEditable(true);
-    ui->comboChartPadding->lineEdit()->setReadOnly(true);
-    ui->comboChartPadding->lineEdit()->setAlignment(Qt::AlignCenter);
+    ui->comboChartPaddingY->setFont(_formFont);
+    ui->comboChartPaddingY->setEditable(true);
+    ui->comboChartPaddingY->lineEdit()->setReadOnly(true);
+    ui->comboChartPaddingY->lineEdit()->setAlignment(Qt::AlignCenter);
+
+    ui->comboRIChartPaddingX->setFont(_formFont);
+    ui->comboRIChartPaddingX->setEditable(true);
+    ui->comboRIChartPaddingX->lineEdit()->setReadOnly(true);
+    ui->comboRIChartPaddingX->lineEdit()->setAlignment(Qt::AlignCenter);
+
+    ui->comboCIChartPaddingX->setFont(_formFont);
+    ui->comboCIChartPaddingX->setEditable(true);
+    ui->comboCIChartPaddingX->lineEdit()->setReadOnly(true);
+    ui->comboCIChartPaddingX->lineEdit()->setAlignment(Qt::AlignCenter);
 
     ui->listChartColors->setFont(_formFont);
 
-    // set 6 labels
+    // set 9 labels
     ui->lblXPos->setFont(_formFont);
-
-
     ui->lblYPos->setFont(_formFont);
-
-
     ui->lblWidth->setFont(_formFont);
-
     ui->lblHeight->setFont(_formFont);
     ui->lblFontSize->setFont(_formFont);
     ui->lblFontFamily->setFont(_formFont);
+    ui->lblPaddingValueY->setFont(_formFont);
+    ui->lblCIPaddingValueX->setFont(_formFont);
+    ui->lblRIPaddingValueX->setFont(_formFont);
 
-    // set 5 line edits
+    // set 16 line edits
     ui->lineSize->setFont(_formFont);
     ui->lineSize->setAlignment(Qt::AlignRight);
     ui->lineXpos->setFont(_formFont);
@@ -147,8 +180,12 @@ void HTCSettings::setControlsFont()
     ui->lineWidth->setAlignment(Qt::AlignRight);
     ui->lineHeight->setFont(_formFont);
     ui->lineHeight->setAlignment(Qt::AlignRight);
-    ui->linePaddingValue->setFont(_formFont);
-    ui->linePaddingValue->setAlignment(Qt::AlignRight);
+    ui->linePaddingValueY->setFont(_formFont);
+    ui->linePaddingValueY->setAlignment(Qt::AlignRight);
+    ui->lineRIPaddingValueX->setFont(_formFont);
+    ui->lineRIPaddingValueX->setAlignment(Qt::AlignRight);
+    ui->lineCIPaddingValueX->setFont(_formFont);
+    ui->lineCIPaddingValueX->setAlignment(Qt::AlignRight);
 
 
 }
@@ -160,18 +197,9 @@ void HTCSettings::setValidators()
     ui->lineYpos->setValidator(_intValidator);
     ui->lineWidth->setValidator(_intValidator);
     ui->lineHeight->setValidator(_intValidator);
-
-}
-
-void HTCSettings::getformValues()
-{
-//    _xStart = 50;
-//    _yStart = 50;
-//    _width = 960;
-//    _height = 767;
-//    _fontSize = 9;
-
-
+    ui->linePaddingValueY->setValidator(_dblValidator);
+    ui->lineRIPaddingValueX->setValidator(_dblValidator);
+    ui->lineCIPaddingValueX->setValidator(_dblValidator);
 
 }
 
@@ -183,14 +211,18 @@ void HTCSettings::setFormValues()
     ui->lineYpos->setText(QString::number(_yGeoStart));
     ui->lineWidth->setText(QString::number(_GeoWidth));
     ui->lineHeight->setText(QString::number(_GeoHeight));
-    ui->linePaddingValue->setText(QString::number(_ChartScalePaddingValue));
+    ui->linePaddingValueY->setText(QString::number(_ChartScalePaddingValueY));
+    ui->lineRIPaddingValueX->setText(QString::number(_ChartRIScalePaddingValueX));
+    ui->lineCIPaddingValueX->setText(QString::number(_ChartCIScalePaddingValueX));
 
 }
 
 void HTCSettings::setCombos()
 {
     ui->comboFontNames->setCurrentIndex(_ChartLegendFontFamilyValue);
-    ui->comboChartPadding->setCurrentIndex(_ChartPaddingValue);
+    ui->comboChartPaddingY->setCurrentIndex(_ChartPaddingValueY);
+    ui->comboRIChartPaddingX->setCurrentIndex(_ChartRIPaddingValueX);
+    ui->comboCIChartPaddingX->setCurrentIndex(_ChartCIPaddingValueX);
 
 
 }
@@ -226,8 +258,18 @@ void HTCSettings::saveSettings()
     setting.setValue("ChartPen13", _penColors[12].name());
 
 
-    setting.setValue("ChartScalePaddingOn",QString::number(_ChartPaddingValue));
-    setting.setValue("ChartScalePaddingValue",QString::number(_ChartScalePaddingValue));
+    setting.setValue("ChartScalePaddingYOn",QString::number(_ChartPaddingValueY));
+    setting.setValue("ChartScalePaddingYValue",QString::number(_ChartScalePaddingValueY));
+
+    setting.setValue("ChartRIScalePaddingXOn",QString::number(_ChartRIPaddingValueX));
+    setting.setValue("ChartRIScalePaddingXValue",QString::number(_ChartRIScalePaddingValueX));
+
+    setting.setValue("ChartCIScalePaddingXOn",QString::number(_ChartCIPaddingValueX));
+    setting.setValue("ChartCIScalePaddingXValue",QString::number(_ChartCIScalePaddingValueX));
+
+
+    setting.setValue("CommCheckAutoDetectEnabled",QString::number(_commCheckAutoDetect));
+
     setting.setValue("ChartStartupPosition",_layout);
 
     setting.setValue("LegendPosition1", _positions[0]);
@@ -241,7 +283,9 @@ void HTCSettings::saveSettings()
     setting.setValue("LegendPosition9", _positions[8]);
     setting.setValue("LegendPosition10", _positions[9]);
 
-
+    setting.setValue("ChartLegendOverride",QString::number(_OverrideLegendValue)); //
+    setting.setValue("EnableChartAnimations",QString::number(_EnableAnimations));
+    setting.setValue("EnableHoverCallout",QString::number(_EnableHoverCallout));
 
     setting.endGroup();
 }
@@ -258,18 +302,96 @@ void HTCSettings::loadSettings()
     _ChartLegendFontSizeValue = setting.value("ChartLegendFontSize").toInt();
     _ChartLegendFontFamilyValue = setting.value("ChartLegendFontFamily").toInt();
 
+    _ChartPaddingValueY = setting.value("ChartScalePaddingYOn").toInt();
+    ui->comboChartPaddingY->setCurrentIndex(_ChartPaddingValueY);
 
-    _ChartPaddingValue = setting.value("ChartScalePaddingOn").toInt();
-    _ChartScalePaddingValue = setting.value("ChartScalePaddingValue").toDouble();
+    _ChartScalePaddingValueY = setting.value("ChartScalePaddingYValue").toDouble();
+    ui->linePaddingValueY->setText(QString::number(_ChartScalePaddingValueY));
 
 
-    if(_ChartScalePaddingValue < 0)
+    _ChartRIPaddingValueX = setting.value("ChartRIScalePaddingXOn").toInt();
+    ui->comboRIChartPaddingX->setCurrentIndex(_ChartRIPaddingValueX);
+
+    _ChartRIScalePaddingValueX = setting.value("ChartRIScalePaddingXValue").toDouble();
+    ui->lineRIPaddingValueX->setText(QString::number(_ChartRIScalePaddingValueX));
+
+    _ChartCIPaddingValueX = setting.value("ChartCIScalePaddingXOn").toInt();
+    ui->comboCIChartPaddingX->setCurrentIndex(_ChartCIPaddingValueX);
+
+    _ChartCIScalePaddingValueX = setting.value("ChartCIScalePaddingXValue").toDouble();
+    ui->lineCIPaddingValueX->setText(QString::number(_ChartCIScalePaddingValueX));
+
+
+    _commCheckAutoDetect = setting.value("CommCheckAutoDetectEnabled").toInt();
+
+    if(_commCheckAutoDetect == 1)
     {
-        _ChartScalePaddingValue = _defaultChartScalePaddingValue;
+        ui->radioCommAutoOn->toggle();
+    }
+    else
+    {
+        ui->radioCommAutoOff->toggle();
+    }
+
+    // ---------------------------------------------------------//
+    //
+    // new legend override
+    //
+
+    if (setting.value("ChartLegendOverride").toInt() == 1)
+    {
+        _OverrideLegendValue = true;
+    }
+    else
+    {
+        _OverrideLegendValue = false;
+    }
+
+    // New Override for legend IDs
+    // ----------------------------------------------- //
+    setLegendOverrideSelector(_OverrideLegendValue);
+
+
+
+
+    //
+    //  new chart animations
+    //
+    // this is in service and works
+    //
+    if (setting.value("EnableChartAnimations").toInt() == 1)
+    {
+        _EnableAnimations = true;
+    }
+    else
+    {
+        _EnableAnimations = false;
+
+
+    }
+
+    setEnableChartAnimationsSelector(_EnableAnimations);
+
+
+    //
+    // new hover callout
+    // Not in service yet
+    //
+    if (setting.value("EnableHoverCallout").toInt() == 1)
+    {
+        _EnableHoverCallout =  true;
+    }
+    else
+    {
+        _EnableHoverCallout = false;
     }
 
 
+    setEnableHoverCalloutSelector(_EnableHoverCallout);
 
+   // end of new cool stuff
+
+    // chart fonts
     if(_ChartLegendFontSizeValue == 0)
     {
         _ChartLegendFontSizeValue = _defaultChartLegendFontSizeValue;
@@ -283,11 +405,7 @@ void HTCSettings::loadSettings()
 
     ui->comboFontNames->setCurrentIndex(_ChartLegendFontFamilyValue);
 
-    if(_ChartPaddingValue == -1)
-    {
-        _ChartPaddingValue = _defaultChartPaddingValue;
-    }
-    ui->comboChartPadding->setCurrentIndex(_ChartPaddingValue);
+
 
 
 
@@ -435,18 +553,6 @@ void HTCSettings::loadSettings()
     penValue.clear();
 
 
-    // Save Legend Position Strings
-    // the first value is read only
-
-//    positionValue = setting.value("LegendPosition1").toString();
-//    if(positionValue.isEmpty())
-//    {
-//        _positions[0] = _defaultPositions[0];
-//    }
-//    else
-//    {
-//        _positions[0] = positionValue;
-//    }
     positionValue.clear();
 
     positionValue = setting.value("LegendPosition2").toString();
@@ -580,6 +686,48 @@ void HTCSettings::loadSettings()
     setting.endGroup();
 }
 
+void HTCSettings::setLegendOverrideSelector(bool SetOVerrideOn)
+{
+    if (SetOVerrideOn ==  true)
+    {
+        ui->radioRILegendFile->toggle();
+    }
+    else
+    {
+        ui->radioRILegendAuto->toggle();
+    }
+
+
+
+}
+
+void HTCSettings::setEnableChartAnimationsSelector(bool SetAnimationsOn)
+{
+    if (SetAnimationsOn == true)
+    {
+        ui->radioAnimationsOn->toggle();
+    }
+    else
+    {
+        ui->radioAnimationsOff->toggle();
+    }
+
+}
+
+void HTCSettings::setEnableHoverCalloutSelector(bool SetCalloutHoverOn)
+{
+    if (SetCalloutHoverOn)
+    {
+        ui->radioHoverOn->toggle();
+    }
+    else
+    {
+        ui->radioHoverOff->toggle();
+    }
+
+}
+
+
 void HTCSettings::initPositions()
 {
 
@@ -676,17 +824,6 @@ void HTCSettings::on_btnResetColors_clicked()
 
 }
 
-void HTCSettings::on_comboChartPadding_currentIndexChanged(int index)
-{
-
-    if(!_busy)
-    {
-        ui->btnApply->setEnabled(true);
-        _ChartPaddingValue = index;
-
-    }
-
-}
 
 void HTCSettings::on_lineXpos_editingFinished()
 {
@@ -768,7 +905,7 @@ void HTCSettings::on_listChartColors_currentTextChanged(const QString &currentTe
         int selectedIDX = ui->listChartColors->currentRow();
         QString SelectedName = ui->listChartColors->currentItem()->text();
         QString currentName = QColor(_penColors[selectedIDX]).name();
-
+        qDebug() << " color text " << currentText;
 
 
         if (SelectedName != currentName)
@@ -799,14 +936,7 @@ void HTCSettings::on_comboFontNames_currentIndexChanged(int index)
     }
 }
 
-void HTCSettings::on_linePaddingValue_editingFinished()
-{
-    if(!_busy)
-    {
-        ui->btnApply->setEnabled(true);
-       _ChartScalePaddingValue = ui->linePaddingValue->text().toDouble();
-    }
-}
+
 
 void HTCSettings::positionItemSelected(QListWidgetItem *item)
 {
@@ -827,4 +957,144 @@ void HTCSettings::EditedPositionValueChanged(QString value, int itemNumber)
     //_positions[itemNumber] = value;
     _positions[itemNumber + 1] = value;
     ui->btnApply->setEnabled(true);
+}
+
+void HTCSettings::on_radioRILegendAuto_clicked()
+{
+    // Default - use fixed legend strings
+    _OverrideLegendValue = false;
+    ui->btnApply->setEnabled(true);
+}
+
+void HTCSettings::on_radioRILegendFile_clicked()
+{
+    // new - use file name parts
+    _OverrideLegendValue = true;
+    ui->btnApply->setEnabled(true);
+
+}
+
+void HTCSettings::on_radioAnimationsOn_clicked()
+{
+    _EnableAnimations = true;
+    ui->btnApply->setEnabled(true);
+}
+
+void HTCSettings::on_radioAnimationsOff_clicked()
+{
+    _EnableAnimations = false;
+    ui->btnApply->setEnabled(true);
+}
+
+void HTCSettings::on_radioHoverOn_clicked()
+{
+    _EnableHoverCallout = true;
+    ui->btnApply->setEnabled(true);
+    qDebug() << "Set hover " << _EnableHoverCallout;
+}
+
+void HTCSettings::on_radioHoverOff_clicked()
+{
+    _EnableHoverCallout = false;
+    ui->btnApply->setEnabled(true);
+    qDebug() << "Set hover " << _EnableHoverCallout;
+}
+
+void HTCSettings::on_comboChartPaddingY_currentIndexChanged(int index)
+{
+    if(!_busy)
+    {
+        ui->btnApply->setEnabled(true);
+        _ChartPaddingValueY = index;
+
+    }
+}
+
+void HTCSettings::on_comboRIChartPaddingX_currentIndexChanged(int index)
+{
+    if(!_busy)
+    {
+        ui->btnApply->setEnabled(true);
+        _ChartRIPaddingValueX = index;
+
+    }
+}
+
+void HTCSettings::on_linePaddingValueY_editingFinished()
+{
+    if(!_busy)
+    {
+        if(_ChartPaddingValueY==1)
+        {
+            _ChartScalePaddingValueY = ui->linePaddingValueY->text().toDouble();
+            ui->btnApply->setEnabled(true);
+        }
+        else
+        {
+            ui->linePaddingValueY->setText(QString::number(_ChartScalePaddingValueY));
+        }
+    }
+}
+
+
+void HTCSettings::on_radioCommAutoOn_clicked()
+{
+    if(!_busy)
+    {
+        _commCheckAutoDetect = 1;
+        ui->btnApply->setEnabled(true);
+    }
+}
+
+void HTCSettings::on_radioCommAutoOff_clicked()
+{
+    if(!_busy)
+    {
+        _commCheckAutoDetect = 0;
+        ui->btnApply->setEnabled(true);
+    }
+}
+
+void HTCSettings::on_lineRIPaddingValueX_editingFinished()
+{
+    if(!_busy)
+    {
+        if(_ChartRIPaddingValueX==1)
+        {
+            _ChartRIScalePaddingValueX = ui->lineRIPaddingValueX->text().toDouble();
+
+            ui->btnApply->setEnabled(true);
+        }
+        else
+        {
+            ui->lineRIPaddingValueX->setText(QString::number(_ChartRIScalePaddingValueX));
+        }
+    }
+}
+
+void HTCSettings::on_comboCIChartPaddingX_currentIndexChanged(int index)
+{
+    if(!_busy)
+    {
+        ui->btnApply->setEnabled(true);
+        _ChartCIPaddingValueX = index;
+
+    }
+}
+
+void HTCSettings::on_lineCIPaddingValueX_editingFinished()
+{
+    if(!_busy)
+    {
+        if(_ChartCIPaddingValueX==1)
+        {
+            _ChartCIScalePaddingValueX = ui->lineCIPaddingValueX->text().toDouble();
+
+            ui->btnApply->setEnabled(true);
+        }
+        else
+        {
+            ui->lineCIPaddingValueX->setText(QString::number(_ChartCIScalePaddingValueX));
+        }
+    }
 }

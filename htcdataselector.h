@@ -21,7 +21,6 @@
 #include "about.h"
 #include "htcsettings.h"
 #include "version.h"
-#include "globals.h"
 
 
 namespace Ui {
@@ -36,7 +35,7 @@ public:
     explicit HTCDataSelector(QWidget *parent = nullptr);
     ~HTCDataSelector();
 
-    void SetFolderInService(QString folder, QString filter);
+    void SetFolderInService(QString folder, QString filter, int dType, QString baseFolder);
 
 
 private slots:
@@ -60,8 +59,19 @@ private slots:
 
     void on_actionLoad_triggered();
 
+    void on_btnSetCIFolders_clicked();
+
 private:
 
+    // new CI Charts parts
+    int RIdataType = 0;
+    int CIdataType = 1;
+    int _dataType = -1; // not initialized yet
+    void setDataType(int dataType);
+    QString _baseFolder;
+
+
+    // end CI Chart parts
     QString _currentSearchFilter;
     QString _currentSearchPath;
 
@@ -96,12 +106,26 @@ private:
     void saveSettings();
     void loadSettings();
 
-    void showNoAccessFileForLoadingMessage(QString file);
+    // main launchers
+    void getRIData();
+    void getCIData();
+    //-------------------------------------//
+    // Data mode enablers
+    // true/false controls get data mode
+    // turn CI off for publishing
+    // turn CI on for developing
+    // -------------------------------------//
+    //
+    bool RIDataisEnabled = true;
+    bool CIDataisEnabled = true;
+    //
+    //-------------------------------------//
+    //
+    //
+    //
+    //-------------------------------------//
 
-    // new Aug-16-2019
-    void setupControls();
-    void setControlsFont();
-    QFont _formFont;
+    void showNoAccessFileForLoadingMessage(QString file);
 
 
     //debug functions

@@ -33,8 +33,6 @@ private slots:
 
     void on_btnResetColors_clicked();
 
-    void on_comboChartPadding_currentIndexChanged(int index);
-
     void on_lineXpos_editingFinished();
 
     void on_lineYpos_editingFinished();
@@ -51,10 +49,43 @@ private slots:
 
     void on_comboFontNames_currentIndexChanged(int index);
 
-    void on_linePaddingValue_editingFinished();
-
     void positionItemSelected(QListWidgetItem* item);
+
     void EditedPositionValueChanged(QString value, int itemNumber);
+
+    void on_radioRILegendAuto_clicked();
+
+    void on_radioRILegendFile_clicked();
+
+    void on_radioAnimationsOn_clicked();
+
+    void on_radioAnimationsOff_clicked();
+
+    void on_radioHoverOn_clicked();
+
+    void on_radioHoverOff_clicked();
+
+    void on_linePaddingValueY_editingFinished();
+
+    void on_comboChartPaddingY_currentIndexChanged(int index);
+
+    // change from here down
+
+    void on_comboRIChartPaddingX_currentIndexChanged(int index);
+
+    void on_lineRIPaddingValueX_editingFinished();
+
+    // to here
+
+    void on_radioCommAutoOn_clicked();
+
+    void on_radioCommAutoOff_clicked();
+
+
+
+    void on_comboCIChartPaddingX_currentIndexChanged(int index);
+
+    void on_lineCIPaddingValueX_editingFinished();
 
 private:
     Ui::HTCSettings *ui;
@@ -67,18 +98,24 @@ private:
     void loadFontList();
     void setControlsFont();
     void setValidators();
-    void getformValues();
     void setFormValues();
     void setCombos();
 
     void saveSettings();
     void loadSettings();
+    void setLegendOverrideSelector(bool SetOVerrideOn);
+    void setEnableChartAnimationsSelector(bool SetAnimationsOn);
+    void setEnableHoverCalloutSelector(bool SetCalloutHoverOn);
 
+    bool _OverrideLegendValue;
+    bool _EnableAnimations;
+    bool _EnableHoverCallout;
 
     bool _busy;
     QFont _formFont;
 
    QIntValidator *_intValidator;
+   QDoubleValidator * _dblValidator;
    QPalette palLabel;
    QRect _layout;
 
@@ -88,8 +125,29 @@ private:
    int _yGeoStart;
    int _GeoWidth;
    int _GeoHeight;
-   double _ChartScalePaddingValue;
-   int _ChartPaddingValue;
+
+   // ---------------------------------------- //
+   //
+   // Chart X/Y Padding values
+   // ---------------------------------------- //
+   double _ChartScalePaddingValueY;
+   int _ChartPaddingValueY;
+   double _ChartRIScalePaddingValueX;
+   int _ChartRIPaddingValueX;
+   double _ChartCIScalePaddingValueX;
+   int _ChartCIPaddingValueX;
+
+
+   //
+   // ---------------------------------------- //
+   //
+   // Chart comm Check auto detect
+   //
+   // ---------------------------------------- //
+   int _commCheckAutoDetect;
+   //
+   // ---------------------------------------- //
+
    int _ChartLegendFontSizeValue;
    int _ChartLegendFontFamilyValue;
 
@@ -97,8 +155,7 @@ private:
    int _defaultYStart = 50;
    int _defaultWidth = 960;
    int _defaultHeight = 767;
-   double _defaultChartScalePaddingValue = 20;
-   int _defaultChartPaddingValue = 20;
+
    int _defaultChartLegendFontSizeValue = 9;
    int _defaultChartLegendFontFamilyValue = 1;
 
@@ -108,7 +165,8 @@ private:
 
 
 
-   QString _ChartPaddingValues[2] = {"Off","On"};
+   QString _ChartPaddingValuesY[2] = {"Off","On"};
+   QString _ChartPaddingValuesX[2] = {"Off","On"};
    QString _ChartLegendFontValues[3] = {"Arial","Courier New", "Times New Roman"};
 
 

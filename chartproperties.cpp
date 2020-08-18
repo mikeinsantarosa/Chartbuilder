@@ -6,8 +6,11 @@
 // Date: 2019-03-07
 //
 //
+// TODO:
 //
-// ++++++++++++++++++++++++++++++++++++++++++++
+//
+//
+// ++++++++++++++++++++++++++++++++++++++++++++ //
 
 #include "chartproperties.h"
 #include "ui_chartproperties.h"
@@ -17,6 +20,8 @@ ChartProperties::ChartProperties(QWidget *parent) :
     ui(new Ui::ChartProperties)
 {
     ui->setupUi(this);
+    dataTypes.clear();
+    dataTypes << "RI-Data_Type" << "CI-Data-Type";
 
     _positions.clear();
     _defaultPositions << "Padding Value"  << "Baseline" << "0° Horiz" << "0° Vert" << "90° Horiz"
@@ -174,9 +179,6 @@ void ChartProperties::setChartXAxisItems(QString UnitsText, QFont UnitsFont, QBr
     _xAxisScaleMin = min;
     _xAxisScaleMax = max;
 
-    //qDebug() << "received X min/max from Chart ->" << _xAxisScaleMin << "/" << _xAxisScaleMax;
-
-
     ui->txtXLabels->setText("Sample");
     ui->txtXLabels->setFont(LabelFont);
     QPalette pXLabel;
@@ -204,10 +206,10 @@ void ChartProperties::setChartXAxisGridLines(bool AxisMajorLinesAreVisible, int 
 
     // Set the X Axis Major tic Label color
     // -----------------------------------------------------
-    QPalette  palMajor;
-    palMajor.setColor(QPalette::Base, Qt::white);
-    palMajor.setColor(QPalette::WindowText, AxisMajorLinesColor);
-    ui->labelXMajorTics->setPalette(palMajor);
+//    QPalette  palMajor;
+//    palMajor.setColor(QPalette::Base, Qt::white);
+//    palMajor.setColor(QPalette::WindowText, AxisMajorLinesColor);
+//    ui->labelXMajorTics->setPalette(palMajor);
 
     // Set the X Axis Major spinbox text/count value
     // -----------------------------------------------------
@@ -215,23 +217,23 @@ void ChartProperties::setChartXAxisGridLines(bool AxisMajorLinesAreVisible, int 
 
     // Set the X Axis Major spin box text color
     // -----------------------------------------------------
-    palMajor.setColor(QPalette::Text, AxisMajorLinesColor);
-    ui->spinXMajorTics->setPalette(palMajor);
+//    palMajor.setColor(QPalette::Text, AxisMajorLinesColor);
+//    ui->spinXMajorTics->setPalette(palMajor);
 
     ui->checkXMinor->setChecked(AxisMinorLinesAreVisible);
     ui->spinXMinorThickness->setValue(QString::number(AxisMinorGridLinesize).toInt());
 
     // Set the X Axis Minor tic Label color
     // -----------------------------------------------------
-    QPalette  palMinor;
-    palMinor.setColor(QPalette::Base, Qt::white);
-    palMinor.setColor(QPalette::WindowText, AxisMinorLinesColor);
-    ui->labelXMinorTics->setPalette(palMinor);
+//    QPalette  palMinor;
+//    palMinor.setColor(QPalette::Base, Qt::white);
+//    palMinor.setColor(QPalette::WindowText, AxisMinorLinesColor);
+//    ui->labelXMinorTics->setPalette(palMinor);
 
     // Set the X Axis Minor spinbox text/count value
     // -----------------------------------------------------
-    palMinor.setColor(QPalette::Text, AxisMajorLinesColor);
-    ui->spinXMinorTics->setPalette(palMinor);
+//    palMinor.setColor(QPalette::Text, AxisMajorLinesColor);
+//    ui->spinXMinorTics->setPalette(palMinor);
     ui->spinXMinorTics->setValue(AxisMinorLinesTicCount);
 
 }
@@ -285,10 +287,10 @@ void ChartProperties::setChartYAxisGridLines(bool AxisMajorLinesAreVisible, int 
 
     // Set the X Axis Major tic Label color
     // -----------------------------------------------------
-    QPalette  palMajor;
-    palMajor.setColor(QPalette::Base, Qt::white);
-    palMajor.setColor(QPalette::WindowText, AxisMajorLinesColor);
-    ui->labelYMajorTics->setPalette(palMajor);
+//    QPalette  palMajor;
+//    palMajor.setColor(QPalette::Base, Qt::white);
+//    palMajor.setColor(QPalette::WindowText, AxisMajorLinesColor);
+//    ui->labelYMajorTics->setPalette(palMajor);
 
     // Set the X Axis Major spinbox text/count value
     // -----------------------------------------------------
@@ -296,8 +298,8 @@ void ChartProperties::setChartYAxisGridLines(bool AxisMajorLinesAreVisible, int 
 
     // Set the X Axis Major spin box text color
     // -----------------------------------------------------
-    palMajor.setColor(QPalette::Text, AxisMajorLinesColor);
-    ui->spinYMajorTics->setPalette(palMajor);
+//    palMajor.setColor(QPalette::Text, AxisMajorLinesColor);
+//    ui->spinYMajorTics->setPalette(palMajor);
 
 
     ui->checkYMinor->setChecked(AxisMinorLinesAreVisible);
@@ -305,15 +307,15 @@ void ChartProperties::setChartYAxisGridLines(bool AxisMajorLinesAreVisible, int 
 
     // Set the X Axis Minor tic Label color
     // -----------------------------------------------------
-    QPalette  palMinor = QPalette();
-    palMinor.setColor(QPalette::Base, Qt::white);
-    palMinor.setColor(QPalette::WindowText, AxisMinorLinesColor);
-    ui->labelYMinorTics->setPalette(palMinor);
+//    QPalette  palMinor = QPalette();
+//    palMinor.setColor(QPalette::Base, Qt::white);
+//    palMinor.setColor(QPalette::WindowText, AxisMinorLinesColor);
+//    ui->labelYMinorTics->setPalette(palMinor);
 
     // Set the X Axis Minor spinbox text/count value
     // -----------------------------------------------------
-    palMinor.setColor(QPalette::Text, AxisMajorLinesColor);
-    ui->spinYMinorTics->setPalette(palMinor);
+//    palMinor.setColor(QPalette::Text, AxisMajorLinesColor);
+//    ui->spinYMinorTics->setPalette(palMinor);
     ui->spinYMinorTics->setValue(AxisMinorLinesTicCount);
 
 }
@@ -456,6 +458,16 @@ void ChartProperties::setPenItems(int width, QColor color, int penStyle, QString
 
 }
 
+int ChartProperties::getDataType()
+{
+    return _dataType;
+}
+
+void ChartProperties::setDataType(int dataType)
+{
+    _dataType = dataType;
+}
+
 void ChartProperties::on_btnClose_clicked()
 {
     close();
@@ -551,7 +563,7 @@ void ChartProperties::updatePenItemsAndNotify(int penNumber)
             break;
 
         case 2:
-            width = ui->spinBox02->value();;
+            width = ui->spinBox02->value();
             palPen = ui->linePen02->palette();
             color = palPen.color(QPalette::Text);
             penStyle = ui->comboPen02->currentIndex();
@@ -559,7 +571,7 @@ void ChartProperties::updatePenItemsAndNotify(int penNumber)
             break;
 
         case 3:
-            width = ui->spinBox03->value();;
+            width = ui->spinBox03->value();
             palPen = ui->linePen03->palette();
             color = palPen.color(QPalette::Text);
             penStyle = ui->comboPen03->currentIndex();
@@ -567,7 +579,7 @@ void ChartProperties::updatePenItemsAndNotify(int penNumber)
             break;
 
         case 4:
-            width = ui->spinBox04->value();;
+            width = ui->spinBox04->value();
             palPen = ui->linePen04->palette();
             color = palPen.color(QPalette::Text);
             penStyle = ui->comboPen04->currentIndex();
@@ -575,7 +587,7 @@ void ChartProperties::updatePenItemsAndNotify(int penNumber)
              break;
 
         case 5:
-             width = ui->spinBox05->value();;
+             width = ui->spinBox05->value();
              palPen = ui->linePen05->palette();
              color = palPen.color(QPalette::Text);
              penStyle = ui->comboPen05->currentIndex();
@@ -583,7 +595,7 @@ void ChartProperties::updatePenItemsAndNotify(int penNumber)
             break;
 
         case 6:
-             width = ui->spinBox06->value();;
+             width = ui->spinBox06->value();
              palPen = ui->linePen06->palette();
              color = palPen.color(QPalette::Text);
              penStyle = ui->comboPen06->currentIndex();
@@ -591,7 +603,7 @@ void ChartProperties::updatePenItemsAndNotify(int penNumber)
              break;
 
         case 7:
-             width = ui->spinBox07->value();;
+             width = ui->spinBox07->value();
              palPen = ui->linePen07->palette();
              color = palPen.color(QPalette::Text);
              penStyle = ui->comboPen07->currentIndex();
@@ -599,7 +611,7 @@ void ChartProperties::updatePenItemsAndNotify(int penNumber)
             break;
 
         case 8:
-            width = ui->spinBox08->value();;
+            width = ui->spinBox08->value();
             palPen = ui->linePen08->palette();
             color = palPen.color(QPalette::Text);
             penStyle = ui->comboPen08->currentIndex();
@@ -607,7 +619,7 @@ void ChartProperties::updatePenItemsAndNotify(int penNumber)
             break;
 
         case 9:
-            width = ui->spinBox09->value();;
+            width = ui->spinBox09->value();
             palPen = ui->linePen09->palette();
             color = palPen.color(QPalette::Text);
             penStyle = ui->comboPen09->currentIndex();
@@ -615,7 +627,7 @@ void ChartProperties::updatePenItemsAndNotify(int penNumber)
             break;
 
         case 10:
-            width = ui->spinBox10->value();;
+            width = ui->spinBox10->value();
             palPen = ui->linePen10->palette();
             color = palPen.color(QPalette::Text);
             penStyle = ui->comboPen10->currentIndex();
@@ -623,7 +635,7 @@ void ChartProperties::updatePenItemsAndNotify(int penNumber)
             break;
 
     case 11:
-            width = ui->spinBox11->value();;
+            width = ui->spinBox11->value();
             palPen = ui->linePen11->palette();
             color = palPen.color(QPalette::Text);
             penStyle = ui->comboPen11->currentIndex();
@@ -631,7 +643,7 @@ void ChartProperties::updatePenItemsAndNotify(int penNumber)
             break;
 
         case 12:
-            width = ui->spinBox12->value();;
+            width = ui->spinBox12->value();
             palPen = ui->linePen12->palette();
             color = palPen.color(QPalette::Text);
             penStyle = ui->comboPen12->currentIndex();
@@ -639,7 +651,7 @@ void ChartProperties::updatePenItemsAndNotify(int penNumber)
             break;
 
         case 13:
-            width = ui->spinBox13->value();;
+            width = ui->spinBox13->value();
             palPen = ui->linePen13->palette();
             color = palPen.color(QPalette::Text);
             penStyle = ui->comboPen13->currentIndex();
@@ -651,6 +663,7 @@ void ChartProperties::updatePenItemsAndNotify(int penNumber)
             // we need to throw an error here
             qDebug() << "ChartProperties::We don't do this number!";
     }
+
 
     emit HTCChartPenValueChanged(width, color, penStyle, penName, penNumber);
 
@@ -1149,6 +1162,23 @@ void ChartProperties::loadSettings()
     setting.beginGroup("ProgramFolders");
 
     positionValue = setting.value("LegendPosition1").toString();
+
+    // --------------------------------------------------------- //
+    //
+    // new legend override
+    //
+
+    if (setting.value("ChartLegendOverride").toInt() == 1)
+    {
+        _OverrideLegendValue = true;
+    }
+    else
+    {
+        _OverrideLegendValue = false;
+    }
+    // testing
+    // --------------------------------------------------------- //
+
     if(positionValue.isEmpty())
     {
         _positions[0] = _defaultPositions[0];
@@ -1668,13 +1698,13 @@ void ChartProperties::on_btnXAxisMajorGridColor_clicked()
 
        if (color != currentColor)
        {
-           // change the label color
-           pal.setColor(QPalette::WindowText, color);
-           ui->labelXMajorTics->setPalette(pal);
+//           // change the label color
+//           pal.setColor(QPalette::WindowText, color);
+//           ui->labelXMajorTics->setPalette(pal);
 
-           // change the spinbox color
-           pal.setColor(QPalette::Text, color);
-           ui->spinXMajorTics->setPalette(pal);
+//           // change the spinbox color
+//           pal.setColor(QPalette::Text, color);
+//           ui->spinXMajorTics->setPalette(pal);
 
            // Fire the signal event
            // -------------------------------------------------------------------------------------------------
@@ -1696,13 +1726,13 @@ void ChartProperties::on_btnXAxisMinorGridColor_clicked()
 
         if (color != currentColor)
         {
-            // change the label color
-            pal.setColor(QPalette::WindowText, color);
-            ui->labelXMinorTics->setPalette(pal);
+//            // change the label color
+//            pal.setColor(QPalette::WindowText, color);
+//            ui->labelXMinorTics->setPalette(pal);
 
-            // change the spinbox color
-            pal.setColor(QPalette::Text, color);
-            ui->spinXMinorTics->setPalette(pal);
+//            // change the spinbox color
+//            pal.setColor(QPalette::Text, color);
+//            ui->spinXMinorTics->setPalette(pal);
 
             // Fire the signal event
             // -------------------------------------------------------------------------------------------------
@@ -1723,13 +1753,13 @@ void ChartProperties::on_btnYAxisMajorGridColor_clicked()
 
     if (color != currentColor)
     {
-        // change the label color
-        pal.setColor(QPalette::WindowText, color);
-        ui->labelYMajorTics->setPalette(pal);
+//        // change the label color
+//        pal.setColor(QPalette::WindowText, color);
+//        ui->labelYMajorTics->setPalette(pal);
 
-        // change the spinbox color
-        pal.setColor(QPalette::Text, color);
-        ui->spinYMajorTics->setPalette(pal);
+//        // change the spinbox color
+//        pal.setColor(QPalette::Text, color);
+//        ui->spinYMajorTics->setPalette(pal);
 
         // Fire the signal event
         // -------------------------------------------------------------------------------------------------
@@ -1749,13 +1779,13 @@ void ChartProperties::on_btnYAxisMinorGridColor_clicked()
 
     if (color != currentColor)
     {
-        // change the label color
-        pal.setColor(QPalette::WindowText, color);
-        ui->labelYMinorTics->setPalette(pal);
+//        // change the label color
+//        pal.setColor(QPalette::WindowText, color);
+//        ui->labelYMinorTics->setPalette(pal);
 
-        // change the spinbox color
-        pal.setColor(QPalette::Text, color);
-        ui->spinYMinorTics->setPalette(pal);
+//        // change the spinbox color
+//        pal.setColor(QPalette::Text, color);
+//        ui->spinYMinorTics->setPalette(pal);
 
         // Fire the signal event
         // -------------------------------------------------------------------------------------------------
@@ -1852,7 +1882,7 @@ void ChartProperties::on_lineXMin_editingFinished()
 void ChartProperties::on_lineYMin_editingFinished()
 {
     _yAxisScaleMin = ui->lineYMin->text().toDouble();
-    qDebug() << "value from editing is " << _yAxisScaleMin;
+
 
     //qDebug() << "New Y-Min Value requested is " << _yAxisScaleMin;
     emit HTCChartYAxisLabelsTextScaleMinChanged(_yAxisScaleMin);
@@ -1862,7 +1892,6 @@ void ChartProperties::on_lineYMax_editingFinished()
 {
     _yAxisScaleMax = ui->lineYMax->text().toDouble();
 
-    qDebug() << "New Y-Max Value requested is " << _yAxisScaleMax;
     emit HTCChartYAxisLabelsTextScaleMaxChanged(_yAxisScaleMax);
 }
 
@@ -2689,5 +2718,101 @@ void ChartProperties::on_spinXPrecision_valueChanged(int arg1)
         emit HTCCHartXPrecisionChangeRequest(arg1);
         //qDebug() << "X request for " << arg1;
 
+    }
+}
+
+void ChartProperties::on_linePen02_editingFinished()
+{
+    if (!_busy)
+    {
+        updatePenItemsAndNotify(2);
+    }
+}
+
+void ChartProperties::on_linePen03_editingFinished()
+{
+    if (!_busy)
+    {
+        updatePenItemsAndNotify(3);
+    }
+}
+
+void ChartProperties::on_linePen04_editingFinished()
+{
+    if (!_busy)
+    {
+        updatePenItemsAndNotify(4);
+    }
+}
+
+void ChartProperties::on_linePen05_editingFinished()
+{
+    if (!_busy)
+    {
+        updatePenItemsAndNotify(5);
+    }
+}
+
+void ChartProperties::on_linePen06_editingFinished()
+{
+    if (!_busy)
+    {
+        updatePenItemsAndNotify(6);
+    }
+}
+
+void ChartProperties::on_linePen07_editingFinished()
+{
+    if (!_busy)
+    {
+        updatePenItemsAndNotify(7);
+    }
+}
+
+void ChartProperties::on_linePen08_editingFinished()
+{
+    if (!_busy)
+    {
+        updatePenItemsAndNotify(8);
+    }
+}
+
+void ChartProperties::on_linePen09_editingFinished()
+{
+    if (!_busy)
+    {
+        updatePenItemsAndNotify(9);
+    }
+}
+
+void ChartProperties::on_linePen10_editingFinished()
+{
+    if (!_busy)
+    {
+        updatePenItemsAndNotify(10);
+    }
+}
+
+void ChartProperties::on_linePen11_editingFinished()
+{
+    if (!_busy)
+    {
+        updatePenItemsAndNotify(11);
+    }
+}
+
+void ChartProperties::on_linePen12_editingFinished()
+{
+    if (!_busy)
+    {
+        updatePenItemsAndNotify(12);
+    }
+}
+
+void ChartProperties::on_linePen13_editingFinished()
+{
+    if (!_busy)
+    {
+        updatePenItemsAndNotify(13);
     }
 }

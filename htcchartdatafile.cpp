@@ -20,11 +20,12 @@
 #include "htcchartdatafile.h"
 
 
-HTCChartDataFile::HTCChartDataFile(QString dataFileName)
+HTCChartDataFile::HTCChartDataFile(QString dataFileName, int dType)
 {
 
     setDataFileDelim(dataFileName);
     _fileDelimCount = getFileDelimCount(dataFileName);
+    setDataType(dType);
 
     initProperties();
     _dataSuccessfullyLoaded = false;
@@ -125,6 +126,8 @@ void HTCChartDataFile::init()
            _fileInfo = QFileInfo(_basedOnThisFile);
 
            parseFileProperties(_fileInfo.fileName());
+
+
            setFirstFreq();
            setLastFreq();
 
@@ -132,7 +135,7 @@ void HTCChartDataFile::init()
 
 
        }
-       if (_numberOfDataColumns >= 2)
+       if (_numberOfDataColumns >= 3)
        {
            _dataSuccessfullyLoaded = true;
        }
@@ -158,7 +161,7 @@ int HTCChartDataFile::findFirstDataRow(QStringList list, QString delimiter)
     int result = -1;
     bool found = false;
     QRegExp re("^-?\\d*\\.?\\d+");
-    QRegExp re2("((\\b[0-9]+)?\\.)?\\b[0-9]+([eE][-+]?[0-9]+)?\\b");
+    QRegExp re2("(([-+]?[0-9]+)?\\.)?\\b[0-9]+([eE][-+]?[0-9]+)?");
 
 
 
@@ -306,7 +309,10 @@ int HTCChartDataFile::setColumnHeadersList(QString delim)
 void HTCChartDataFile::parseFileProperties(QString fileName)
 {
     bool loadingNormal = true;
-    QStringList parts = fileName.split(_fileNamePartsDelim);
+
+
+    //QStringList parts = fileName.split(_fileNamePartsDelim);
+    QStringList parts = getFileParts(fileName,_fileNamePartsDelim);
 
     // If the user didn't include
     // additional _ (underscores)
@@ -335,10 +341,9 @@ void HTCChartDataFile::parseFileProperties(QString fileName)
 
     if(loadingNormal == true)
     {
-        QString last = parts.at(numParts - 1);
-        QStringList tail = last.split(".");
-        _polarity = tail.at(0);
+        //QString last = parts.at(numParts - 1);
 
+        _polarity = parts.at(numParts - 1);
         _ttRotation = parts.at(numParts - 2);
         _fRange = parts.at(numParts - 3);
 
@@ -352,6 +357,8 @@ void HTCChartDataFile::parseFileProperties(QString fileName)
         _rangeIDX = solveRangeIDX(_fRange);
         _orientationOrderIDX = solveOrientationIDX(_polarity, _ttRotation);
         _sortOrderIDX = setSortOrderIndex();
+
+        // this looks backwards!
         SortOrderIndex = _sortOrderIDX;
 
         setStandardTestType(_fRange);
@@ -376,18 +383,43 @@ void HTCChartDataFile::parseFileProperties(QString fileName)
     }
     else
     {
-        // list abnormal parts
-//        for(int i = 0; i < numParts; i++)
-//        {
-//            qDebug() << "part#" << i << " is " << parts.at(i);
-//        }
 
-        _testCode = parts.at(0);
-        _eutModel = parts.at(1);
-        _eutSerial = parts.at(2);
+
+        if (numParts > 4)
+        {
+
+            _testCode = parts.at(0);
+            _eutModel = parts.at(2);
+            _eutSerial = parts.at(3);
+            _polarity = parts.at(1);
+            _polarity.append("_");
+            _polarity.append(parts.at(4));
+            _ttRotation = "";
+
+        }
+        else if (numParts == 4)
+        {
+             _testCode = parts.at(0);
+            _eutModel = parts.at(1);
+            _eutSerial = parts.at(2);
+            _polarity = parts.at(3);
+            _ttRotation = "";
+        }
+        else
+        {
+            // don't set properties and flag this as a bad file
+            _dataSuccessfullyLoaded = false;
+
+           _testCode = "BAD-DATA";
+           _eutModel = "BAD-DATA";
+           _eutSerial = "BAD-DATA";
+           _polarity = "BAD-DATA";
+
+           showBadFileDataMessage(fileName);
+        }
+
 
     }
-
 
 
 }
@@ -481,8 +513,57 @@ int HTCChartDataFile::solveOrientationIDX(QString polarity, QString rotation)
     {
         result = 8;
     }
+    else
+    {
+        //default 0 added for custom file names
+        result = 1;
+    }
 
     return result;
+}
+
+QString HTCChartDataFile::GetPartFromPair(QString target, QString delim, int whichOne)
+{
+    QStringList pair;
+    int needed = 2;
+    QString answer = "";
+
+    if (!pair.isEmpty())
+    {
+        pair.clear();
+    }
+
+    pair = target.split(delim);
+
+    int numItems = pair.count();
+
+    if (numItems == needed)
+    {
+        answer = pair.at(whichOne);
+    }
+
+    return answer;
+
+}
+
+QStringList HTCChartDataFile::getFileParts(QString target, QString delim)
+{
+    QStringList answer;
+    QString lastPart = "";
+
+    int last;
+    answer = target.split(delim);
+
+    last = answer.count() -1;
+    if (answer.at(last).contains("."))
+    {
+        lastPart = GetPartFromPair(answer.at(last),".",0);
+        answer[last] = lastPart;
+
+    }
+
+    return answer;
+
 }
 
 int HTCChartDataFile::setSortOrderIndex()
@@ -697,11 +778,6 @@ void HTCChartDataFile::setStandardTestType(QString rangeString)
     {
         _isStandardTestType = 1;
     }
-    else
-    {
-        _isStandardTestType = 0;
-    }
-
 
 }
 
@@ -719,9 +795,8 @@ void HTCChartDataFile::setKey()
     else
     {
         _SetKey.clear();
-        _SetKey.append("UNKNOWN-NO-DATA");
+        _SetKey.append(BAD_FILE_DATA);
     }
-
 
 }
 
@@ -734,6 +809,43 @@ int HTCChartDataFile::getFileDelimCount(QString fileName)
     return result;
 
 
+}
+
+void HTCChartDataFile::setDataType(int dataType)
+{
+    _dataType = dataType;
+}
+
+void HTCChartDataFile::showBadFileDataMessage(QString fileName)
+{
+    QMessageBox msgBox;
+    QString badFileName = fileName;
+
+    QString message = "";
+
+        //find the bad range
+        // ------------------------------------------
+
+
+        message.append("Found a file with bad file name or incomplete data : ");
+        message.append("Check for testCode_Model_Serial_param parts then correct it");
+        message.append(" -- in Filename: ");
+        message.append(badFileName);
+
+        msgBox.setText(message);
+        msgBox.setInformativeText("Please correct the problem and try again");
+        msgBox.setStandardButtons(QMessageBox::Ok);
+        msgBox.setDefaultButton(QMessageBox::Ok);
+
+
+    int ret = msgBox.exec();
+
+}
+
+void HTCChartDataFile::listThisList(QStringList list)
+{
+    for (int i = 0; i < list.count(); i++)
+        qDebug() << "list #" << i << " is " << list.at(i);
 }
 
 QFileInfo HTCChartDataFile::getDataFileInfo()
@@ -799,4 +911,10 @@ QString HTCChartDataFile::getKey()
 QString HTCChartDataFile::getFileDelim()
 {
     return _dataFileDelim;
+}
+
+
+int HTCChartDataFile::getDataType()
+{
+    return _dataType;
 }

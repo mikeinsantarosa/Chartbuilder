@@ -15,6 +15,7 @@ Description : Set the release version of the application
 #define MY_MEAN_VERSION     5
 #define MY_MINOR_VERSION    21
 
+
 #define MY_REV_YEAR     "2020"
 #define MY_REV_MONTH    "Aug"
 #define MY_REV_DAY      "17"

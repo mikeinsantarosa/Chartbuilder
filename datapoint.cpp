@@ -1,15 +1,16 @@
-/* File     : datapoint.cpp
- * Author   : Mike Purtell
- * Date     : Nove 18, 2017
- *
- * Purpose  :
- *
- * Maintains a frequency
- * vs level data point.
- *
- *
- * */
-
+// ++++++++++++++++++++++++++++++++++++++++++++ //
+// File: datapoint.cpp
+// Description: Maintains a frequency
+// vs level data point.
+//
+// Date: 2019-03-07
+//
+//
+// TODO:
+//
+//
+//
+// ++++++++++++++++++++++++++++++++++++++++++++ //
 #include "datapoint.h"
 
 

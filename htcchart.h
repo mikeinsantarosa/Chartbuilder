@@ -57,10 +57,12 @@ public:
 
     QColor ChartTitleTextColor();
     QFont ChartTitleTextFont();
-    void setFileToOpen(QString fileName, bool RescaleFreq);
+    void setFileToOpen(QString fileName, bool RescaleFreq, QString baseFolder);
     void setChartByDataSet(HTCChartDataSet * ds, bool RescaleFreq);
 
-
+    // new CI parts
+    int getDataType();
+    void setDataType(int dataType);
 
 private slots:
     void on_actionProperties_triggered();
@@ -160,6 +162,8 @@ private:
 
     HTCChartDataSet *_dataSet;
 
+    void listThisList(QStringList list);
+
     void setChartTitle(QString title);
     QString stripTokensFromString(QString message, QString token);
 
@@ -169,12 +173,17 @@ private:
 
     //end Debug finctions
 
+    QString getCleanedYAxisUnits(QString target);
+
     int scanForChartType(QString filename);
     void writeTypetoFile(QString filename);
 
     void initProperties();
     void initConnects();
     void initChart();
+
+    void saveChartData();
+    void saveChartImage();
 
     QString _rawDataFileAndPath;
 
@@ -197,6 +206,44 @@ private:
     void fillSeriesfromList(QLineSeries * series, int dataSet);
 
 
+    // ------------------------------------------------- //
+    //
+    //  New code to accomodate RI & CI charts
+    //
+    bool _OverrideLegendValue;
+    QString _dataTypes[2] = {"RI","CI"};
+
+    // new cool stuff
+    bool _EnableAnimations;
+
+    // not yet implemented
+    // (very difficult)
+    bool _EnableHoverCallout;
+    // ------------------------------------------------- //
+    //
+    //
+    // ------------------------------------------------- //
+    // Comm Check autodetect stuff
+    //
+    bool _dataIsCommCheck = false;
+    // chart scaling when comm Check data detected
+//    double _commCheckYMaxValue = 2.5;
+//    double _commCheckYMinValue = -1;
+    int _commCheckAutoDetect = 0;
+
+    // ------------------------------------------------- //
+    // analog autodetect stuff
+    bool _dataIsAnalog = false;
+    //
+    //
+    //
+    //
+    //
+    // ------------------------------------------------- //
+
+   // void setBaseFolder(QString file);
+    QString getProperPath(QString target);
+    QString _basePath;
 
     QStringList _masterlist;
     QStringList _reWriteList;
@@ -264,7 +311,7 @@ private:
     double _XAxisMinValue;
     double _XAxisMaxValue;
     double _XAxisRescaleValue;
-    bool reScaleFreqColumn = false;
+    bool _reScaleFreqColumn = false;
     int _xPrecision = 0;
 
     double getFreqRescaleValue();
@@ -310,8 +357,32 @@ private:
     int _yGeoStart;
     int _GeoWidth;
     int _GeoHeight;
-    double _ChartScalePaddingValue;
-    int _ChartPaddingValue;
+
+    // ----------------------------------------------------- //
+    // Chart X/Y scale padding vars
+    // _ChartRIPaddingValueX/Y 1/0 On/Off
+    // _ChartRIScalePaddingValueX/Y value in % for padding
+    // ----------------------------------------------------- //
+    double _ChartScalePaddingValueY;
+    int _ChartPaddingValueY;
+    double _defaultChartScalePaddingYValue = 0;
+
+    // RI Padding values
+    double _ChartRIScalePaddingValueX;
+    int _ChartRIPaddingValueX;
+    double _defaultChartRIScalePaddingXValue = 0;
+    double _RIXaxisMaxMult = 3;
+
+    // CI Padding values
+    double _ChartCIScalePaddingValueX;
+    int _ChartCIPaddingValueX;
+    double _defaultChartCIScalePaddingXValue = 0;
+    double _CIXaxisMaxMult = 400;
+
+
+    // ----------------------------------------------------- //
+    // ----------------------------------------------------- //
+
     int _ChartLegendFontSizeValue;
     int _ChartLegendFontFamilyValue;
 
@@ -319,8 +390,7 @@ private:
     int _defaultYStart = 50;
     int _defaultWidth = 960;
     int _defaultHeight = 767;
-    double _defaultChartScalePaddingValue = 20;
-    int _defaultChartPaddingValue = 20;
+
     int _defaultChartLegendFontSizeValue = 9;
     int _defaultChartLegendFontFamilyValue = 1;
 
@@ -334,9 +404,37 @@ private:
 
     QPalette palLabel;
 
+    // ----------------------------------------------- //
+    // CI/RI legend items
+    // ----------------------------------------------- //
     QStringList _positions;
-    QStringList _defaultPositions;
     QStringList _legendKeys;
+
+    QStringList _defaultPositions;
+
+
+    QStringList _positionsRI;
+    QStringList _positionsCI;
+
+    QStringList _defaultPositionsRI;
+    QStringList _defaultPositionsCI;
+
+    QStringList _legendKeysRI;
+    QStringList _legendKeysCI;
+
+    void setLegendText(int dType);
+    QString stripMatch(QString target, QStringList strips);
+
+    QStringList _ciLegendPrefixes, _ciUsedPrefixes;
+    int _CIRangInService;
+
+    // ----------------------------------------------- //
+    // CI/RI legend items
+    // ----------------------------------------------- //
+
+//    QStringList _positions;
+//    QStringList _defaultPositions;
+//    QStringList _legendKeys;
 
     QString _ChartType = "";
     QString _ChartTestCode = "";
@@ -381,10 +479,21 @@ private:
    int getXAxisScalingResolution();
 
    void discoverChartScaleValues();
-   double getPaddingValue();
+   double getPaddingYValue();
    void setYaxisPaddingValue();
    double getPaddedYMaxValue();
    double getPaddedYMinValue();
+
+   // new X Axis padding parts
+   // -------------------------  //
+
+   bool getXAxisPaddingEnabled();
+   bool getYAxisPaddingEnabled();
+
+   double getPaddedXMaxValue();
+   double getPaddedXMinValue();
+   // -------------------------  //
+
 
 
 
@@ -519,10 +628,18 @@ private:
     bool _loadedChartFromFile;
 
 
+    QString getLastChar(QString testValue);
 
+    // new CI parts
+    int RIdataType = 0;
+    int CIdataType = 1;
+    int _dataType = -1;
+    QStringList dataTypes;
 
     //debug functions
     void listKeys();
+    int listMasterList();
+    int listHeaderList();
 
 
 

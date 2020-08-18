@@ -1,3 +1,17 @@
+// ++++++++++++++++++++++++++++++++++++++++++++ //
+// File: main.cpp
+// Description: Launches the program
+//
+//
+// Original release date
+// Date: 2019-03-07
+//
+//
+// TODO:
+// 1) Finish CI charts
+// 2) Add Y Axis rescaler for
+//    values < e-12
+// ++++++++++++++++++++++++++++++++++++++++++++
 #include "htcdataselector.h"
 #include <QApplication>
 

@@ -49,6 +49,10 @@ public:
 
     void setPenItems(int width, QColor color, int penStyle, QString penName, int penNumber);
 
+    // new CI parts
+    int getDataType();
+    void setDataType(int dataType);
+
 
 signals:
     // Chart Title
@@ -313,6 +317,30 @@ private slots:
 
     void on_spinXPrecision_valueChanged(int arg1);
 
+    void on_linePen02_editingFinished();
+
+    void on_linePen03_editingFinished();
+
+    void on_linePen04_editingFinished();
+
+    void on_linePen05_editingFinished();
+
+    void on_linePen06_editingFinished();
+
+    void on_linePen07_editingFinished();
+
+    void on_linePen08_editingFinished();
+
+    void on_linePen09_editingFinished();
+
+    void on_linePen10_editingFinished();
+
+    void on_linePen11_editingFinished();
+
+    void on_linePen12_editingFinished();
+
+    void on_linePen13_editingFinished();
+
 private:
 
     Ui::ChartProperties *ui;
@@ -334,6 +362,9 @@ private:
     int _xPrecision = 0;
     int _yPrecision = 2;
 
+    // ------------------------------------------------- //
+    bool _OverrideLegendValue;
+    // ------------------------------------------------- //
 
     void setControlStyles();
     void setIndicatorControlsFont();
@@ -399,6 +430,12 @@ private:
     QStringList _defaultPositions;
     QStringList _legendKeys;
     void loadSettings();
+
+    int RIdataType = 0;
+    int CIdataType = 1;
+
+    int _dataType = -1;
+    QStringList dataTypes;
 
 
 

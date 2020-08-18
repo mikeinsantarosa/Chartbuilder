@@ -1,3 +1,17 @@
+// ++++++++++++++++++++++++++++++++++++++++++++ //
+// File: htcchartfolder.cpp
+// Description: representation of a data folder
+//
+//
+// Date: 2019-03-07
+//
+//
+// TODO:
+//
+//
+//
+// ++++++++++++++++++++++++++++++++++++++++++++ //
+
 #include "htcchartfolder.h"
 #include <QDebug>
 
@@ -5,17 +19,24 @@
 
 HTCChartFolder::HTCChartFolder(QObject *parent) : QObject(parent)
 {
-    _MatchingTestCodes << "q241" << "q242" << "q243" << "q244";
+   // _MatchingTestCodes << "q241" << "q242" << "q243" << "q244" << "q245" << "q248" << "q249";
+    _riMatchingTestCodes << "q241" << "q242" << "q243" << "q244" << "q245" << "q248" << "q249";
+    _ciMatchingTestCodes  << "q420" << "q421" << "q422" << "q423" << "q424" << "q425";
 }
 
-int HTCChartFolder::init(QString folder, QString extension)
+int HTCChartFolder::init(QString folder, QString extension, int dType)
 {
 
     // ++++++++++++++++++++++++++++++++++++++++++++++++
     // check for file count first
-    // we might need to protect against too many files
+    // we might need to protect against too many/few files
     // ++++++++++++++++++++++++++++++++++++++++++++++++
     int fileCount = CountFiles(folder);
+
+    int result = -1;
+    qDebug() << "found " << fileCount << " files.";
+
+    setDataType(dType);
 
 
     if(!folder.isEmpty())
@@ -24,7 +45,7 @@ int HTCChartFolder::init(QString folder, QString extension)
         HTCChartDataFile filObj;
 
         QString itemName = "";
-        int result = 0;
+        result = 0;
         QString model = "";
         QString serial = "";
         QString temp = "";
@@ -71,13 +92,15 @@ int HTCChartFolder::init(QString folder, QString extension)
                 found = true;
 
             }
-
+//            qDebug() << "dataType = " << dType;
             itemName = it.next();
+//            qDebug() << "Loading this file -> " << itemName;
 
             QFileInfo info = QFileInfo(itemName);
 
             nameToTest = info.fileName();
             QStringList fileParts = nameToTest.split("_");
+
             QString code = fileParts.at(0);
 
             msg.clear();
@@ -90,12 +113,18 @@ int HTCChartFolder::init(QString folder, QString extension)
             if (nameToTest.contains(extension))
             {
 
-
-                //if(nameToTest.contains("q241") || nameToTest.contains("q242") || nameToTest.contains("q243") == true)
-                if(_MatchingTestCodes.contains(code) == true)
+                // check for proper test codes contained in the
+                // ones pointed to.
+                //
+                // return value of 1 == proper test codes exist.
+                // dType == 1 == RI Data
+                // ---------------------------------------------
+                if (doesTypeMatch(code, dType) == 1)
                 {
+
+
                     thisSet.clear();
-                    HTCChartDataFile *  filObj = new HTCChartDataFile(itemName);
+                    HTCChartDataFile *  filObj = new HTCChartDataFile(itemName, _dataType);
 
                     // need to guard against there being a file that
                     // passes inspection but doesn't have any numerical
@@ -115,22 +144,45 @@ int HTCChartFolder::init(QString folder, QString extension)
                         thisTag.append(",");
                         thisTag.append(itemName);
 
-                        //add it to the set if it doesn't exist
-                        if(!_sets.contains(thisSet))
+                        // protect the list from non-data datafiles
+                        // ---------------------------------------- //
+                        // ---------------------------------------- //
+                        // ---------------------------------------- //
+                        if (thisTag != BAD_FILE_DATA)
                         {
+                            //add it to the set if it doesn't exist
+                            if(!_sets.contains(thisSet))
+                            {
 
-                            _sets.append(thisSet);
+                                _sets.append(thisSet);
+                            }
+
+                            _folderList.append(itemName);
+                            _TaggedList.append(thisTag);
+                            _fileCountList.append(QString::number(result));
+
+
+                           // qDebug() << "Added file number " << result + 1;
+
+                            result += 1;
+
+
+                            thisTag.clear();
+                            thisSet.clear();
+                        }
+                        else
+                        {
+                            showBadFileDataMessage(itemName);
+                            qDebug() << "skipped adding file " << itemName;
                         }
 
-                        _folderList.append(itemName);
-                        _TaggedList.append(thisTag);
-                        _fileCountList.append(rowCount);
 
-                        result += 1;
 
-                        thisTag.clear();
-                        thisSet.clear();
-
+                    }
+                    else
+                    {
+                        showBadFileDataMessage(itemName);
+                        qDebug() << "skipped adding file " << itemName;
                     }
 
 
@@ -141,8 +193,10 @@ int HTCChartFolder::init(QString folder, QString extension)
 
         }
 
-        return result;
+
     }
+
+    return result;
 }
 
 QStringList HTCChartFolder::GetFolderList()
@@ -158,6 +212,40 @@ QStringList HTCChartFolder::GetDataSetNames()
 QStringList HTCChartFolder::GetTaggedList()
 {
     return _TaggedList;
+}
+
+int HTCChartFolder::getDataType()
+{
+    return _dataType;
+}
+
+void HTCChartFolder::setDataType(int dataType)
+{
+    _dataType = dataType;
+}
+
+int HTCChartFolder::doesTypeMatch(QString testCode, int dType)
+{
+    int result = 0;
+
+    //qDebug() << "Checking test code " << testCode << " to be a " << dType << " data type";
+
+    if (dType == RIdataType)
+    {
+        if(_riMatchingTestCodes.contains(testCode))
+        {
+            result = 1;
+        }
+    }
+    else
+    {
+        if(_ciMatchingTestCodes.contains(testCode))
+        {
+            result = 1;
+        }
+    }
+
+    return result;
 }
 
 
@@ -182,5 +270,44 @@ int HTCChartFolder::CountFiles(QString path)
     }
 
     return suma;
+
+}
+
+void HTCChartFolder::listThisList(QStringList target, QString delim)
+{
+    int numElements = target.count();
+
+    for (int i = 0; i < numElements; i++)
+    {
+        qDebug() << "item " << i << " is " << target.at(i);
+    }
+
+    qDebug() << "done";
+}
+
+void HTCChartFolder::showBadFileDataMessage(QString fileName)
+{
+    QMessageBox msgBox;
+    QString badFileName = fileName;
+
+    QString message = "";
+
+        //find the bad range
+        // ------------------------------------------
+
+
+        message.append("Found a file with bad file name or incomplete data : ");
+        message.append("Check for testCode_Model_Serial_param parts then correct it");
+        message.append(" -- in Filename: ");
+        message.append(badFileName);
+
+        msgBox.setText(message);
+        msgBox.setInformativeText("Please correct the problem and try again");
+        msgBox.setStandardButtons(QMessageBox::Ok);
+        msgBox.setDefaultButton(QMessageBox::Ok);
+
+
+    int ret = msgBox.exec();
+
 
 }

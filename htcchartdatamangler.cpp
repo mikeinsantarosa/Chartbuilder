@@ -1,3 +1,16 @@
+// ++++++++++++++++++++++++++++++++++++++++++++ //
+// File: htcchartdatamangler.cpp
+// Description: Organizes data into a format
+// that can be loaded into a chart
+//
+// Date: 2019-03-07
+//
+//
+// TODO:
+//
+//
+//
+// ++++++++++++++++++++++++++++++++++++++++++++ //
 #include "htcchartdatamangler.h"
 
 HTCChartDataMangler::HTCChartDataMangler(QObject *parent) : QObject(parent)
@@ -5,26 +18,26 @@ HTCChartDataMangler::HTCChartDataMangler(QObject *parent) : QObject(parent)
     _foundBadRange = false;
 }
 
-void HTCChartDataMangler::Init(QStringList fileList, QVector<int> columns)
+void HTCChartDataMangler::Init(QStringList fileList, QVector<int> columns, int dataType, QString baseFolder)
 {
     _baseFileList = fileList;
     _selectedColumns = columns;
-
+    _baseFolder = baseFolder;
+    setDataType(dataType);
 
     loadFilesIntoData();
 
     if (sortFileset() == true)
     {
         discoverRanges();
+
+
         discoverStartStopRangeIDs();
         setNumberOfChartsTobuild();
         setColumnLists();
         setFileDelim();
 
         getMetrics();
-
-
-
 
         if( getFileSetStatus())
         {
@@ -49,6 +62,11 @@ bool HTCChartDataMangler::GetItitializedDataOK()
     return _initialized;
 }
 
+int HTCChartDataMangler::getDataType()
+{
+    return _dataType;
+}
+
 
 
 int HTCChartDataMangler::findFirstDataRow(QStringList list, QString delimiter)
@@ -61,7 +79,7 @@ int HTCChartDataMangler::findFirstDataRow(QStringList list, QString delimiter)
     int result = -1;
     bool found = false;
     QRegExp re("^-?\\d*\\.?\\d+");
-    QRegExp re2("((\\b[0-9]+)?\\.)?\\b[0-9]+([eE][-+]?[0-9]+)?\\b");
+    QRegExp re2("(([-+]?[0-9]+)?\\.)?\\b[0-9]+([eE][-+]?[0-9]+)?");
 
 
 
@@ -126,7 +144,7 @@ void HTCChartDataMangler::loadFilesIntoData()
     {
        for(int i = 0; i < _baseFileList.count(); i++)
        {
-           HTCChartDataFile * df = new HTCChartDataFile(_baseFileList.at(i));
+           HTCChartDataFile * df = new HTCChartDataFile(_baseFileList.at(i), _dataType);
            _dataFiles.append(*df);
        }
 
@@ -145,6 +163,7 @@ bool HTCChartDataMangler::sortFileset()
 
         result = true;
     }
+
     return result;
 }
 
@@ -237,6 +256,7 @@ void HTCChartDataMangler::discoverRanges()
         {
 
             QString range = df.getOrientationFRange();
+
             if(!_rangeList.contains(range))
             {
                 _rangeList.append(range);
@@ -339,6 +359,7 @@ void HTCChartDataMangler::setNumberOfChartsTobuild()
         _numberOfChartsToBuild = _selectedColumns.count() - 1;
     }
 
+
 }
 
 void HTCChartDataMangler::setColumnLists()
@@ -373,10 +394,11 @@ void HTCChartDataMangler::setFileDelim()
 
 }
 
-bool HTCChartDataMangler::getMetrics()
+void HTCChartDataMangler::getMetrics()
 {
     setFilesPerRange();
     setRowCountsStatus();
+
 
 }
 
@@ -567,9 +589,6 @@ int HTCChartDataMangler::setRowCountStatusByRange(QString range, int rangeID)
             if (!foundRange)
             {
                 base = df.getlastDataRowNumber() - df.getFirstDataRowNumber();
-//                qDebug() << "base row count check for " << df.getDataFileInfo().fileName();
-//                qDebug() << "last data row / first data row" << df.getlastDataRowNumber() << "/" << df.getFirstDataRowNumber();
-//                qDebug() << "base = " << base;
                 next = base;
                 foundRange = true;
                 RowCountsPerFile[rangeID].append("1");
@@ -580,9 +599,6 @@ int HTCChartDataMangler::setRowCountStatusByRange(QString range, int rangeID)
             {
                 next = df.getlastDataRowNumber() - df.getFirstDataRowNumber();
 
-//                qDebug() << "file row count check for " << df.getDataFileInfo().fileName();
-//                qDebug() << "last data row / first data row" << df.getlastDataRowNumber() << "/" << df.getFirstDataRowNumber();
-//                qDebug() << "next/base " << next << "/" << base;
                 if (base == next)
                 {
                     RowCountsPerFile[rangeID].append("1");
@@ -617,28 +633,29 @@ void HTCChartDataMangler::BuildAllChartDataSets()
 
    for(int i = 0; i < _numberOfChartsToBuild; i++)
     {
-       HTCChartDataSet * dset = new HTCChartDataSet(); // just added (this)
+       HTCChartDataSet * dset = new HTCChartDataSet();
+
+       dset->setDataType(_dataType);
+       dset->setBaseFolder(_baseFolder);
        dataset = BuildDataSet(_columnSets.at(i));
        dset->SetData(dataset);
+       dset->setDataType(_dataType);
 
        setDataSetProperties(dset, _columnSets.at(i), i);
 
        if (getFilesPerRangeIsValid(dset) ==  true)
        {
            testchart = new HtcChart();
+           //testchart->setDataType(_dataType);
            testchart->setChartByDataSet(dset, true);
            testchart->show();
-
            _dataSets.append(*dset);
-
-          //listThisList( dset->GetData());
 
        }
        else
        {
             showBadFilesperRnageMessage(dset);
        }
-
 
    }
 
@@ -738,7 +755,6 @@ QStringList HTCChartDataMangler::getDataSetHeader(QString columns, int startFile
 
             result.append(line);
 
-
         }
 
     }
@@ -756,10 +772,14 @@ QStringList HTCChartDataMangler::getDataSetHeader(QString columns, int startFile
                 {
                     line.append("Test Frequency");
                     line.append(_dataFileDelim);
+
                 }
 
                 line.append(df.getOrientationTTRotation());
-                line.append("_");
+                if (_dataType == RIdataType)
+                {
+                    line.append("_");
+                }
                 line.append(df.getOrientationPolarity());
                 line.append(_dataFileDelim);
 
@@ -769,10 +789,12 @@ QStringList HTCChartDataMangler::getDataSetHeader(QString columns, int startFile
             HTCChartDataFile df = _dataFiles[stopFileNum];
 
             line.append(df.getOrientationTTRotation());
-            line.append("_");
+            if (_dataType == RIdataType)
+            {
+                line.append("_");
+            }
+
             line.append(df.getOrientationPolarity());
-
-
             result.append(line);
         }
         else
@@ -783,13 +805,16 @@ QStringList HTCChartDataMangler::getDataSetHeader(QString columns, int startFile
             line.append("Test Frequency");
             line.append(_dataFileDelim);
             line.append(df.getOrientationTTRotation());
-            line.append("_");
+
+            if (_dataType == RIdataType)
+            {
+                line.append("_");
+
+            }
             line.append(df.getOrientationPolarity());
 
             result.append(line);
         }
-
-
 
     }
 
@@ -901,15 +926,10 @@ QStringList HTCChartDataMangler::getDataChunkByRange(QStringList list, QString c
         }
 
 
-
-
-
     }
 
 
     return result;
-
-
 
 }
 
@@ -932,7 +952,16 @@ void HTCChartDataMangler::setDataSetProperties(HTCChartDataSet *ChartDataSet, QS
     serial = df.getOrientationEUTSerial();
     ChartDataSet->SetModel(model);
     ChartDataSet->SetSerial(serial);
-    ChartDataSet->SetXAxisScale("LIN");
+    if (_dataType == RIdataType)
+    {
+        ChartDataSet->SetXAxisScale("LIN");
+    }
+    else
+    {
+        ChartDataSet->SetXAxisScale("LOG");
+    }
+
+
     ChartDataSet->SetYAxisScale("LIN");
     ChartDataSet->SetDataSetIndex(_dataSetIndex);
 
@@ -949,8 +978,18 @@ void HTCChartDataMangler::setDataSetProperties(HTCChartDataSet *ChartDataSet, QS
 
     ChartDataSet->SetXAxisTitle("EM Disturbance Frequency (MHz)");
 
-    // set chart title
-    chartTitle.append("Radiated Immunity Composite Data ");
+    // set chart title by data type
+    // ------------------------------------------------------ //
+
+    if (getDataType() == RIdataType)
+    {
+        chartTitle.append("Radiated Immunity Composite Data ");
+    }
+    else
+    {
+        chartTitle.append("Conducted Immunity Composite Data ");
+    }
+
     chartTitle.append("<br>");
     chartTitle.append("for :: ");
     chartTitle.append(model);
@@ -961,12 +1000,8 @@ void HTCChartDataMangler::setDataSetProperties(HTCChartDataSet *ChartDataSet, QS
     chartTitle.append(yName);
     ChartDataSet->SetChartTitle(chartTitle);
 
-
-
     // increment the count
     _dataSetIndex++;
-
-
 
 }
 
@@ -991,6 +1026,12 @@ bool HTCChartDataMangler::getFilesPerRangeIsValid(HTCChartDataSet * dset)
 
     return result;
 
+}
+
+void HTCChartDataMangler::setDataType(int dataType)
+{
+    _dataType = dataType;
+    //qDebug() << "dataType in mangler == " << _dataType;
 }
 
 

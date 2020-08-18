@@ -30,8 +30,8 @@ CONFIG += c++11
 
 SOURCES += \
     datapoint.cpp \
-    main.cpp \
-    htcdataselector.cpp \
+        main.cpp \
+        htcdataselector.cpp \
     htcchartdatafile.cpp \
     htcchartdatamangler.cpp \
     htcchartfolder.cpp \
@@ -47,7 +47,7 @@ SOURCES += \
 
 HEADERS += \
     datapoint.h \
-    htcdataselector.h \
+        htcdataselector.h \
     htcchartdatafile.h \
     htcchartdatamangler.h \
     htcchartfolder.h \
@@ -63,7 +63,7 @@ HEADERS += \
 
 
 FORMS += \
-    htcdataselector.ui \
+        htcdataselector.ui \
     chartproperties.ui \
     htcchart.ui \
     htcdatadialog.ui \
