@@ -60,9 +60,11 @@ void HTCDataSelector::SetFolderInService(QString folder, QString filter, int dTy
          _filterInService = filter;
          cdf = new HTCChartFolder;
          connect(cdf,SIGNAL(messageToStatusBar(QString)),this,SLOT(messageForStatusBar(QString)));
+
+         qDebug() << "folder in service/filter/dType " << _folderInService << "/" << _filterInService << "/" << dType;
          members = cdf->init(_folderInService, _filterInService, dType);
 
-         //qDebug() << "Discovered " << members << " to be listed";
+         qDebug() << "Discovered " << members << " to be listed";
 
          FillListFromPath();
 

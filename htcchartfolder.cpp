@@ -27,11 +27,14 @@ HTCChartFolder::HTCChartFolder(QObject *parent) : QObject(parent)
 int HTCChartFolder::init(QString folder, QString extension, int dType)
 {
 
+
+    qDebug() << "received folder\extension\dtype" << folder << "/" << extension << "/" << QString::number(dType);
     // ++++++++++++++++++++++++++++++++++++++++++++++++
     // check for file count first
     // we might need to protect against too many/few files
     // ++++++++++++++++++++++++++++++++++++++++++++++++
     int fileCount = CountFiles(folder);
+    int result = -1;
     qDebug() << "found " << fileCount << " files.";
 
     setDataType(dType);
@@ -43,7 +46,7 @@ int HTCChartFolder::init(QString folder, QString extension, int dType)
         HTCChartDataFile filObj;
 
         QString itemName = "";
-        int result = 0;
+        result = 0;
         QString model = "";
         QString serial = "";
         QString temp = "";
@@ -107,9 +110,12 @@ int HTCChartFolder::init(QString folder, QString extension, int dType)
             msg.append(" to the list...");
 
             emit messageToStatusBar(msg);
+            qDebug() << "message: " << msg;
 
             if (nameToTest.contains(extension))
             {
+
+                qDebug() << "file contained extension";
 
                 // check for proper test codes contained in the
                 // ones pointed to.
@@ -134,6 +140,8 @@ int HTCChartFolder::init(QString folder, QString extension, int dType)
                         serial = filObj->getOrientationEUTSerial();
                         numFRows = filObj->getlastDataRowNumber() - filObj->getFirstDataRowNumber();
 
+                        qDebug() << "model/serial/numRows " << model << "/" << serial << "/" << numFRows;
+
                         thisSet.append(model);
                         thisSet.append(fNameDelim);
                         thisSet.append(serial);
@@ -141,6 +149,8 @@ int HTCChartFolder::init(QString folder, QString extension, int dType)
                         thisTag.append(filObj->getKey());
                         thisTag.append(",");
                         thisTag.append(itemName);
+
+                        qDebug() << "tag = " << thisTag;
 
                         // protect the list from non-data datafiles
                         // ---------------------------------------- //
@@ -191,8 +201,10 @@ int HTCChartFolder::init(QString folder, QString extension, int dType)
 
         }
 
-        return result;
+
     }
+
+    return result;
 }
 
 QStringList HTCChartFolder::GetFolderList()
