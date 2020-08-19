@@ -38,7 +38,6 @@ HTCChartDataSet::HTCChartDataSet(QObject *parent)
     _testValues.append(1);
     _testValues.append(2);
 
-    // aug-14-2020
     loadSettings();
 }
 
@@ -105,7 +104,9 @@ void HTCChartDataSet::SetChartTitle(QString title)
 
         if ( _dataHasReReRangedSet == false)
         {
-            // Need to add an error dialog here
+            // Might need to add an error dialog here
+            // If Qt fixes the bug, we can kill all
+            // this anyway.
             qDebug() << "unable to rerange data";
         }
     }
@@ -189,8 +190,6 @@ bool HTCChartDataSet::GetDatahasReRangedSet()
 {
     return _dataHasReReRangedSet;
 }
-
-
 
 QString HTCChartDataSet::GetChartTitle()
 {
@@ -427,8 +426,6 @@ void HTCChartDataSet::loadSettings()
     _commCheckAutoDetect = setting.value("CommCheckAutoDetectEnabled").toInt();
 
     setting.endGroup();
-
-
 }
 
 void HTCChartDataSet::SetAnalogMinMax()
@@ -605,15 +602,11 @@ bool HTCChartDataSet::reRangeData()
 
         for (int i = 1; i < numLines; i++)
         {
-
             _reRangedData.append(getReRangedLine(_data[i], delim, _lowestAmplitudeMultiplier));
-
         }
     }
 
     return result;
-
-
 }
 
 QString HTCChartDataSet::getReRangedLine(QString target, QString delim, double factor)
@@ -663,9 +656,7 @@ void HTCChartDataSet::setHeader()
 
 void HTCChartDataSet::setHeaderList(QString target, QString delim)
 {
-
    _headerList = target.split(delim);
-
 }
 
 
@@ -761,7 +752,6 @@ bool HTCChartDataSet::IsCommCheckData(QStringList commCkData)
 
         if (ThisLineIsCommCk(target,delim) == false)
         {
-            // qDebug() << "I bailed becasue I found non comm check data";
             result = false;
             break;
         }
@@ -807,8 +797,6 @@ bool HTCChartDataSet::ThisLineIsCommCk(QString target, QString del)
     }
 
     return result;
-
-
 }
 
 QList<double> HTCChartDataSet::ConvertToDoubleList(QString target, QString delim)
