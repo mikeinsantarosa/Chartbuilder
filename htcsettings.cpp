@@ -295,6 +295,10 @@ void HTCSettings::loadSettings()
     QString penValue = "";
     QString positionValue = "";
 
+    bool dirtyOnLoad = false;
+
+
+
     QSettings setting("Keysight","ChartBuilder");
 
     setting.beginGroup("ProgramFolders");
@@ -302,28 +306,145 @@ void HTCSettings::loadSettings()
     _ChartLegendFontSizeValue = setting.value("ChartLegendFontSize").toInt();
     _ChartLegendFontFamilyValue = setting.value("ChartLegendFontFamily").toInt();
 
-    _ChartPaddingValueY = setting.value("ChartScalePaddingYOn").toInt();
+
+
+
+    // ---------------------------------------------- //
+    //
+    // Y Padding state and value
+    //
+    // ---------------------------------------------- //
+    // Get Y Padding state
+    // ---------------------------------------------- //
+    if (setting.contains("ChartScalePaddingYOn"))
+    {
+        _ChartPaddingValueY = setting.value("ChartScalePaddingYOn").toInt();
+
+    }
+    else
+    {
+        _ChartPaddingValueY = 1;
+        dirtyOnLoad = true;
+    }
+
+    // set the combo
+    //
     ui->comboChartPaddingY->setCurrentIndex(_ChartPaddingValueY);
 
-    _ChartScalePaddingValueY = setting.value("ChartScalePaddingYValue").toDouble();
+    // ---------------------------------------------- //
+    // Get Y Padding value
+    // ---------------------------------------------- //
+    if (setting.contains("ChartScalePaddingYValue"))
+    {
+        _ChartScalePaddingValueY = setting.value("ChartScalePaddingYValue").toDouble();
+    }
+    else
+    {
+        _ChartScalePaddingValueY = 5;
+        dirtyOnLoad = true;
+    }
+    // set the line edit control
+    //
     ui->linePaddingValueY->setText(QString::number(_ChartScalePaddingValueY));
 
 
-    _ChartRIPaddingValueX = setting.value("ChartRIScalePaddingXOn").toInt();
+
+
+    // ---------------------------------------------- //
+    //
+    // Set X Axis RI Padding state and value
+    //
+    // ---------------------------------------------- //
+    // Get X RI Padding state
+    // ---------------------------------------------- //
+    if (setting.contains("ChartRIScalePaddingXOn"))
+    {
+        _ChartRIPaddingValueX = setting.value("ChartRIScalePaddingXOn").toInt();
+    }
+    else
+    {
+        _ChartRIPaddingValueX = 1;
+        dirtyOnLoad = true;
+    }
+    // set the combo
+    //
     ui->comboRIChartPaddingX->setCurrentIndex(_ChartRIPaddingValueX);
 
-    _ChartRIScalePaddingValueX = setting.value("ChartRIScalePaddingXValue").toDouble();
+    // ---------------------------------------------- //
+    // Get X RI Padding value
+    // ---------------------------------------------- //
+    if (setting.contains("ChartRIScalePaddingXValue"))
+    {
+        _ChartRIScalePaddingValueX = setting.value("ChartRIScalePaddingXValue").toDouble();
+    }
+    else
+    {
+        _ChartRIScalePaddingValueX = 25;
+        dirtyOnLoad = true;
+    }
+    // set the line edit control
+    //
     ui->lineRIPaddingValueX->setText(QString::number(_ChartRIScalePaddingValueX));
 
-    _ChartCIPaddingValueX = setting.value("ChartCIScalePaddingXOn").toInt();
+
+
+
+
+    // ---------------------------------------------- //
+    //
+    // Set X Axis CI Padding state and value
+    //
+    // ---------------------------------------------- //
+    // Get X CI Padding state
+    // ---------------------------------------------- //
+    if (setting.contains("ChartCIScalePaddingXOn"))
+    {
+        _ChartCIPaddingValueX = setting.value("ChartCIScalePaddingXOn").toInt();
+    }
+    else
+    {
+        _ChartCIPaddingValueX = 1;
+        dirtyOnLoad = true;
+    }
+    // set the combo
+    //
     ui->comboCIChartPaddingX->setCurrentIndex(_ChartCIPaddingValueX);
 
-    _ChartCIScalePaddingValueX = setting.value("ChartCIScalePaddingXValue").toDouble();
+    // ---------------------------------------------- //
+    // Get X CI Padding value
+    // ---------------------------------------------- //
+    if (setting.contains("ChartCIScalePaddingXValue"))
+    {
+        _ChartCIScalePaddingValueX = setting.value("ChartCIScalePaddingXValue").toDouble();
+    }
+    else
+    {
+        _ChartCIScalePaddingValueX = 25;
+        dirtyOnLoad = true;
+    }
+    // set the line edit control
+    //
     ui->lineCIPaddingValueX->setText(QString::number(_ChartCIScalePaddingValueX));
 
 
-    _commCheckAutoDetect = setting.value("CommCheckAutoDetectEnabled").toInt();
 
+
+
+
+    // ---------------------------------------------- //
+    // Get Binary Comm Check Auto detect state
+    // ---------------------------------------------- //
+    if (setting.contains("CommCheckAutoDetectEnabled"))
+    {
+        _commCheckAutoDetect = setting.value("CommCheckAutoDetectEnabled").toInt();
+    }
+    else
+    {
+        _commCheckAutoDetect = 1;
+        dirtyOnLoad = true;
+    }
+    // set the radio buttons
+    //
     if(_commCheckAutoDetect == 1)
     {
         ui->radioCommAutoOn->toggle();
@@ -333,12 +454,29 @@ void HTCSettings::loadSettings()
         ui->radioCommAutoOff->toggle();
     }
 
+
+
+
     // ---------------------------------------------------------//
     //
     // new legend override
     //
-
-    if (setting.value("ChartLegendOverride").toInt() == 1)
+    // ---------------------------------------------- //
+    // Get Binary Comm Check Auto detect state
+    // ---------------------------------------------- //
+    int testValue;
+    if (setting.contains("ChartLegendOverride"))
+    {
+        testValue = setting.value("ChartLegendOverride").toInt();
+    }
+    else
+    {
+        testValue = 1;
+        dirtyOnLoad = true;
+    }
+    // set the radio buttons
+    //
+    if (testValue == 1)
     {
         _OverrideLegendValue = true;
     }
@@ -354,23 +492,33 @@ void HTCSettings::loadSettings()
 
 
 
+
+    // ---------------------------------------------- //
+    // Get chart animation state
+    // ---------------------------------------------- //
+    if (setting.contains("EnableChartAnimations"))
+    {
+        testValue = setting.value("EnableChartAnimations").toInt();
+    }
+    else
+    {
+        testValue = 1;
+        dirtyOnLoad = true;
+    }
+    // set the radio buttons
     //
-    //  new chart animations
-    //
-    // this is in service and works
-    //
-    if (setting.value("EnableChartAnimations").toInt() == 1)
+    if (testValue == 1)
     {
         _EnableAnimations = true;
     }
     else
     {
         _EnableAnimations = false;
-
-
     }
-
+    // set the radio buttons
+    //
     setEnableChartAnimationsSelector(_EnableAnimations);
+
 
 
     //
@@ -389,7 +537,6 @@ void HTCSettings::loadSettings()
 
     setEnableHoverCalloutSelector(_EnableHoverCallout);
 
-   // end of new cool stuff
 
     // chart fonts
     if(_ChartLegendFontSizeValue == 0)
@@ -684,6 +831,11 @@ void HTCSettings::loadSettings()
 
 
     setting.endGroup();
+
+    if (dirtyOnLoad == true)
+    {
+        saveSettings();
+    }
 }
 
 void HTCSettings::setLegendOverrideSelector(bool SetOVerrideOn)
@@ -696,8 +848,6 @@ void HTCSettings::setLegendOverrideSelector(bool SetOVerrideOn)
     {
         ui->radioRILegendAuto->toggle();
     }
-
-
 
 }
 
