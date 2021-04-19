@@ -314,6 +314,12 @@ void HTCChartDataFile::parseFileProperties(QString fileName)
     //QStringList parts = fileName.split(_fileNamePartsDelim);
     QStringList parts = getFileParts(fileName,_fileNamePartsDelim);
 
+//    qDebug() << "printing file parts";
+
+//    listThisList(parts);
+
+//    qDebug() << "printing file parts completed";
+
     // If the user didn't include
     // additional _ (underscores)
     // in the model/serial fields

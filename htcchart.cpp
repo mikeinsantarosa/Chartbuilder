@@ -234,7 +234,7 @@ void HtcChart::initProperties()
         }
         else
         {
-            _chartXAxisMinorGridLinesCount = 9;
+            _chartXAxisMinorGridLinesCount = 8; // SN requested this be 8, it was 9
             _chartXAxisLinLogScale = "LOG";
         }
 
