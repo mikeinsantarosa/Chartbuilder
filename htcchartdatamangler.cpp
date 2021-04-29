@@ -20,7 +20,18 @@ HTCChartDataMangler::HTCChartDataMangler(QObject *parent) : QObject(parent)
 
 void HTCChartDataMangler::Init(QStringList fileList, QVector<int> columns, int dataType, QString baseFolder)
 {
+
+    fileList.sort();
     _baseFileList = fileList;
+
+
+    // check what the file list looks like
+    qDebug() << "<--------- listing the file list -------------->";
+
+    listThisList(_baseFileList);
+
+    qDebug() << "<--------- End of file list -------------->";
+
     _selectedColumns = columns;
     _baseFolder = baseFolder;
     setDataType(dataType);

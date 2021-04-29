@@ -546,8 +546,6 @@ void HtcChart::initChart()
 
         _series->setPen(SeriesPen);
 
-        qDebug() << "Pen " << dataSet << " color is " <<  _series->pen().color();
-
         _chart->addSeries(_series);
 
         //this only gets called on initial chart construction

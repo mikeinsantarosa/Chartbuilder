@@ -399,6 +399,15 @@ private:
 
     QStringList _nonDeletablePenNames;
 
+    // ------------------------------- //
+    // X/Y local tic color properties
+    // ------------------------------- //
+    QColor  _clrXMajorTicColor;
+    QColor  _clrXMinorTicColor;
+    QColor  _clrYMajorTicColor;
+    QColor  _clrYMinorTicColor;
+
+
 
 
     //QFont _formLabelFont = QFont("Times New Roman",10, QFont::Normal );

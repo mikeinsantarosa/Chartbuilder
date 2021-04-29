@@ -75,7 +75,7 @@ ChartProperties::ChartProperties(QWidget *parent) :
     ui->groupChartTitle->setAutoFillBackground(true);
     ui->groupChartTitle->setPalette(subDialogPal);
 
-    ui->groupXAxisItems->setAutoFillBackground(true);;
+    ui->groupXAxisItems->setAutoFillBackground(true);
     ui->groupXAxisItems->setPalette(subDialogPal);
 
     ui->groupYAxisItems->setAutoFillBackground(true);
@@ -204,6 +204,10 @@ void ChartProperties::setChartXAxisGridLines(bool AxisMajorLinesAreVisible, int 
     ui->checkXMajor->setChecked(AxisMajorLinesAreVisible);
     ui->spinXMajorThickness->setValue(QString::number(AxisMajorGridLinesize).toInt());
 
+    _clrXMajorTicColor = AxisMajorLinesColor;
+    _clrXMinorTicColor = AxisMinorLinesColor;
+
+
     // Set the X Axis Major tic Label color
     // -----------------------------------------------------
 //    QPalette  palMajor;
@@ -285,11 +289,16 @@ void ChartProperties::setChartYAxisGridLines(bool AxisMajorLinesAreVisible, int 
     ui->checkYMajor->setChecked(AxisMajorLinesAreVisible);
     ui->spinYMajorThickness->setValue(QString::number(AxisMajorGridLinesize).toInt());
 
-    // Set the X Axis Major tic Label color
+     _clrYMajorTicColor = AxisMajorLinesColor;
+     _clrYMinorTicColor = AxisMinorLinesColor;
+
+    // Set the local X Axis Major tic color
     // -----------------------------------------------------
 //    QPalette  palMajor;
-//    palMajor.setColor(QPalette::Base, Qt::white);
-//    palMajor.setColor(QPalette::WindowText, AxisMajorLinesColor);
+
+
+//    _palYMajorTicColor.setColor(QPalette::Base, Qt::white);
+//    _palYMajorTicColor.setColor(QPalette::WindowText, AxisMajorLinesColor);
 //    ui->labelYMajorTics->setPalette(palMajor);
 
     // Set the X Axis Major spinbox text/count value
@@ -308,8 +317,8 @@ void ChartProperties::setChartYAxisGridLines(bool AxisMajorLinesAreVisible, int 
     // Set the X Axis Minor tic Label color
     // -----------------------------------------------------
 //    QPalette  palMinor = QPalette();
-//    palMinor.setColor(QPalette::Base, Qt::white);
-//    palMinor.setColor(QPalette::WindowText, AxisMinorLinesColor);
+//    _palYMajorTicColor.setColor(QPalette::Base, Qt::white);
+//    _palYMajorTicColor.setColor(QPalette::WindowText, AxisMinorLinesColor);
 //    ui->labelYMinorTics->setPalette(palMinor);
 
     // Set the X Axis Minor spinbox text/count value
@@ -505,9 +514,11 @@ QColor ChartProperties::getNewColor(QColor currentColor)
     QColor result = currentColor;
 
     QColor color = QColorDialog::getColor(currentColor, this);
+
         if( color.isValid() )
         {
-          result = color;
+
+            result = color;
         }
         else
         {
@@ -1400,6 +1411,9 @@ void ChartProperties::on_btnChartTitleTextColor_clicked()
 QColor ChartProperties::getColorFromPalette(QPalette pal)
 {
     QColor currentColor = pal.color(QPalette::Text);
+
+    qDebug() << "color returned from pallete is " << currentColor;
+
     return currentColor;
 }
 
@@ -1689,22 +1703,14 @@ void ChartProperties::on_btnXAxisMajorGridColor_clicked()
 {
    if (!_busy)
    {
-       // Check the current label color against the new color
+       // Check the current local color
        // -------------------------------------------
-       QPalette  pal = ui->labelXMajorTics->palette();
-       QColor currentColor = pal.color(QPalette::WindowText);
+       QColor currentColor = _clrXMajorTicColor;
 
        QColor color = getNewColor(currentColor);
 
        if (color != currentColor)
        {
-//           // change the label color
-//           pal.setColor(QPalette::WindowText, color);
-//           ui->labelXMajorTics->setPalette(pal);
-
-//           // change the spinbox color
-//           pal.setColor(QPalette::Text, color);
-//           ui->spinXMajorTics->setPalette(pal);
 
            // Fire the signal event
            // -------------------------------------------------------------------------------------------------
@@ -1717,22 +1723,14 @@ void ChartProperties::on_btnXAxisMinorGridColor_clicked()
 {
     if (!_busy)
     {
-        // Check the current label color against the new color
         // -------------------------------------------
-        QPalette  pal = ui->labelXMinorTics->palette();
-        QColor currentColor = pal.color(QPalette::WindowText);
+        // Check the current local color
+        QColor currentColor =_clrXMinorTicColor;
 
         QColor color = getNewColor(currentColor);
 
         if (color != currentColor)
         {
-//            // change the label color
-//            pal.setColor(QPalette::WindowText, color);
-//            ui->labelXMinorTics->setPalette(pal);
-
-//            // change the spinbox color
-//            pal.setColor(QPalette::Text, color);
-//            ui->spinXMinorTics->setPalette(pal);
 
             // Fire the signal event
             // -------------------------------------------------------------------------------------------------
@@ -1744,26 +1742,19 @@ void ChartProperties::on_btnXAxisMinorGridColor_clicked()
 
 void ChartProperties::on_btnYAxisMajorGridColor_clicked()
 {
-    // Check the current label color against the new color
-    // -------------------------------------------
-    QPalette  pal = ui->labelYMajorTics->palette();
-    QColor currentColor = pal.color(QPalette::WindowText);
 
+    // get the tics current color
+    QColor currentColor =_clrYMajorTicColor;
+
+    // try for a new color
     QColor color = getNewColor(currentColor);
 
+    // if the color is different change the chart
     if (color != currentColor)
     {
-//        // change the label color
-//        pal.setColor(QPalette::WindowText, color);
-//        ui->labelYMajorTics->setPalette(pal);
-
-//        // change the spinbox color
-//        pal.setColor(QPalette::Text, color);
-//        ui->spinYMajorTics->setPalette(pal);
-
         // Fire the signal event
         // -------------------------------------------------------------------------------------------------
-        emit HTCChartYAxisMajorTicsColorChanged(this->getColorFromPalette(ui->spinYMajorTics->palette()));
+         emit HTCChartYAxisMajorTicsColorChanged(color);
     }
 
 }
@@ -1772,24 +1763,16 @@ void ChartProperties::on_btnYAxisMinorGridColor_clicked()
 {
     // Check the current label color against the new color
     // -------------------------------------------
-    QPalette  pal = ui->labelYMinorTics->palette();
-    QColor currentColor = pal.color(QPalette::WindowText);
+    QColor currentColor = _clrYMinorTicColor;
 
     QColor color = getNewColor(currentColor);
 
     if (color != currentColor)
     {
-//        // change the label color
-//        pal.setColor(QPalette::WindowText, color);
-//        ui->labelYMinorTics->setPalette(pal);
-
-//        // change the spinbox color
-//        pal.setColor(QPalette::Text, color);
-//        ui->spinYMinorTics->setPalette(pal);
 
         // Fire the signal event
         // -------------------------------------------------------------------------------------------------
-        emit HTCChartYAxisMinorTicsColorChanged(this->getColorFromPalette(ui->spinYMinorTics->palette()));
+        emit HTCChartYAxisMinorTicsColorChanged(color);
 
     }
 }
