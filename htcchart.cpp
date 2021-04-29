@@ -545,6 +545,9 @@ void HtcChart::initChart()
         SeriesPen.setStyle(Qt::PenStyle(_penStyles[dataSet - 1]));
 
         _series->setPen(SeriesPen);
+
+        qDebug() << "Pen " << dataSet << " color is " <<  _series->pen().color();
+
         _chart->addSeries(_series);
 
         //this only gets called on initial chart construction
