@@ -23,6 +23,9 @@
 HTCChartDataFile::HTCChartDataFile(QString dataFileName, int dType)
 {
 
+    _riMatchingTestCodes << "q241" << "q242" << "q243" << "q244" << "q245" << "q248" << "q249";
+    _ciMatchingTestCodes  << "q420" << "q421" << "q422" << "q423" << "q424" << "q425";
+
     setDataFileDelim(dataFileName);
     _fileDelimCount = getFileDelimCount(dataFileName);
     setDataType(dType);

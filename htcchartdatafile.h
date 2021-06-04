@@ -64,6 +64,10 @@ private:
     QString _basedOnThisFile;
     QString _dataFileDelim;
 
+    // ---------------------------------
+    QStringList _riMatchingTestCodes;
+    QStringList _ciMatchingTestCodes;
+
     bool _dataSuccessfullyLoaded;
     int _totalNumberOfRows;
     int _firstDataRow;
