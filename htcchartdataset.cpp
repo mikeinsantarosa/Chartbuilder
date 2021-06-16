@@ -41,8 +41,12 @@ HTCChartDataSet::HTCChartDataSet(QObject *parent)
     loadSettings();
 }
 
+
+// this is the data including header
+// -------------------------------------------
 void HTCChartDataSet::SetData(QStringList data)
 {
+
     _data = data;
 
 }
@@ -53,9 +57,13 @@ void HTCChartDataSet::SetChartTitle(QString title)
     // this is the last dataset
     // item that gets set
     // ------------------------------- //
+    SetCommCheckAutoDetect();
 
     // if autodetect is enabled
     // see if the data is binary
+    // _isCommCheckData instead of _commCheckAutoDetect
+
+    qDebug() << "_commCheckAutoDetect " << _commCheckAutoDetect;
     if (_commCheckAutoDetect == 1)
     {
         SetCommCheckAutoDetect();
@@ -172,13 +180,17 @@ void HTCChartDataSet::setDataType(int dataType)
 
 void HTCChartDataSet::setBaseFolder(QString baseFolder)
 {
+
     _baseFolder = baseFolder;
+    // qDebug() << "void HTCChartDataSet::setBaseFolder(QString baseFolder) " << _baseFolder;
 }
 
 
 QStringList HTCChartDataSet::GetData()
 {
+
     return _data;
+
 }
 
 QStringList HTCChartDataSet::GetReRangedData()
@@ -403,6 +415,7 @@ void HTCChartDataSet::listThisList(QList<double> list)
 void HTCChartDataSet::listMasterList()
 {
     QStringList list = getMasterList();
+    qDebug() << "void HTCChartDataSet::listMasterList() result";
     listThisStringList(list);
 }
 
@@ -410,6 +423,10 @@ void HTCChartDataSet::SetCommCheckAutoDetect()
 {
     QString del = getFileDelim();
     _ProcessedDataList = getMasterList();
+
+    // qDebug() << "_ProcessedDataList = getMasterList(); " << _ProcessedDataList.count();
+
+    // listMasterList();;
     _isCommCheckData = IsCommCheckData(_ProcessedDataList);
 }
 
@@ -453,6 +470,8 @@ void HTCChartDataSet::FillMinMaxLists()
     int numLines = _ProcessedDataList.count();
     QList<double> testValues;
 
+    qDebug() << "_ProcessedDataList.count() " << _ProcessedDataList.count();
+
     FlushMinMaxLists();
 
     for (int i = 0; i < numLines; i++)
@@ -470,9 +489,12 @@ void HTCChartDataSet::FillMinMaxLists()
 
 
     }
-//    listThisList(_maxValuesList);
+
+
     _dataSetYMinValue = getMin(_minValuesList);
     _dataSetYMaxValue = getMax(_maxValuesList);
+
+    qDebug() << "Min/max in FillMinMaxLists() " << _dataSetYMinValue << "/" << _dataSetYMaxValue;
 
 }
 
@@ -696,8 +718,12 @@ QStringList HTCChartDataSet::getMasterList()
     QStringList result;
 
     QString del = getFileDelim();
+    // qDebug() << " delim is " << del;
 
     int numlines = _data.count();
+
+    // qDebug() << "data count is " << numlines;
+
     QStringList parts;
     QString target;
     QString newTarget;

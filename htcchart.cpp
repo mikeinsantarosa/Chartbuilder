@@ -96,13 +96,23 @@ void HtcChart::setFileToOpen(QString fileName, bool RescaleFreq, QString baseFol
 
 void HtcChart::setChartByDataSet(HTCChartDataSet *ds, bool RescaleFreq)
 {
+    //
+    //
+    //
+    //
+    //
+    // analog autrange detection might not be working
+    //
+    //
+    //
+    //
 
     _dataSet = new HTCChartDataSet;
     _dataSet = ds;
     _autoRangesDiscovered = false;
     _dataType = _dataSet->getDataType();
 
-//    qDebug() << "needs reranging " << ds->GetDataIsUnderRange() << " multiplier == " << ds->GetRangeMultiplier();
+   // qDebug() << "needs reranging " << ds->GetDataIsUnderRange() << " multiplier == " << ds->GetRangeMultiplier();
 
     initChartScaleMemory();
     initProperties();
@@ -411,7 +421,7 @@ void HtcChart::initChart()
 //          _XAxisMinValue = 0.01;
 //          _XAxisMaxValue = 100.0;
 
-          qDebug() << "did not modify X Axis min/max values";
+          // qDebug() << "did not modify X Axis min/max values";
       }
 
       if (getYAxisPaddingEnabled() == true && _loadedChartFromFile == false)
@@ -488,6 +498,8 @@ void HtcChart::initChart()
         QLineSeries *_series = new QLineSeries();
         fillSeriesfromList(_series, dataSet);
 
+        // debug var
+        QString smode = "";
 
         if (_OverrideLegendValue == false)
         {
@@ -502,6 +514,7 @@ void HtcChart::initChart()
             // then we need to add it back in to the original.
             match = stripMatch(s1,_ciLegendPrefixes);
 
+            // for RI only?
             posIDX = _legendKeys.indexOf(match);
 
             if(posIDX != -1)
@@ -510,12 +523,16 @@ void HtcChart::initChart()
                 //strips
                 if (_dataType == CIdataType)
                 {
-                    newLegendText.append(_ciUsedPrefixes.at(_CIRangInService));
-                    newLegendText.append(" ");
+                    //newLegendText.append(_ciUsedPrefixes.at(_CIRangInService));
+                    //newLegendText.append(" ");
+                    smode = "[CI DataType indexed]";
+
                     newLegendText.append(_positions.at(posIDX));
+                    //qDebug() << "CI only newLegendText " << newLegendText;
                 }
                 else
                 {
+                    smode = "[Not CI Data]";
                     newLegendText =  _positions.at(posIDX);
                 }
 
@@ -524,6 +541,7 @@ void HtcChart::initChart()
             {
                 // this legend gets called when loading a chart
                 // from a stored .chart file
+                smode = "[CI Data Not Indexed]";
 
                 newLegendText = _currentHeaderList[dataSet];
             }
@@ -533,6 +551,8 @@ void HtcChart::initChart()
             // set it by header values explicitly
             newLegendText = _currentHeaderList[dataSet];
         }
+
+       // qDebug() << "posIDX = " << posIDX << " match = " << match << " newLegendText " << newLegendText;
 
         cName = StripQuotesFromString(newLegendText);
 
@@ -562,8 +582,6 @@ void HtcChart::initChart()
             _penStates[dataSet - 1] = 1;
             cp->setPenItems(_penWidths[dataSet - 1], _penColors[dataSet - 1], _penStyles[dataSet - 1], cName, dataSet);
         }
-
-
 
 
         if (_chartXAxisLinLogScale == "LIN" )
@@ -767,6 +785,7 @@ void HtcChart::initChart()
             _series->attachAxis(axisY);
 
         }
+
 
     }
 
@@ -1635,7 +1654,7 @@ void HtcChart::fillSeriesfromList(QLineSeries *series, int dataSet)
             answer = target;
         }
 
-        return answer;
+         return answer;
     }
 
     QPen HtcChart::getPenStyle(int style)
@@ -1806,6 +1825,8 @@ void HtcChart::discoverChartScaleValues()
 
     _YAxisMinValue = _dataSet->GetAnalogYMinValue();
     _YAxisMaxValue = _dataSet->GetAnalogYMaxValue();
+
+  //  qDebug() << "y min/max in discoverChartScaleValues() " << _YAxisMinValue << "/" << _YAxisMaxValue;
 
 }
 

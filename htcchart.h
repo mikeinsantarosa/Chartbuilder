@@ -426,7 +426,7 @@ private:
     QString stripMatch(QString target, QStringList strips);
 
     QStringList _ciLegendPrefixes, _ciUsedPrefixes;
-    int _CIRangInService;
+    int _CIRangInService = 0;
 
     // ----------------------------------------------- //
     // CI/RI legend items

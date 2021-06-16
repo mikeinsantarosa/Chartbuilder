@@ -25,6 +25,7 @@ HTCChartDataFile::HTCChartDataFile(QString dataFileName, int dType)
 
     _riMatchingTestCodes << "q241" << "q242" << "q243" << "q244" << "q245" << "q248" << "q249";
     _ciMatchingTestCodes  << "q420" << "q421" << "q422" << "q423" << "q424" << "q425";
+    _orderCounter = 1;
 
     setDataFileDelim(dataFileName);
     _fileDelimCount = getFileDelimCount(dataFileName);
@@ -311,123 +312,24 @@ int HTCChartDataFile::setColumnHeadersList(QString delim)
 
 void HTCChartDataFile::parseFileProperties(QString fileName)
 {
-    bool loadingNormal = true;
 
-
-    //QStringList parts = fileName.split(_fileNamePartsDelim);
     QStringList parts = getFileParts(fileName,_fileNamePartsDelim);
 
-//    qDebug() << "printing file parts";
+    QString thisTestCode = parts.at(0);
 
-//    listThisList(parts);
-
-//    qDebug() << "printing file parts completed";
-
-    // If the user didn't include
-    // additional _ (underscores)
-    // in the model/serial fields
-    // there should be 7 fields
-    // in the data file names
-    // for an RI test.
-    //
-    // RI base program fixed
-    // so that extra underscores
-    // can't occur. Mar-26-2018
-    //
-    // -----------------------------
-    int numParts = parts.count();
-
-    if(numParts < 7)
+    if (_riMatchingTestCodes.contains(thisTestCode))
     {
-        loadingNormal = false;
+        solvePropertiesForRadiated(parts);
     }
-
-    // if numberOfParts < 7
-    // we're using this for a
-    // chart save and all we cann get
-    // is the test Code, model & serial
-
-
-    if(loadingNormal == true)
+    else if (_ciMatchingTestCodes.contains(thisTestCode))
     {
-        //QString last = parts.at(numParts - 1);
-
-        _polarity = parts.at(numParts - 1);
-        _ttRotation = parts.at(numParts - 2);
-        _fRange = parts.at(numParts - 3);
-
-        setRangeOrderMult();
-
-        _tLevel = parts.at(numParts - 4);
-        _eutSerial = parts.at(numParts - 5);
-
-        // the previous must be set first
-        _testCode = parts.at(0);
-        _rangeIDX = solveRangeIDX(_fRange);
-        _orientationOrderIDX = solveOrientationIDX(_polarity, _ttRotation);
-        _sortOrderIDX = setSortOrderIndex();
-
-        // this looks backwards!
-        SortOrderIndex = _sortOrderIDX;
-
-        setStandardTestType(_fRange);
-
-
-        if (numParts - 6 == 1)
-        {
-            _eutModel = parts.at(1);
-        }
-        else
-        {
-            _eutModel = "UNKNOWN";
-
-        }
-
-        if (_orientationOrderIDX == -1)
-        {
-            qDebug() << _eutModel << " - " << _eutSerial << " has a bad order index for polarity/rotation " << _polarity << ":" << _ttRotation;
-            qDebug() << "for file -> " << _fileInfo.fileName();
-        }
-
+        solvePropertiesForConducted(parts);
     }
     else
     {
-
-
-        if (numParts > 4)
-        {
-
-            _testCode = parts.at(0);
-            _eutModel = parts.at(2);
-            _eutSerial = parts.at(3);
-            _polarity = parts.at(1);
-            _polarity.append("_");
-            _polarity.append(parts.at(4));
-            _ttRotation = "";
-
-        }
-        else if (numParts == 4)
-        {
-             _testCode = parts.at(0);
-            _eutModel = parts.at(1);
-            _eutSerial = parts.at(2);
-            _polarity = parts.at(3);
-            _ttRotation = "";
-        }
-        else
-        {
-            // don't set properties and flag this as a bad file
-            _dataSuccessfullyLoaded = false;
-
-           _testCode = "BAD-DATA";
-           _eutModel = "BAD-DATA";
-           _eutSerial = "BAD-DATA";
-           _polarity = "BAD-DATA";
-
-           showBadFileDataMessage(fileName);
-        }
-
-
+        qDebug() << "I got no idea what data type this is";
+        showBadFileDataMessage(fileName);
+        _dataSuccessfullyLoaded = false;
     }
 
 
@@ -851,6 +753,128 @@ void HTCChartDataFile::showBadFileDataMessage(QString fileName)
 
 }
 
+void HTCChartDataFile::solvePropertiesForRadiated(QStringList parts)
+{
+
+   //listThisList(parts);
+
+    _testCode = parts.at(0);
+    _eutModel = parts.at(1);
+    _eutSerial = parts.at(2);
+    _tLevel = parts.at(3);
+    _fRange = parts.at(4);
+    _ttRotation = parts.at(5);
+    _polarity = parts.at(6);
+
+    setRangeOrderMult();
+
+    _rangeIDX = solveRangeIDX(_fRange);
+    _orientationOrderIDX = solveOrientationIDX(_polarity, _ttRotation);
+    _sortOrderIDX = setSortOrderIndex();
+
+    // this looks backwards!
+    SortOrderIndex = _sortOrderIDX;
+
+    setStandardTestType(_fRange);
+
+//    qDebug() << "RI parts";
+//    qDebug() << _sortOrderIDX  <<  "/" << _testCode << "/" << _eutModel  << "/" <<  _eutSerial  << "/" <<  _tLevel  << "/" << _fRange  << "/" << _ttRotation  << "/" << _polarity;
+
+}
+
+void HTCChartDataFile::solvePropertiesForConducted(QStringList parts)
+{
+    int numParts = parts.count();
+
+//    listThisList(parts);
+
+    if (numParts > 5)
+    {
+        //qDebug() << "2-many-parts for " << assembleList(parts,"_");
+    }
+    else if (numParts == 5)
+    {
+
+        _testCode = parts.at(0);
+        _tLevel = parts.at(1);
+        _eutModel = parts.at(2);
+        _eutSerial = parts.at(3);
+        _polarity = parts.at(4);
+        _ttRotation = "";
+        _sortOrderIDX = getCISortingValue(_polarity);
+        // SortOrderIndex = _sortOrderIDX;
+
+
+        // qDebug() << "5 part CI Data";
+
+    }
+    else if (numParts == 4)
+    {
+        _testCode = parts.at(0);
+        _eutModel = parts.at(1);
+        _eutSerial = parts.at(2);
+        _polarity = parts.at(3);
+        _ttRotation = "";
+        _sortOrderIDX = getCISortingValue(_polarity);
+        // SortOrderIndex = _sortOrderIDX;
+
+
+        qDebug() << "4 part CI Data";
+    }
+    else
+    {
+
+    }
+
+       // qDebug() << "CI parts" << SortOrderIndex  <<  "/" << _testCode << "/" << _eutModel  << "/" <<  _eutSerial  << "/" <<  _tLevel  << "/" << _fRange  << "/" << _ttRotation  << "/" << _polarity;
+
+}
+
+QString HTCChartDataFile::assembleList(QStringList parts, QString delim)
+{
+    int count = parts.count();
+    QString result = "";
+    for (int i = 0; i < count - 1; i++)
+    {
+        result.append(parts.at(i));
+        result.append(delim);
+
+    }
+    result.append(parts.at(count - 1));
+
+    return result;
+
+}
+
+int HTCChartDataFile::getCISortingValue(QString polarity)
+{
+    int result;
+    // qDebug() << "testing polarity " << polarity;
+    QString target = polarity.toUpper();
+    QString matchBase = "BASE";
+    QString matchCDN = "CDN";
+    QString matchClamp = "CLAMP";
+
+    if (target.contains(matchBase))
+    {
+        result = 0;
+    }
+    else if (target.contains(matchCDN))
+    {
+        result = 1;
+    }
+    else if (target.contains(matchClamp))
+    {
+        result = 2;
+    }
+    else
+    {
+        result = 3;
+    }
+
+    return result;
+}
+
 void HTCChartDataFile::listThisList(QStringList list)
 {
     for (int i = 0; i < list.count(); i++)
@@ -920,6 +944,12 @@ QString HTCChartDataFile::getKey()
 QString HTCChartDataFile::getFileDelim()
 {
     return _dataFileDelim;
+}
+
+void HTCChartDataFile::setSortOrder(int order)
+{
+    _sortOrderIDX = order;
+    SortOrderIndex = _sortOrderIDX;
 }
 
 

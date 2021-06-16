@@ -27,16 +27,39 @@ HTCChartFolder::HTCChartFolder(QObject *parent) : QObject(parent)
 int HTCChartFolder::init(QString folder, QString extension, int dType)
 {
 
-    // ++++++++++++++++++++++++++++++++++++++++++++++++
-    // check for file count first
-    // we might need to protect against too many/few files
-    // ++++++++++++++++++++++++++++++++++++++++++++++++
-    int fileCount = CountFiles(folder);
-
-    int result = -1;
-    qDebug() << "found " << fileCount << " files.";
-
+    // set data type
     setDataType(dType);
+
+   // qDebug() << "dataType in htcChartFolder is " << dType;
+
+    // new files list
+
+    QStringList fileList;
+    fileList.clear();
+
+    // ++++++++++++++++++++++++++++++++++++++++++++++++
+    // CI parts counts: 5 == current, 4 == older
+    // 5 pattern: testCode_testLevel_model_serial_what
+    // 4 pattern: testCode__model_serial_what
+    //
+    // RI parts counts: 7 == current,
+    // 7 pattern: testCode_model_serial_level_range_rotation_polarity
+    //
+    // ++++++++++++++++++++++++++++++++++++++++++++++++
+
+    // ++++++++++++++++++++++++++++++++++++ //
+    // initial file filter
+    // dump unusable files.
+    // ++++++++++++++++++++++++++++++++++++ //
+    fileList = CountFiles(folder);
+
+    // qDebug() << "num files in list " << fileList.count();
+    int result = -1;
+
+    // dTypes 0/RI, 1/CI
+
+
+
 
 
     if(!folder.isEmpty())
@@ -61,8 +84,7 @@ int HTCChartFolder::init(QString folder, QString extension, int dType)
 
         bool found = false;
 
-        QDir recordDir(folder);
-        recordDir.setSorting(QDir::Name);
+        fileList.sort();
 
         if(! _folderList.isEmpty())
         {
@@ -83,18 +105,18 @@ int HTCChartFolder::init(QString folder, QString extension, int dType)
             _fileCountList.clear();
         }
 
-        QDirIterator it(recordDir, QDirIterator::Subdirectories);
-
-        while (it.hasNext())
+        //QDirIterator it(recordDir, QDirIterator::Subdirectories);
+        for (int i = 0; i < fileList.count(); i++)
         {
-            if (!found)
+        // --------------------------------
+        // Convert this to a filtered list
+        // -------------------------------
+            if (!found) // what's this for?
             {
                 found = true;
 
             }
-//            qDebug() << "dataType = " << dType;
-            itemName = it.next();
-//            qDebug() << "Loading this file -> " << itemName;
+            itemName = fileList.at(i);
 
             QFileInfo info = QFileInfo(itemName);
 
@@ -139,6 +161,7 @@ int HTCChartFolder::init(QString folder, QString extension, int dType)
                         thisSet.append(model);
                         thisSet.append(fNameDelim);
                         thisSet.append(serial);
+
 
                         thisTag.append(filObj->getKey());
                         thisTag.append(",");
@@ -249,40 +272,140 @@ int HTCChartFolder::doesTypeMatch(QString testCode, int dType)
 }
 
 
-int HTCChartFolder::CountFiles(QString path)
+QStringList HTCChartFolder::CountFiles(QString path)
 {
-    int suma = 0;
+    QStringList thisFileList;
+    QString file;
+    QString line;
+    int partsCount;
+
+    thisFileList.clear();
+
     QDir dir(path);
     dir.setFilter(QDir::AllEntries | QDir::NoDotAndDotDot);
-    if(!dir.exists()) {
-    return 1;
-    }
-    QFileInfoList sList = dir.entryInfoList(QDir::AllEntries | QDir::NoDotAndDotDot);
 
-
-    for(QFileInfo ruta: qAsConst(sList))
+    if(!dir.exists())
     {
-        if(ruta.isDir())
+        // leave the list alone/empty
+        //return thisFileList;
+    }
+    else
+
+    {
+        QFileInfoList sList = dir.entryInfoList(QDir::AllEntries | QDir::NoDotAndDotDot);
+
+        for (int i = 0; i < sList.count(); i++)
         {
-            suma += CountFiles(ruta.path() + "/" + ruta.completeBaseName()+"/");
+            line = "";
+            file = sList.at(i).fileName();
+            path = sList.at(i).absoluteFilePath();
+
+            line.append(path);
+
+            partsCount = file.split("_").count();
+
+            //qDebug() << "file/count " << file << "/" << partsCount;
+
+           if(_dataType == 1) // CI data
+           {
+               if (partsCount >= 4 && partsCount <= 5)
+               {
+
+                   if(file.contains(".csv"))
+                   {
+                       thisFileList.append(path);
+                       // qDebug() << "type = 1 list  count is now " << thisFileList.count();
+                   }
+
+               }
+               else
+               {
+                   //qDebug() << "item " << line << " is being tossed";
+               }
+           }
+           else // dataType == 0 (RI)
+           {
+               if (partsCount == 7)
+               {
+                   if(file.contains(".csv"))
+                   {
+                       thisFileList.append(path);
+                       // qDebug() << "type = 1 list  count is now " << thisFileList.count();
+                   }
+
+               }
+               else
+               {
+                   //qDebug() << "count " << partsCount << " - " << line << " is being tossed";
+               }
+           }
         }
-        suma++;
+
+
+
     }
 
-    return suma;
-
+    return thisFileList;
 }
 
 void HTCChartFolder::listThisList(QStringList target, QString delim)
 {
     int numElements = target.count();
 
+
     for (int i = 0; i < numElements; i++)
     {
+
         qDebug() << "item " << i << " is " << target.at(i);
     }
 
     qDebug() << "done";
+}
+
+void HTCChartFolder::listThisFileList(QFileInfoList fList)
+{
+    qDebug() << "...Begin PrintingfileInfoList";
+    QString file = "";
+    QString path = "";
+    QString pathMarker = "";
+    QString line = "";
+    int partsCount;
+
+    QStringList target;
+    for (int i = 0; i < fList.count(); i++)
+    {
+       line = "";
+      file = fList.at(i).fileName();
+       path = fList.at(i).absoluteFilePath();
+       //all = fList.at(i).completeBaseName();
+
+       //line.append(path);
+       line.append(path);
+       partsCount = file.split("_").count();
+       //qDebug() << "file " << file << " count is " << partsCount;
+       if(_dataType == 1)
+       {
+           if (partsCount >= 4 && partsCount <= 5)
+           {
+               //qDebug() << "item " << i << " is " << line;
+           }
+           else
+           {
+               qDebug() << "item " << line << " is being tossed";
+           }
+       }
+       else
+       {
+           if (partsCount != 7)
+           {
+               qDebug() << "count " << partsCount << " - " << line << " is being tossed";
+           }
+       }
+
+
+    }
+
+    qDebug() << "...Completed PrintingfileInfoList";
 }
 
 void HTCChartFolder::showBadFileDataMessage(QString fileName)

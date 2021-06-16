@@ -12,13 +12,13 @@ Description : Set the release version of the application
  *
 */
 #define MY_MAJOR_VERSION    0
-#define MY_MEAN_VERSION     5
-#define MY_MINOR_VERSION    25
+#define MY_MEAN_VERSION     6
+#define MY_MINOR_VERSION    0
 
 
 #define MY_REV_YEAR     "2021"
-#define MY_REV_MONTH    "May"
-#define MY_REV_DAY      "03"
+#define MY_REV_MONTH    "June"
+#define MY_REV_DAY      "15"
 
 
 /*

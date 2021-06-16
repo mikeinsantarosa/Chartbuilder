@@ -57,9 +57,11 @@ private:
 
     int doesTypeMatch(QString testCode, int dType);
 
-    int CountFiles(QString path);
+    QStringList CountFiles(QString path);
+    // int CountFiles(QString path);
 
     void listThisList(QStringList target, QString delim);
+    void listThisFileList(QFileInfoList fList);
 
     void showBadFileDataMessage(QString fileName);
 

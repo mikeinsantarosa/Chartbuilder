@@ -43,6 +43,8 @@ public:
     QString getKey();
     QString getFileDelim();
 
+    void setSortOrder(int order);
+
     int SortOrderIndex;
 
     // new CI code
@@ -152,6 +154,14 @@ private:
     QString BAD_FILE_DATA = "UNKNOWN-NO-DATA";
 
     void showBadFileDataMessage(QString fileName);
+
+    // new stuff for setting data file name properties
+    void solvePropertiesForRadiated(QStringList parts);
+    void solvePropertiesForConducted(QStringList parts);
+    QString assembleList(QStringList parts, QString delim);
+    int getCISortingValue(QString polarity);
+    int _orderCounter;
+
 
     // debug functions
     void listThisList(QStringList list);

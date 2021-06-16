@@ -25,12 +25,6 @@ void HTCChartDataMangler::Init(QStringList fileList, QVector<int> columns, int d
     _baseFileList = fileList;
 
 
-    // check what the file list looks like
-    qDebug() << "<--------- listing the file list -------------->";
-
-    listThisList(_baseFileList);
-
-    qDebug() << "<--------- End of file list -------------->";
 
     _selectedColumns = columns;
     _baseFolder = baseFolder;
@@ -38,8 +32,12 @@ void HTCChartDataMangler::Init(QStringList fileList, QVector<int> columns, int d
 
     loadFilesIntoData();
 
+
+
     if (sortFileset() == true)
     {
+
+        listChartFileSet(_dataFiles);
         discoverRanges();
 
 
@@ -77,6 +75,22 @@ int HTCChartDataMangler::getDataType()
 {
     return _dataType;
 }
+
+void HTCChartDataMangler::listChartFileSet(QVector<HTCChartDataFile> setOfChartFiles)
+{
+    int count = setOfChartFiles.count();
+    HTCChartDataFile df;
+
+    for (int i = 0;i< count; i++)
+    {
+        df = setOfChartFiles.at(i);
+        qDebug() << "fileinfo " << i << " = " << df.getDataFileInfo();
+    }
+
+}
+
+
+
 
 
 
@@ -156,6 +170,13 @@ void HTCChartDataMangler::loadFilesIntoData()
        for(int i = 0; i < _baseFileList.count(); i++)
        {
            HTCChartDataFile * df = new HTCChartDataFile(_baseFileList.at(i), _dataType);
+           if (_dataType == CIdataType)
+           {
+                df->setSortOrder(i);
+           }
+
+
+           // qDebug() << "file " << _baseFileList.at(i) << "order is  " << df->GetSortOrderIndex();
            _dataFiles.append(*df);
        }
 
@@ -170,10 +191,12 @@ bool HTCChartDataMangler::sortFileset()
     {
 
 
-        std::sort(_dataFiles.begin(), _dataFiles.end(), [](const HTCChartDataFile& a, const HTCChartDataFile& b) { return a.SortOrderIndex < b.SortOrderIndex; });
+        std::sort(_dataFiles.begin(), _dataFiles.end(), [](const HTCChartDataFile& a, const HTCChartDataFile& b) { return a.SortOrderIndex< b.SortOrderIndex; });
 
         result = true;
     }
+
+    qDebug() << "Sorted file set";
 
     return result;
 }
@@ -646,13 +669,18 @@ void HTCChartDataMangler::BuildAllChartDataSets()
     {
        HTCChartDataSet * dset = new HTCChartDataSet();
 
+      // qDebug() << "BuildAllChartDataSets() for chart " << i << " of " << _numberOfChartsToBuild;
+
        dset->setDataType(_dataType);
        dset->setBaseFolder(_baseFolder);
        dataset = BuildDataSet(_columnSets.at(i));
        dset->SetData(dataset);
        dset->setDataType(_dataType);
+       //dset->
 
        setDataSetProperties(dset, _columnSets.at(i), i);
+
+       qDebug() << "setChartProperties for " << i;
 
        if (getFilesPerRangeIsValid(dset) ==  true)
        {
@@ -681,6 +709,9 @@ QStringList HTCChartDataMangler::BuildDataSet(QString columns)
     QStringList result;
 
     result = getDataSetHeader(columns, FileStartIDX[0], FileStopIDX[0], _loadHeaderFromFilePositions);
+
+   // qDebug() << "Listing header ";
+    // listThisList(result);
 
     QStringList buildColumns = columns.split(_dataFileDelim);
 

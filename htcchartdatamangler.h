@@ -34,6 +34,7 @@ public:
     // new CI parts
     int getDataType();
 
+    void listChartFileSet(QVector <HTCChartDataFile> setOfChartFiles);
 
 signals:
 
