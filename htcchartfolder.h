@@ -56,14 +56,16 @@ private:
     void fillTaggedList();
 
     int doesTypeMatch(QString testCode, int dType);
+    bool areNumberOfPartsCorrect(QString fileName, QString delim, int dType);
 
-    QStringList CountFiles(QString path);
-    // int CountFiles(QString path);
+    //QStringList CountFiles(QString path);
+    int CountFiles(QString path);
 
     void listThisList(QStringList target, QString delim);
     void listThisFileList(QFileInfoList fList);
 
     void showBadFileDataMessage(QString fileName);
+    void showBadFileDelimCountMessage(QString fileName);
 
 };
 

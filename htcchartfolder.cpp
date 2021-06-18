@@ -3,12 +3,12 @@
 // Description: representation of a data folder
 //
 //
-// Date: 2019-03-07
+// Rev Date: June-18-2021
 //
-//
-// TODO:
-//
-//
+// Edits:
+// Added vModData file filter
+// Fine tuned adding files to the list to fill
+// the treeView
 //
 // ++++++++++++++++++++++++++++++++++++++++++++ //
 
@@ -27,39 +27,16 @@ HTCChartFolder::HTCChartFolder(QObject *parent) : QObject(parent)
 int HTCChartFolder::init(QString folder, QString extension, int dType)
 {
 
-    // set data type
-    setDataType(dType);
-
-   // qDebug() << "dataType in htcChartFolder is " << dType;
-
-    // new files list
-
-    QStringList fileList;
-    fileList.clear();
-
     // ++++++++++++++++++++++++++++++++++++++++++++++++
-    // CI parts counts: 5 == current, 4 == older
-    // 5 pattern: testCode_testLevel_model_serial_what
-    // 4 pattern: testCode__model_serial_what
-    //
-    // RI parts counts: 7 == current,
-    // 7 pattern: testCode_model_serial_level_range_rotation_polarity
-    //
+    // check for file count first
+    // we might need to protect against too many/few files
     // ++++++++++++++++++++++++++++++++++++++++++++++++
+   int fileCount = CountFiles(folder);
 
-    // ++++++++++++++++++++++++++++++++++++ //
-    // initial file filter
-    // dump unusable files.
-    // ++++++++++++++++++++++++++++++++++++ //
-    fileList = CountFiles(folder);
-
-    // qDebug() << "num files in list " << fileList.count();
     int result = -1;
+    qDebug() << "found " << fileCount << " files.";
 
-    // dTypes 0/RI, 1/CI
-
-
-
+    setDataType(dType);
 
 
     if(!folder.isEmpty())
@@ -79,12 +56,15 @@ int HTCChartFolder::init(QString folder, QString extension, int dType)
         QString rowCount = "";
         int numFRows = -1;
 
+        bool partCountIsValid;
+
         QString msg;
 
 
         bool found = false;
 
-        fileList.sort();
+        QDir recordDir(folder);
+        recordDir.setSorting(QDir::Name);
 
         if(! _folderList.isEmpty())
         {
@@ -105,18 +85,18 @@ int HTCChartFolder::init(QString folder, QString extension, int dType)
             _fileCountList.clear();
         }
 
-        //QDirIterator it(recordDir, QDirIterator::Subdirectories);
-        for (int i = 0; i < fileList.count(); i++)
+        QDirIterator it(recordDir, QDirIterator::Subdirectories);
+
+        while (it.hasNext())
         {
-        // --------------------------------
-        // Convert this to a filtered list
-        // -------------------------------
-            if (!found) // what's this for?
+            if (!found)
             {
                 found = true;
 
             }
-            itemName = fileList.at(i);
+//            qDebug() << "dataType = " << dType;
+            itemName = it.next();
+//            qDebug() << "Loading this file -> " << itemName;
 
             QFileInfo info = QFileInfo(itemName);
 
@@ -131,9 +111,14 @@ int HTCChartFolder::init(QString folder, QString extension, int dType)
             msg.append(" to the list...");
 
             emit messageToStatusBar(msg);
+            partCountIsValid = areNumberOfPartsCorrect(nameToTest, fNameDelim, dType);
 
-            if (nameToTest.contains(extension))
+            if (nameToTest.contains(extension) && !nameToTest.contains("vModData") && partCountIsValid == true)
             {
+
+
+
+
 
                 // check for proper test codes contained in the
                 // ones pointed to.
@@ -161,7 +146,6 @@ int HTCChartFolder::init(QString folder, QString extension, int dType)
                         thisSet.append(model);
                         thisSet.append(fNameDelim);
                         thisSet.append(serial);
-
 
                         thisTag.append(filObj->getKey());
                         thisTag.append(",");
@@ -213,6 +197,12 @@ int HTCChartFolder::init(QString folder, QString extension, int dType)
                 }
 
             }
+            if (partCountIsValid == false && nameToTest.length() > 4)
+            {
+                // showBadFileDelimCountMessage(nameToTest);
+                //qDebug() << "file name " << nameToTest << " is unusable";
+            }
+
 
         }
 
@@ -271,81 +261,53 @@ int HTCChartFolder::doesTypeMatch(QString testCode, int dType)
     return result;
 }
 
-
-QStringList HTCChartFolder::CountFiles(QString path)
+bool HTCChartFolder::areNumberOfPartsCorrect(QString fileName, QString delim, int dType)
 {
-    QStringList thisFileList;
-    QString file;
-    QString line;
-    int partsCount;
+    bool result = false;
+    QStringList parts = fileName.split(delim);
+    int numParts = parts.count();
 
-    thisFileList.clear();
-
-    QDir dir(path);
-    dir.setFilter(QDir::AllEntries | QDir::NoDotAndDotDot);
-
-    if(!dir.exists())
+    if (dType == RIdataType)
     {
-        // leave the list alone/empty
-        //return thisFileList;
+        if(numParts == 7)
+        {
+            result = true;
+        }
     }
     else
-
     {
-        QFileInfoList sList = dir.entryInfoList(QDir::AllEntries | QDir::NoDotAndDotDot);
-
-        for (int i = 0; i < sList.count(); i++)
+        if(numParts >=4 && numParts <= 5)
         {
-            line = "";
-            file = sList.at(i).fileName();
-            path = sList.at(i).absoluteFilePath();
-
-            line.append(path);
-
-            partsCount = file.split("_").count();
-
-            //qDebug() << "file/count " << file << "/" << partsCount;
-
-           if(_dataType == 1) // CI data
-           {
-               if (partsCount >= 4 && partsCount <= 5)
-               {
-
-                   if(file.contains(".csv"))
-                   {
-                       thisFileList.append(path);
-                       // qDebug() << "type = 1 list  count is now " << thisFileList.count();
-                   }
-
-               }
-               else
-               {
-                   //qDebug() << "item " << line << " is being tossed";
-               }
-           }
-           else // dataType == 0 (RI)
-           {
-               if (partsCount == 7)
-               {
-                   if(file.contains(".csv"))
-                   {
-                       thisFileList.append(path);
-                       // qDebug() << "type = 1 list  count is now " << thisFileList.count();
-                   }
-
-               }
-               else
-               {
-                   //qDebug() << "count " << partsCount << " - " << line << " is being tossed";
-               }
-           }
+            result = true;
         }
-
-
-
     }
 
-    return thisFileList;
+    return result;
+}
+
+
+int HTCChartFolder::CountFiles(QString path)
+{
+    int suma = 0;
+    QDir dir(path);
+    dir.setFilter(QDir::AllEntries | QDir::NoDotAndDotDot);
+    if(!dir.exists()) {
+    return 1;
+    }
+    QFileInfoList sList = dir.entryInfoList(QDir::AllEntries | QDir::NoDotAndDotDot);
+
+
+    for(QFileInfo ruta: qAsConst(sList))
+    {
+        if(ruta.isDir())
+        {
+            suma += CountFiles(ruta.path() + "/" + ruta.completeBaseName()+"/");
+        }
+        suma++;
+    }
+
+    return suma;
+
 }
 
 void HTCChartFolder::listThisList(QStringList target, QString delim)
@@ -430,7 +392,33 @@ void HTCChartFolder::showBadFileDataMessage(QString fileName)
         msgBox.setDefaultButton(QMessageBox::Ok);
 
 
-    int ret = msgBox.exec();
+    //int ret = msgBox.exec();
+    msgBox.exec();
 
 
+}
+
+void HTCChartFolder::showBadFileDelimCountMessage(QString fileName)
+{
+    QMessageBox msgBox;
+    QString badFileName = fileName;
+    QString data;
+
+    QString message = "";
+
+    message.append("Found a file with an invalid delimited part count: ");
+    message.append(" Conduted Immunity files must have 4 or 5 parts");
+    message.append(" Radiated Immunity files must have 7 parts");
+    message.append(" The file found does not match these patterns");
+    message.append(" The following file will be ignored: ");
+    message.append(badFileName);
+
+    msgBox.setText(message);
+    msgBox.setInformativeText("Please correct the file name and try again");
+    msgBox.setStandardButtons(QMessageBox::Ok);
+    msgBox.setDefaultButton(QMessageBox::Ok);
+
+
+    //int ret = msgBox.exec();
+    msgBox.exec();
 }

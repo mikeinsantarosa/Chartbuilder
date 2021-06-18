@@ -54,7 +54,10 @@ void HTCDataSelector::SetFolderInService(QString folder, QString filter, int dTy
     int members = 0;
     if(!folder.isEmpty())
      {
-        //QString dataType = RIdataType;
+
+        //qDebug() << "folder " << folder << " - baseFolder " << baseFolder;
+
+
         _baseFolder = baseFolder;
         _folderInService = folder;
          _filterInService = filter;
@@ -62,7 +65,7 @@ void HTCDataSelector::SetFolderInService(QString folder, QString filter, int dTy
          connect(cdf,SIGNAL(messageToStatusBar(QString)),this,SLOT(messageForStatusBar(QString)));
          members = cdf->init(_folderInService, _filterInService, dType);
 
-         //qDebug() << "Discovered " << members << " to be listed";
+        // qDebug() << "Discovered " << members << " to be listed";
 
          FillListFromPath();
 
@@ -154,6 +157,8 @@ void HTCDataSelector::fillTree()
     //listThisList(_folderList);
 
     QTreeWidgetItem *topLevelItem = NULL;
+
+    // qDebug() << "folderlist is " << _folderList;
 
     for(const QString &fileName: qAsConst(_folderList))
     {
@@ -428,6 +433,8 @@ void HTCDataSelector::getCIData()
 {
     QString folderToOpen = QFileDialog::getExistingDirectory(this, tr("Select a folder to Load files from..."), _currentSearchPath, QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks);
     _currentSearchPath = folderToOpen;
+
+   // qDebug() << "folder to open == " << _currentSearchPath;
 
 
     if (!folderToOpen.isEmpty())

@@ -1,12 +1,12 @@
 /* ******************************************************************
  * Class: HTCChartDataFile.cpp
  * Purpose: Represent the data from a .csv or .txt file
- * Rev Date: Feb-14-2018
+ * Rev Date: June-18-2021
  *
- * TODO:
- * 1st parse the file name to hopefully help with
- * sorting
- * 2st - Load the data into memory for each file.
+ * Edits:
+ * Split setting properties into 2 different functions
+ *
+ *
  *
  *
  *
@@ -124,6 +124,9 @@ void HTCChartDataFile::init()
 
        if(_firstDataRow > -1)
        {
+
+
+
            _lastDataRow = setLastDataRow();
 
            _numberOfDataColumns = setColumnHeadersList(_dataFileDelim);
