@@ -26,17 +26,29 @@ HTCChartFolder::HTCChartFolder(QObject *parent) : QObject(parent)
 
 int HTCChartFolder::init(QString folder, QString extension, int dType)
 {
-
+    int result = -1;
+    setDataType(dType);
     // ++++++++++++++++++++++++++++++++++++++++++++++++
     // check for file count first
     // we might need to protect against too many/few files
     // ++++++++++++++++++++++++++++++++++++++++++++++++
-   int fileCount = CountFiles(folder);
 
-    int result = -1;
-    qDebug() << "found " << fileCount << " files.";
+    // ++++++++++++++++++++++++++++++++++++++++++++++++
+    // New mode for file searching
+    // Should be set in settings object
+    // * currently local only until
+    // * search code is proven
+    // ++++++++++++++++++++++++++++++++++++++++++++++++
 
-    setDataType(dType);
+    int mode;
+
+    mode = 0;
+
+    int localCount = CountLocalFiles(folder);
+    qDebug() << "localCount:: found  = " << localCount << " files";
+
+    int fileCount = CountAllFiles(folder);
+
 
 
     if(!folder.isEmpty())
@@ -84,6 +96,8 @@ int HTCChartFolder::init(QString folder, QString extension, int dType)
         {
             _fileCountList.clear();
         }
+
+
 
         QDirIterator it(recordDir, QDirIterator::Subdirectories);
 
@@ -286,9 +300,11 @@ bool HTCChartFolder::areNumberOfPartsCorrect(QString fileName, QString delim, in
 }
 
 
-int HTCChartFolder::CountFiles(QString path)
+int HTCChartFolder::CountAllFiles(QString path)
 {
+
     int suma = 0;
+
     QDir dir(path);
     dir.setFilter(QDir::AllEntries | QDir::NoDotAndDotDot);
     if(!dir.exists()) {
@@ -301,12 +317,117 @@ int HTCChartFolder::CountFiles(QString path)
     {
         if(ruta.isDir())
         {
-            suma += CountFiles(ruta.path() + "/" + ruta.completeBaseName()+"/");
+            suma += CountAllFiles(ruta.path() + "/" + ruta.completeBaseName()+"/");
         }
         suma++;
     }
 
     return suma;
+
+}
+
+int HTCChartFolder::CountLocalFiles(QString path)
+{
+
+    QStringList fileList = GetLocalFilesList(path);
+
+    int result = fileList.count();
+
+    return result;
+
+
+}
+
+QStringList HTCChartFolder::GetLocalFilesList(QString path)
+{
+    QStringList thisFileList;
+    QString file;
+    QString line;
+    int partsCount;
+
+   QFileInfo fi;
+
+    thisFileList.clear();
+
+    qDebug() << "looking in " << path;
+    qDebug() << "with datatype set to " << _dataType;
+
+    QDir dir(path);
+    dir.setFilter(QDir::AllEntries | QDir::NoDotAndDotDot);
+
+    if(!dir.exists())
+    {
+        // leave the list alone/empty
+        //return thisFileList;
+
+        qDebug() << "GetLocalFilesList() thinks the folder doesn't exist ";
+    }
+    else
+    {
+        QFileInfoList sList = dir.entryInfoList(QDir::AllEntries | QDir::NoDotAndDotDot);
+
+        qDebug() << "sList count = " << sList.count();
+
+        for (int i = 0; i < sList.count(); i++)
+        {
+            line = "";
+            fi=sList.at(i);
+            file = fi.fileName();
+            path = fi.absoluteFilePath();
+            //file = sList.at(i).fileName();
+            //path = sList.at(i).absoluteFilePath();
+
+            qDebug() << "path is " << path;
+            qDebug() << "file is " << file;
+
+            line.append(path);
+
+            partsCount = file.split("_").count();
+
+            qDebug() << "parts count = " << partsCount;
+
+            //qDebug() << "file/count " << file << "/" << partsCount;
+
+           if(_dataType == 1) // CI data
+           {
+               if (partsCount >= 4 && partsCount <= 5)
+               {
+
+                   if(file.contains(".csv"))
+                   {
+                       thisFileList.append(path);
+                       qDebug() << "type = 1 list  count is now " << thisFileList.count();
+                   }
+
+               }
+               else
+               {
+                   //qDebug() << "item " << line << " is being tossed";
+               }
+           }
+           else // dataType == 0 (RI)
+           {
+               if (partsCount == 7)
+               {
+                   if(file.contains(".csv"))
+                   {
+                       thisFileList.append(path);
+                       // qDebug() << "type = 1 list  count is now " << thisFileList.count();
+                   }
+
+               }
+               else
+               {
+                   //qDebug() << "count " << partsCount << " - " << line << " is being tossed";
+               }
+           }
+        }
+
+
+
+    }
+
+    return thisFileList;
 
 }
 
@@ -421,4 +542,24 @@ void HTCChartFolder::showBadFileDelimCountMessage(QString fileName)
 
     //int ret = msgBox.exec();
     msgBox.exec();
+}
+
+void HTCChartFolder::loadSettings()
+{
+     QSettings setting("Keysight","ChartBuilder");
+
+    setting.beginGroup("ProgramFolders");
+
+    if (setting.contains("EnableRecursiveFolderSearch"))
+    {
+        _EnableRecursiveFolderSearching = setting.value("EnableRecursiveFolderSearch").toInt();
+    }
+    else
+    {
+        _EnableRecursiveFolderSearching = 1;
+    }
+
+    qDebug() << "loaded _EnableRecursiveFolderSearching as " << _EnableRecursiveFolderSearching;
+
+
 }

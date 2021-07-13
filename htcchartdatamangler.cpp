@@ -37,7 +37,7 @@ void HTCChartDataMangler::Init(QStringList fileList, QVector<int> columns, int d
     if (sortFileset() == true)
     {
 
-        listChartFileSet(_dataFiles);
+        //listChartFileSet(_dataFiles);
         discoverRanges();
 
 
@@ -196,7 +196,7 @@ bool HTCChartDataMangler::sortFileset()
         result = true;
     }
 
-    qDebug() << "Sorted file set";
+//    qDebug() << "Sorted file set";
 
     return result;
 }
@@ -680,7 +680,7 @@ void HTCChartDataMangler::BuildAllChartDataSets()
 
        setDataSetProperties(dset, _columnSets.at(i), i);
 
-       qDebug() << "setChartProperties for " << i;
+      // qDebug() << "setChartProperties for " << i;
 
        if (getFilesPerRangeIsValid(dset) ==  true)
        {

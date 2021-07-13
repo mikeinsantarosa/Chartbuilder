@@ -8,6 +8,7 @@
 #include <QFile>
 #include <QFileInfo>
 #include <QMessageBox>
+#include <QSettings>
 #include "htcchartdatafile.h"
 
 
@@ -51,6 +52,8 @@ private:
 
     QStringList _TaggedList;
 
+    bool _EnableRecursiveFolderSearching;
+
     void setDataType(int dataType);
 
     void fillTaggedList();
@@ -59,13 +62,17 @@ private:
     bool areNumberOfPartsCorrect(QString fileName, QString delim, int dType);
 
     //QStringList CountFiles(QString path);
-    int CountFiles(QString path);
+    int CountAllFiles(QString path);
+    int CountLocalFiles(QString path);
+    QStringList GetLocalFilesList(QString path);
 
     void listThisList(QStringList target, QString delim);
     void listThisFileList(QFileInfoList fList);
 
     void showBadFileDataMessage(QString fileName);
     void showBadFileDelimCountMessage(QString fileName);
+
+    void loadSettings();
 
 };
 

@@ -63,7 +63,7 @@ void HTCChartDataSet::SetChartTitle(QString title)
     // see if the data is binary
     // _isCommCheckData instead of _commCheckAutoDetect
 
-    qDebug() << "_commCheckAutoDetect " << _commCheckAutoDetect;
+    // qDebug() << "_commCheckAutoDetect " << _commCheckAutoDetect;
     if (_commCheckAutoDetect == 1)
     {
         SetCommCheckAutoDetect();
@@ -470,7 +470,7 @@ void HTCChartDataSet::FillMinMaxLists()
     int numLines = _ProcessedDataList.count();
     QList<double> testValues;
 
-    qDebug() << "_ProcessedDataList.count() " << _ProcessedDataList.count();
+    //qDebug() << "_ProcessedDataList.count() " << _ProcessedDataList.count();
 
     FlushMinMaxLists();
 
