@@ -972,7 +972,7 @@
      </property>
     </widget>
    </widget>
-   <widget class="QWidget" name="">
+   <widget class="QWidget" name="layoutWidget">
     <property name="geometry">
      <rect>
       <x>430</x>
@@ -1661,6 +1661,96 @@
      </property>
      <property name="text">
       <string>On</string>
+     </property>
+    </widget>
+   </widget>
+   <widget class="QGroupBox" name="groupFolderSearchOptions">
+    <property name="geometry">
+     <rect>
+      <x>420</x>
+      <y>330</y>
+      <width>160</width>
+      <height>45</height>
+     </rect>
+    </property>
+    <property name="sizePolicy">
+     <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+      <horstretch>0</horstretch>
+      <verstretch>0</verstretch>
+     </sizepolicy>
+    </property>
+    <property name="minimumSize">
+     <size>
+      <width>160</width>
+      <height>45</height>
+     </size>
+    </property>
+    <property name="maximumSize">
+     <size>
+      <width>160</width>
+      <height>45</height>
+     </size>
+    </property>
+    <property name="title">
+     <string>Folder Search Option</string>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignCenter</set>
+    </property>
+    <widget class="QRadioButton" name="radioFolderSearchSingle">
+     <property name="geometry">
+      <rect>
+       <x>8</x>
+       <y>20</y>
+       <width>60</width>
+       <height>24</height>
+      </rect>
+     </property>
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="minimumSize">
+      <size>
+       <width>60</width>
+       <height>24</height>
+      </size>
+     </property>
+     <property name="maximumSize">
+      <size>
+       <width>60</width>
+       <height>24</height>
+      </size>
+     </property>
+     <property name="text">
+      <string>Single</string>
+     </property>
+    </widget>
+    <widget class="QRadioButton" name="radioFolderSearchRecursive">
+     <property name="geometry">
+      <rect>
+       <x>74</x>
+       <y>20</y>
+       <width>78</width>
+       <height>24</height>
+      </rect>
+     </property>
+     <property name="minimumSize">
+      <size>
+       <width>78</width>
+       <height>24</height>
+      </size>
+     </property>
+     <property name="maximumSize">
+      <size>
+       <width>78</width>
+       <height>24</height>
+      </size>
+     </property>
+     <property name="text">
+      <string>Recursive</string>
      </property>
     </widget>
    </widget>

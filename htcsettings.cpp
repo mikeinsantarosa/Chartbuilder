@@ -283,7 +283,11 @@ void HTCSettings::saveSettings()
     setting.setValue("LegendPosition9", _positions[8]);
     setting.setValue("LegendPosition10", _positions[9]);
 
-    setting.setValue("ChartLegendOverride",QString::number(_OverrideLegendValue)); //
+    setting.setValue("ChartLegendOverride",QString::number(_OverrideLegendValue));
+    setting.setValue("EnableRecursiveFolderSearch",QString::number(_EnableRecursiveFolderSearching));
+
+    qDebug() << "Saving _EnableRecursiveFolderSearching  as " << _EnableRecursiveFolderSearching;
+
     setting.setValue("EnableChartAnimations",QString::number(_EnableAnimations));
     setting.setValue("EnableHoverCallout",QString::number(_EnableHoverCallout));
 
@@ -294,10 +298,7 @@ void HTCSettings::loadSettings()
 {
     QString penValue = "";
     QString positionValue = "";
-
     bool dirtyOnLoad = false;
-
-
 
     QSettings setting("Keysight","ChartBuilder");
 
@@ -427,10 +428,6 @@ void HTCSettings::loadSettings()
     ui->lineCIPaddingValueX->setText(QString::number(_ChartCIScalePaddingValueX));
 
 
-
-
-
-
     // ---------------------------------------------- //
     // Get Binary Comm Check Auto detect state
     // ---------------------------------------------- //
@@ -491,8 +488,6 @@ void HTCSettings::loadSettings()
 
 
 
-
-
     // ---------------------------------------------- //
     // Get chart animation state
     // ---------------------------------------------- //
@@ -518,6 +513,40 @@ void HTCSettings::loadSettings()
     // set the radio buttons
     //
     setEnableChartAnimationsSelector(_EnableAnimations);
+
+    // -- //
+    // ---------------------------------------------------------//
+    //
+    // new folder search options
+    //
+    // ---------------------------------------------- //
+    int foldersearchValue;
+    if (setting.contains("EnableRecursiveFolderSearch"))
+    {
+        foldersearchValue = setting.value("EnableRecursiveFolderSearch").toInt();
+    }
+    else
+    {
+        foldersearchValue = 1;
+        dirtyOnLoad = true;
+    }
+    // set the radio buttons
+    //
+
+
+    if (foldersearchValue == 1)
+    {
+        _EnableRecursiveFolderSearching = true;
+    }
+    else
+    {
+        _EnableRecursiveFolderSearching = false;
+    }
+
+    // New folder search set buttons
+    // ----------------------------------------------- //
+    setFolderSearchOption(_EnableRecursiveFolderSearching);
+    // -- //
 
 
 
@@ -847,6 +876,19 @@ void HTCSettings::setLegendOverrideSelector(bool SetOVerrideOn)
     else
     {
         ui->radioRILegendAuto->toggle();
+    }
+
+}
+
+void HTCSettings::setFolderSearchOption(bool SetRecursiveSearchingOn)
+{
+    if (SetRecursiveSearchingOn ==  true)
+    {
+        ui->radioFolderSearchRecursive->toggle();
+    }
+    else
+    {
+        ui->radioFolderSearchSingle->toggle();
     }
 
 }
@@ -1247,4 +1289,21 @@ void HTCSettings::on_lineCIPaddingValueX_editingFinished()
             ui->lineCIPaddingValueX->setText(QString::number(_ChartCIScalePaddingValueX));
         }
     }
+}
+
+void HTCSettings::on_radioFolderSearchSingle_clicked()
+{
+    // set to single folder search
+    _EnableRecursiveFolderSearching = false;
+    ui->btnApply->setEnabled(true);
+
+    // qDebug () << "Set recursive searching to " << _EnableRecursiveFolderSearching;
+}
+
+void HTCSettings::on_radioFolderSearchRecursive_clicked()
+{
+    // set to single folder search
+    _EnableRecursiveFolderSearching = true;
+    ui->btnApply->setEnabled(true);
+    // qDebug () << "Set recursive searching to " << _EnableRecursiveFolderSearching;
 }

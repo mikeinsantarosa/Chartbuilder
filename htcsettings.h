@@ -87,6 +87,10 @@ private slots:
 
     void on_lineCIPaddingValueX_editingFinished();
 
+    void on_radioFolderSearchSingle_clicked();
+
+    void on_radioFolderSearchRecursive_clicked();
+
 private:
     Ui::HTCSettings *ui;
 
@@ -104,9 +108,12 @@ private:
     void saveSettings();
     void loadSettings();
     void setLegendOverrideSelector(bool SetOVerrideOn);
+    void setFolderSearchOption(bool SetRecursiveSearchingOn);
     void setEnableChartAnimationsSelector(bool SetAnimationsOn);
     void setEnableHoverCalloutSelector(bool SetCalloutHoverOn);
 
+
+    bool _EnableRecursiveFolderSearching;
     bool _OverrideLegendValue;
     bool _EnableAnimations;
     bool _EnableHoverCallout;
