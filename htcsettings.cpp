@@ -286,7 +286,7 @@ void HTCSettings::saveSettings()
     setting.setValue("ChartLegendOverride",QString::number(_OverrideLegendValue));
     setting.setValue("EnableRecursiveFolderSearch",QString::number(_EnableRecursiveFolderSearching));
 
-    qDebug() << "Saving _EnableRecursiveFolderSearching  as " << _EnableRecursiveFolderSearching;
+    //qDebug() << "Saving _EnableRecursiveFolderSearching  as " << _EnableRecursiveFolderSearching;
 
     setting.setValue("EnableChartAnimations",QString::number(_EnableAnimations));
     setting.setValue("EnableHoverCallout",QString::number(_EnableHoverCallout));

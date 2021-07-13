@@ -90,8 +90,8 @@ private:
     HtcDataDialog * dd;
     HTCChartDataMangler * dm;
 
-    void FillListFromPath();
-    void fillTree();
+    void FillListFromPath(int numFiles);
+    void fillTree(int numFiles);
 
     void FillTaggedList(QTreeWidgetItem * item);
 

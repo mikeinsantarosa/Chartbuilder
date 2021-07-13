@@ -67,7 +67,7 @@ void HTCDataSelector::SetFolderInService(QString folder, QString filter, int dTy
 
         // qDebug() << "Discovered " << members << " to be listed";
 
-         FillListFromPath();
+         FillListFromPath(members);
 
      }
 }
@@ -124,7 +124,7 @@ void HTCDataSelector::TreeviewItemSelected()
 }
 
 
-void HTCDataSelector::FillListFromPath()
+void HTCDataSelector::FillListFromPath(int numFiles)
 {
     QStringList s;
 
@@ -132,7 +132,7 @@ void HTCDataSelector::FillListFromPath()
     {
         _folderList.clear();
     }
-
+    // qDebug() << "FillListFromPath numFiles == " << numFiles;
     this->repaint();
     statusBar()->showMessage("Retrieving the data you pointed me to...");
 
@@ -140,11 +140,11 @@ void HTCDataSelector::FillListFromPath()
      _folderList.sort();
     if(_folderList.count() > 0)
     {
-        fillTree();
+        fillTree(numFiles);
     }
 }
 
-void HTCDataSelector::fillTree()
+void HTCDataSelector::fillTree(int numFiles)
 {
     int count = 0;
     QFileInfo info;
@@ -220,9 +220,11 @@ void HTCDataSelector::fillTree()
         childItem->setText(0, splitFileName.last());
 
     }
-
+    qDebug() << "numFiles == " << numFiles;
     msg.clear();
-    msg.append("Completed loading files from the selected path");
+    msg.append("Completed loading ");
+    msg.append(QString::number(numFiles));
+    msg.append(" files from the selected path");
     this->statusBar()->showMessage(msg);
     this->statusBar()->update();
 

@@ -20,6 +20,11 @@ public:
     explicit HTCChartFolder(QObject *parent = nullptr);
 
     int init(QString folder, QString extension, int dType);
+    int initSingle(QString folder, QString extension, int dType);
+    int initRecursive(QString folder, QString extension, int dType);
+
+    QStringList GetSingleList(QString path);
+
     QStringList GetFolderList();
     QStringList GetDataSetNames();
     QStringList GetTaggedList();
