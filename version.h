@@ -1,7 +1,7 @@
 /*
 File        : version.h
 Description : Set the release version of the application
-
+--
 */
 
 #ifndef VERSION_H
