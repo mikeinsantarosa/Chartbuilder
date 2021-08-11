@@ -24,6 +24,8 @@ Description : Set the release version of the application
 /*
  * Leave these fields alone
  *
+ * -- that means don't touch --
+ *
  * This date is the original
  * release date of the application.
 */
