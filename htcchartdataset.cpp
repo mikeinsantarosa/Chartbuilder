@@ -235,6 +235,8 @@ QString HTCChartDataSet::GetXAxisScale()
 
 QString HTCChartDataSet::GetYAxisScale()
 {
+   // qDebug() << "in dataset XAxis scale is " << _yAxisScaling;
+
     return _yAxisScaling;
 }
 

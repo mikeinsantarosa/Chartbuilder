@@ -129,7 +129,7 @@ void HtcChart::setChartByDataSet(HTCChartDataSet *ds, bool RescaleFreq)
     }
     else
     {
-        _chartXAxisMinorGridLinesVisible = false;
+        _chartXAxisMinorGridLinesVisible = true;
     }
 
     _masterlist.clear();
@@ -239,8 +239,8 @@ void HtcChart::initProperties()
 
         if (getDataType() == RIdataType)
         {
-            _chartXAxisMinorGridLinesCount = 4;
-            _chartXAxisLinLogScale = "LIN";
+            _chartXAxisMinorGridLinesCount = 8;
+            _chartXAxisLinLogScale = "LOG"; // was LIN
         }
         else
         {
@@ -2768,7 +2768,7 @@ void HtcChart::setPropertiesFromOpenFile()
     }
     else
     {
-        _chartXAxisLinLogScale = "LIN";
+        _chartXAxisLinLogScale = "LOG";
         _chartXAxisDecimalScientific = "DEC";
         color = QColor("#000000");
         _chartXAxisLabelColor = color;
@@ -2889,8 +2889,8 @@ void HtcChart::setPropertiesFromOpenFile()
     {
         _chartXAxisMajorGridLinesVisible = true;
         _chartXAxisMajorGridLinesCount = 11;
-        _chartXAxisMinorGridLinesVisible = false;
-        _chartXAxisMinorGridLinesCount = 5;
+        _chartXAxisMinorGridLinesVisible = true;
+        _chartXAxisMinorGridLinesCount = 8;
 
         color = QColor("#000000");
         _chartXAxisMajorGridLinesColor = color;

@@ -996,7 +996,7 @@ void HTCChartDataMangler::setDataSetProperties(HTCChartDataSet *ChartDataSet, QS
     ChartDataSet->SetSerial(serial);
     if (_dataType == RIdataType)
     {
-        ChartDataSet->SetXAxisScale("LIN");
+        ChartDataSet->SetXAxisScale("LOG");
     }
     else
     {
