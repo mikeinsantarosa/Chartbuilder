@@ -20,6 +20,7 @@ Description : Set the release version of the application
 #define MY_REV_MONTH    "September"
 #define MY_REV_DAY      "21"
 
+/* test note in newedits only */
 
 /*
  * Leave these fields alone
