@@ -13,17 +13,15 @@ Description : Set the release version of the application
 */
 #define MY_MAJOR_VERSION    0
 #define MY_MEAN_VERSION     6
-#define MY_MINOR_VERSION    4
+#define MY_MINOR_VERSION    5
 
 
 #define MY_REV_YEAR     "2021"
 #define MY_REV_MONTH    "September"
-#define MY_REV_DAY      "21"
-
-/* test note in newedits only */
+#define MY_REV_DAY      "22"
 
 /*
- * Leave these fields alone
+ * Leave the fields below alone
  *
  * -- that means don't touch --
  *

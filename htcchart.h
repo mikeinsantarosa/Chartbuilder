@@ -371,7 +371,7 @@ private:
     double _ChartRIScalePaddingValueX;
     int _ChartRIPaddingValueX;
     double _defaultChartRIScalePaddingXValue = 0;
-    double _RIXaxisMaxMult = 3;
+    double _RIXaxisMaxMult = 25; // was 3
 
     // CI Padding values
     double _ChartCIScalePaddingValueX;

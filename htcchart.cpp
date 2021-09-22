@@ -1935,7 +1935,9 @@ double HtcChart::getPaddedXMaxValue()
 
     if (getXAxisPaddingEnabled() == 1)
     {
+        qDebug() << "factor/mult " << factor << "/" << mult;
         result = _XAxisMaxValue + (_XAxisMinValue * factor * mult);
+        //result = _XAxisMaxValue + (_XAxisMaxValue * factor);
     }
 
     return result;
