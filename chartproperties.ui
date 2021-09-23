@@ -54,7 +54,7 @@
       </size>
      </property>
      <property name="currentIndex">
-      <number>2</number>
+      <number>3</number>
      </property>
      <widget class="QWidget" name="tabtitle">
       <attribute name="title">
@@ -4472,7 +4472,7 @@
           <x>380</x>
           <y>190</y>
           <width>400</width>
-          <height>80</height>
+          <height>86</height>
          </rect>
         </property>
         <property name="sizePolicy">
@@ -4484,13 +4484,13 @@
         <property name="minimumSize">
          <size>
           <width>400</width>
-          <height>80</height>
+          <height>86</height>
          </size>
         </property>
         <property name="maximumSize">
          <size>
           <width>400</width>
-          <height>80</height>
+          <height>86</height>
          </size>
         </property>
         <property name="title">
@@ -4503,7 +4503,7 @@
          <property name="geometry">
           <rect>
            <x>300</x>
-           <y>36</y>
+           <y>30</y>
            <width>28</width>
            <height>28</height>
           </rect>
@@ -4543,8 +4543,8 @@
         <widget class="QPushButton" name="buttonRemovePen">
          <property name="geometry">
           <rect>
-           <x>340</x>
-           <y>36</y>
+           <x>350</x>
+           <y>30</y>
            <width>28</width>
            <height>28</height>
           </rect>
@@ -4584,22 +4584,22 @@
         <widget class="QLabel" name="labelPenValue">
          <property name="geometry">
           <rect>
-           <x>140</x>
-           <y>36</y>
-           <width>50</width>
-           <height>26</height>
+           <x>10</x>
+           <y>50</y>
+           <width>60</width>
+           <height>24</height>
           </rect>
          </property>
          <property name="minimumSize">
           <size>
-           <width>50</width>
-           <height>26</height>
+           <width>60</width>
+           <height>24</height>
           </size>
          </property>
          <property name="maximumSize">
           <size>
-           <width>50</width>
-           <height>26</height>
+           <width>60</width>
+           <height>24</height>
           </size>
          </property>
          <property name="frameShape">
@@ -4615,10 +4615,10 @@
         <widget class="QLineEdit" name="linePenValue">
          <property name="geometry">
           <rect>
-           <x>190</x>
-           <y>36</y>
+           <x>70</x>
+           <y>50</y>
            <width>70</width>
-           <height>26</height>
+           <height>24</height>
           </rect>
          </property>
          <property name="sizePolicy">
@@ -4630,13 +4630,13 @@
          <property name="minimumSize">
           <size>
            <width>70</width>
-           <height>26</height>
+           <height>24</height>
           </size>
          </property>
          <property name="maximumSize">
           <size>
            <width>70</width>
-           <height>26</height>
+           <height>24</height>
           </size>
          </property>
         </widget>
@@ -4644,9 +4644,9 @@
          <property name="geometry">
           <rect>
            <x>11</x>
-           <y>36</y>
-           <width>50</width>
-           <height>26</height>
+           <y>20</y>
+           <width>60</width>
+           <height>24</height>
           </rect>
          </property>
          <property name="sizePolicy">
@@ -4657,14 +4657,14 @@
          </property>
          <property name="minimumSize">
           <size>
-           <width>50</width>
-           <height>26</height>
+           <width>60</width>
+           <height>24</height>
           </size>
          </property>
          <property name="maximumSize">
           <size>
-           <width>50</width>
-           <height>26</height>
+           <width>60</width>
+           <height>24</height>
           </size>
          </property>
          <property name="frameShape">
@@ -4680,10 +4680,10 @@
         <widget class="QLineEdit" name="linePenName">
          <property name="geometry">
           <rect>
-           <x>60</x>
-           <y>36</y>
+           <x>70</x>
+           <y>20</y>
            <width>70</width>
-           <height>26</height>
+           <height>24</height>
           </rect>
          </property>
          <property name="sizePolicy">
@@ -4695,13 +4695,69 @@
          <property name="minimumSize">
           <size>
            <width>70</width>
-           <height>26</height>
+           <height>24</height>
           </size>
          </property>
          <property name="maximumSize">
           <size>
            <width>70</width>
-           <height>26</height>
+           <height>24</height>
+          </size>
+         </property>
+        </widget>
+        <widget class="QComboBox" name="comboRelative">
+         <property name="geometry">
+          <rect>
+           <x>160</x>
+           <y>20</y>
+           <width>111</width>
+           <height>24</height>
+          </rect>
+         </property>
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="minimumSize">
+          <size>
+           <width>111</width>
+           <height>24</height>
+          </size>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>111</width>
+           <height>24</height>
+          </size>
+         </property>
+        </widget>
+        <widget class="QComboBox" name="comboSelectedPen">
+         <property name="geometry">
+          <rect>
+           <x>160</x>
+           <y>50</y>
+           <width>111</width>
+           <height>24</height>
+          </rect>
+         </property>
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="minimumSize">
+          <size>
+           <width>111</width>
+           <height>24</height>
+          </size>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>111</width>
+           <height>24</height>
           </size>
          </property>
         </widget>

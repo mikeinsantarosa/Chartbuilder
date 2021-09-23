@@ -168,6 +168,13 @@ void HTCChartDataSet::SetDataSetIndex(int value)
     _datasetIDX = value;
 }
 
+void HTCChartDataSet::ResetYaxisScales()
+{
+    SetCommCheckAutoDetect();
+    SetAnalogMinMax();
+
+}
+
 int HTCChartDataSet::getDataType()
 {
     return _dataType;
@@ -469,6 +476,7 @@ void HTCChartDataSet::FillMinMaxLists()
     double myMin, myMax;
     QString target;
     QString delim = getFileDelim();
+
     int numLines = _ProcessedDataList.count();
     QList<double> testValues;
 

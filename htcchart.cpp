@@ -372,7 +372,7 @@ void HtcChart::initConnects()
     connect(cp,SIGNAL(HTCCHartYPrecisionChangeRequest(int)),this,SLOT(HTCCHartYPrecisionChanged(int)));
 
     connect(cp,SIGNAL(HTCChartPenValueChanged(int, QColor, int, QString, int)),this,SLOT(HTCChartPenValues(int, QColor, int, QString, int)));
-    connect(cp,SIGNAL(HTCCHartAddPenRequest(double, QString)),this,SLOT(HTCCHartNewPen(double, QString)));
+    connect(cp,SIGNAL(HTCCHartAddPenRequest(double, QString, int, int)),this,SLOT(HTCCHartNewPen(double, QString, int, int)));
 
     connect(cp,SIGNAL(HTCChartRemovePen(int)),this,SLOT(HTCCHartRemovePenRequest(int)));
 }
@@ -401,6 +401,8 @@ void HtcChart::initChart()
     // ---------------------------------------- //
     // - loading data from a collected csv files
     // ---------------------------------------- /
+    //qDebug() << "updating from properties/_loadedChartFromFile " << _UpdatingFromProperties << "/" << _loadedChartFromFile;
+
     if(!_UpdatingFromProperties)
     {
         // initChartScaleMemory();
@@ -408,11 +410,10 @@ void HtcChart::initChart()
 
       if (getXAxisPaddingEnabled() == 1 && _loadedChartFromFile == false)
       {
-//            _XAxisMinValue = 0.01;
-//            _XAxisMaxValue = 100.0;
 
           _XAxisMinValue = getPaddedXMinValue();
           _XAxisMaxValue = getPaddedXMaxValue();
+          // qDebug() << "Standard load -> X Axis Min/Max" << _XAxisMinValue << "/" << _XAxisMaxValue;
       }
       else
       {
@@ -426,14 +427,19 @@ void HtcChart::initChart()
 
       if (getYAxisPaddingEnabled() == true && _loadedChartFromFile == false)
       {
+
           setYaxisPaddingValue();
           _YAxisMinValue = getPaddedYMinValue();
           _YAxisMaxValue = getPaddedYMaxValue();
 
+
+
       }
       else
       {
-            // do nothing to the current values
+
+          qDebug() << "not updating scales after adding pen";
+          // do nothing to the current values
       }
 
     }
@@ -1662,12 +1668,23 @@ void HtcChart::fillSeriesfromList(QLineSeries *series, int dataSet)
         return QPen(penStyles[style]);
     }
 
-    void HtcChart::createPen(double baseValue, QString header)
+    void HtcChart::createPen(double baseValue, QString header, int relative, int penID)
     {
 
         QString currentRow;
+        double relValue;
+        QStringList set;
+
+
         QString test;
         int start = _currentHeaderRow +1;
+        int refColumn = 0;
+
+        if (relative == 1)
+        {
+            refColumn = penID + 1;
+        }
+
 
         _currentHeaderList.append(header);
         _penWidths[_currentHeaderList.count() - 2] = _addedPenSize;
@@ -1675,12 +1692,30 @@ void HtcChart::fillSeriesfromList(QLineSeries *series, int dataSet)
         test = getLastChar(_masterlist.at(1));
 
 
+
         if(test == ",")
         {
+            QString tHdr = _masterlist.at(0);
+            tHdr.append(header);
+            _masterlist[0] = tHdr;
+
+
             for (int i = start; i < _masterlist.count(); i++)
             {
                currentRow = _masterlist.at(i);
-               currentRow.append(QString::number(baseValue));
+
+               if (relative == 0)
+               {
+                   currentRow.append(QString::number(baseValue));
+               }
+               else
+               {
+                   set = currentRow.split(_dataFileDelim);
+                   relValue = set[refColumn].toDouble();
+                   currentRow.append(QString::number(baseValue + relValue));
+
+               }
+
                currentRow.append(_dataFileDelim);
                _masterlist[i] = currentRow;
 
@@ -1688,11 +1723,27 @@ void HtcChart::fillSeriesfromList(QLineSeries *series, int dataSet)
         }
         else
         {
+            QString tHdr = _masterlist.at(0);
+            tHdr.append(_dataFileDelim);
+            tHdr.append(header);
+            _masterlist[0] = tHdr;
+
             for (int i = start; i < _masterlist.count(); i++)
             {
                currentRow = _masterlist.at(i);
                currentRow.append(_dataFileDelim);
-               currentRow.append(QString::number(baseValue));
+
+               if (relative == 0)
+               {
+                   currentRow.append(QString::number(baseValue));
+               }
+               else
+               {
+                   set = currentRow.split(_dataFileDelim);
+                   relValue = set[refColumn].toDouble();
+                   currentRow.append(QString::number(baseValue + relValue));
+               }
+
                _masterlist[i] = currentRow;
 
             }
@@ -1701,8 +1752,24 @@ void HtcChart::fillSeriesfromList(QLineSeries *series, int dataSet)
 
         updateHeaderCount();
 
-        // reload the chart
+        //update the dataset
+        _dataSet->SetData(_masterlist);
+        _dataSet->ResetYaxisScales();
+
+        discoverChartScaleValues();
+        _XAxisMinValue = getPaddedXMinValue();
+        _XAxisMaxValue = getPaddedXMaxValue();
+        setYaxisPaddingValue();
+        _YAxisMinValue = getPaddedYMinValue();
+        _YAxisMaxValue = getPaddedYMaxValue();
+
+        //qDebug() << "new pen -> X Axis Min/Max" << _XAxisMinValue << "/" << _XAxisMaxValue;
+
+
         clearLayout(ui->chartLayout);
+
+
+        // reload the chart
         initChart();
 
     }
@@ -1935,9 +2002,7 @@ double HtcChart::getPaddedXMaxValue()
 
     if (getXAxisPaddingEnabled() == 1)
     {
-        qDebug() << "factor/mult " << factor << "/" << mult;
         result = _XAxisMaxValue + (_XAxisMinValue * factor * mult);
-        //result = _XAxisMaxValue + (_XAxisMaxValue * factor);
     }
 
     return result;
@@ -3710,12 +3775,13 @@ void HtcChart::HTCChartPenValues(int width, QColor color, int penStyle, QString 
 
 }
 
-void HtcChart::HTCCHartNewPen(double baseValue, QString header)
+void HtcChart::HTCCHartNewPen(double baseValue, QString header, int relative, int penNumber)
 {
     _UpdatingFromProperties = true;
     _AddingNewPen = true;
 
-    createPen(baseValue, header);
+    createPen(baseValue, header, relative, penNumber);
+
 
 }
 

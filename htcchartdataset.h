@@ -26,6 +26,8 @@ public:
     void SetSampleFileName(QString file);
     void SetDataSetIndex(int value);
 
+    void ResetYaxisScales();
+
     // new CI parts
     int getDataType();
     void setDataType(int dataType);

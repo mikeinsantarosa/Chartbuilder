@@ -131,7 +131,7 @@ signals:
 
 
     void HTCChartPenValueChanged(int width, QColor color, int penStyle, QString penName, int penNumber);
-    void HTCCHartAddPenRequest(double baseValue, QString header);
+    void HTCCHartAddPenRequest(double baseValue, QString header, int relative, int penNumber);
 
     void HTCChartRemovePen(int penNumber);
 
@@ -445,6 +445,13 @@ private:
 
     int _dataType = -1;
     QStringList dataTypes;
+
+    //New pen type strings
+    QStringList _newPenTypes = {"Absolute","Relative"};
+    int getNewPenType();
+    int getRelativePenName();
+
+
 
 
 
