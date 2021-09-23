@@ -147,7 +147,7 @@ private slots:
     void HTCCHartYPrecisionChanged(int res);
 
     void HTCChartPenValues(int width, QColor color, int penStyle, QString penName, int penNumber);
-    void HTCCHartNewPen(double baseValue, QString header);
+    void HTCCHartNewPen(double baseValue, QString header, int relative, int penNumber);
 
     void HTCCHartRemovePenRequest(int penNumber);
 
@@ -371,7 +371,7 @@ private:
     double _ChartRIScalePaddingValueX;
     int _ChartRIPaddingValueX;
     double _defaultChartRIScalePaddingXValue = 0;
-    double _RIXaxisMaxMult = 3;
+    double _RIXaxisMaxMult = 25; // was 3
 
     // CI Padding values
     double _ChartCIScalePaddingValueX;
@@ -458,7 +458,7 @@ private:
     QPen getPenStyle(int style);
     //int _legendFontPointSize = 10;
 
-   void createPen(double baseValue, QString header);
+   void createPen(double baseValue, QString header, int relative, int penID);
    void updateHeaderCount();
 
    void adjustGeometry();

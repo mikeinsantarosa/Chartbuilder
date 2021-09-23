@@ -52,6 +52,9 @@ ChartProperties::ChartProperties(QWidget *parent) :
     ui->spinXPrecision->setValue(_xPrecision);
     ui->spinYPrecision->setValue(_yPrecision);
 
+    // clear the pne name list
+    ui->comboSelectedPen->clear();
+
     // set dialog colors
     // -----------------------------
 
@@ -336,6 +339,7 @@ void ChartProperties::setPenItems(int width, QColor color, int penStyle, QString
     _penStates[penNumber - 1] = 1;
     palPen.setColor(QPalette::Text, color);
     palPen.setColor(QPalette::Base, Qt::white);
+    ui->comboSelectedPen->addItem(penName);
 
     switch(penNumber)
     {
@@ -551,6 +555,9 @@ void ChartProperties::initPenStyleCombos()
     ui->comboPen11->addItems(getPenTypes());
     ui->comboPen12->addItems(getPenTypes());
     ui->comboPen13->addItems(getPenTypes());
+
+    // not a pen Style but why add another function
+    ui->comboRelative->addItems(_newPenTypes);
 
 }
 
@@ -1310,6 +1317,31 @@ void ChartProperties::loadSettings()
 
 
 }
+
+int ChartProperties::getNewPenType()
+{
+    int result = 0;
+    QString resString = "";
+    resString = ui->comboRelative->currentText();
+    if (resString == _newPenTypes[1])
+    {
+        result = 1;
+    }
+
+    return result;
+}
+
+int ChartProperties::getRelativePenName()
+{
+    int result = ui->comboSelectedPen->currentIndex();
+    //qDebug() << "selected pen index is " << result;
+
+    // do I need to add 1 to this?
+
+    return result;
+}
+
+
 
 
 void ChartProperties::listPenStates(QString msg)
@@ -2564,9 +2596,6 @@ void ChartProperties::on_pButtonAddPen_clicked()
     QString header;
     bool valuesAreGood = true;
 
-
-    //listPenStates("Before adding a pen");
-
     if(!ui->linePenValue->text().isEmpty())
     {
         baseValue = ui->linePenValue->text().toDouble();
@@ -2588,11 +2617,14 @@ void ChartProperties::on_pButtonAddPen_clicked()
     // check to make sure we're not trying to create too many
     int nextPen = findLastEnabledPen();
 
+    int relative = getNewPenType();
+    int penID = getRelativePenName();
+
     if(nextPen < _maxNumberOfPens)
     {
         if(valuesAreGood)
         {
-            emit HTCCHartAddPenRequest(baseValue, header);
+            emit HTCCHartAddPenRequest(baseValue, header, relative, penID);
             ui->linePenName->setText("");
             ui->linePenValue->setText("");
         }

@@ -33,12 +33,12 @@ int HTCChartFolder::init(QString folder, QString extension, int dType)
 
     if (_EnableRecursiveFolderSearching == true)
     {
-       qDebug() << "searching set to recursive";
+
         result = initRecursive(folder, extension, dType);
     }
     else
     {
-        qDebug() << "searching set to single";
+
         result = initSingle(folder, extension, dType);
     }
 
