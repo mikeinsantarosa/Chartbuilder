@@ -311,8 +311,6 @@ private slots:
 
     void on_buttonRemovePen_clicked();
 
-
-
     void on_spinYPrecision_valueChanged(int arg1);
 
     void on_spinXPrecision_valueChanged(int arg1);
@@ -450,6 +448,10 @@ private:
     QStringList _newPenTypes = {"Absolute","Relative"};
     int getNewPenType();
     int getRelativePenName();
+
+    int _penCount;
+    int _lockedPenCount;
+    bool _pensInitialized;
 
 
 

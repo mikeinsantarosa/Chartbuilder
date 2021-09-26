@@ -401,7 +401,7 @@ void HtcChart::initChart()
     // ---------------------------------------- //
     // - loading data from a collected csv files
     // ---------------------------------------- /
-    //qDebug() << "updating from properties/_loadedChartFromFile " << _UpdatingFromProperties << "/" << _loadedChartFromFile;
+
 
     if(!_UpdatingFromProperties)
     {
@@ -413,16 +413,12 @@ void HtcChart::initChart()
 
           _XAxisMinValue = getPaddedXMinValue();
           _XAxisMaxValue = getPaddedXMaxValue();
-          // qDebug() << "Standard load -> X Axis Min/Max" << _XAxisMinValue << "/" << _XAxisMaxValue;
+
       }
       else
       {
           // don't modify the current values
-          // temporary values
-//          _XAxisMinValue = 0.01;
-//          _XAxisMaxValue = 100.0;
 
-          // qDebug() << "did not modify X Axis min/max values";
       }
 
       if (getYAxisPaddingEnabled() == true && _loadedChartFromFile == false)
@@ -437,8 +433,6 @@ void HtcChart::initChart()
       }
       else
       {
-
-          qDebug() << "not updating scales after adding pen";
           // do nothing to the current values
       }
 
@@ -490,12 +484,6 @@ void HtcChart::initChart()
 
 
     // -------------------------------------------------- //
-    // We need to iterate over all of the data first
-    // to figure out wat the min/max scaling needs to be
-    //
-    // * Whatever the first series uses as min/max is what
-    // all the additional scales will use regardless if
-    // subsequent sets are different.
     //
     // -------------------------------------------------- //
 
@@ -529,12 +517,8 @@ void HtcChart::initChart()
                 //strips
                 if (_dataType == CIdataType)
                 {
-                    //newLegendText.append(_ciUsedPrefixes.at(_CIRangInService));
-                    //newLegendText.append(" ");
                     smode = "[CI DataType indexed]";
-
                     newLegendText.append(_positions.at(posIDX));
-                    //qDebug() << "CI only newLegendText " << newLegendText;
                 }
                 else
                 {
@@ -557,8 +541,6 @@ void HtcChart::initChart()
             // set it by header values explicitly
             newLegendText = _currentHeaderList[dataSet];
         }
-
-       // qDebug() << "posIDX = " << posIDX << " match = " << match << " newLegendText " << newLegendText;
 
         cName = StripQuotesFromString(newLegendText);
 

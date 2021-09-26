@@ -504,8 +504,6 @@ void HTCChartDataSet::FillMinMaxLists()
     _dataSetYMinValue = getMin(_minValuesList);
     _dataSetYMaxValue = getMax(_maxValuesList);
 
-    qDebug() << "Min/max in FillMinMaxLists() " << _dataSetYMinValue << "/" << _dataSetYMaxValue;
-
 }
 
 void HTCChartDataSet::FlushMinMaxLists()

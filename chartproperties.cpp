@@ -29,6 +29,8 @@ ChartProperties::ChartProperties(QWidget *parent) :
 
     _positions = _defaultPositions;
 
+    _penCount = 0;
+    _pensInitialized = false;
 
     loadSettings();
 
@@ -339,7 +341,25 @@ void ChartProperties::setPenItems(int width, QColor color, int penStyle, QString
     _penStates[penNumber - 1] = 1;
     palPen.setColor(QPalette::Text, color);
     palPen.setColor(QPalette::Base, Qt::white);
-    ui->comboSelectedPen->addItem(penName);
+
+    qDebug() << "pensInitialized/in setPens for pen " << _pensInitialized << "/" << penNumber;
+
+
+    if (_pensInitialized == false)
+    {
+        ui->comboSelectedPen->addItem(penName);
+        _penCount = _penCount + 1;
+        //qDebug() << "pen number/live pen count = " << penNumber << "/" << _penCount;
+    }
+    else
+    {
+        if (penNumber > _lockedPenCount)
+        {
+            ui->comboSelectedPen->addItem(penName);
+            _penCount = _penCount + 1;
+            qDebug() << "pen number/live pen count/locked count = " << penNumber << "/" << _penCount << "/" << _lockedPenCount;
+        }
+    }
 
     switch(penNumber)
     {
@@ -2596,6 +2616,20 @@ void ChartProperties::on_pButtonAddPen_clicked()
     QString header;
     bool valuesAreGood = true;
 
+
+    if (_pensInitialized == false)
+    {
+        _pensInitialized = true;
+        _lockedPenCount = findLastEnabledPen() + 1;
+        qDebug() << " locked pen count is " << _lockedPenCount;
+    }
+    else
+    {
+        _lockedPenCount = _lockedPenCount + 1;
+    }
+
+
+
     if(!ui->linePenValue->text().isEmpty())
     {
         baseValue = ui->linePenValue->text().toDouble();
@@ -2636,7 +2670,7 @@ void ChartProperties::on_pButtonAddPen_clicked()
         ui->linePenValue->setText("");
     }
 
-    //listPenStates("After adding a pen");
+
 
 }
 
@@ -2701,11 +2735,27 @@ void ChartProperties::on_buttonRemovePen_clicked()
 
     if (isPenDeletable(penName) == true)
     {
+        // how many items in the pen lookup
+        int lookupToRemove = ui->comboSelectedPen->count();
+
         clearDeletedPen(penToDelete + 1);
+
+
+
+        qDebug() << "trying to remove last lookup pen " << ui->comboSelectedPen->itemText(lookupToRemove - 1);
+
+
+        ui->comboSelectedPen->removeItem(lookupToRemove - 1);
+        _lockedPenCount = _lockedPenCount - 1;
+        _penCount = _lockedPenCount;
+        // end remove items
+
 
         emit HTCChartRemovePen(penToDelete);
 
         disablePen(penToDelete + 1);
+
+
 
     }
     else
@@ -2831,3 +2881,4 @@ void ChartProperties::on_linePen13_editingFinished()
         updatePenItemsAndNotify(13);
     }
 }
+
