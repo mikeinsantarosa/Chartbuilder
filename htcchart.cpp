@@ -53,6 +53,11 @@ HtcChart::~HtcChart()
     delete ui;
 }
 
+/* **************************************************************************
+ *
+ *       need to move data into data set when loading a chart from a file.
+ *
+***************************************************************************** */
 void HtcChart::setFileToOpen(QString fileName, bool RescaleFreq, QString baseFolder)
 {
 
@@ -413,6 +418,7 @@ void HtcChart::initChart()
 
           _XAxisMinValue = getPaddedXMinValue();
           _XAxisMaxValue = getPaddedXMaxValue();
+          qDebug() << "set X axis min max from the file";
 
       }
       else
@@ -427,6 +433,7 @@ void HtcChart::initChart()
           setYaxisPaddingValue();
           _YAxisMinValue = getPaddedYMinValue();
           _YAxisMaxValue = getPaddedYMaxValue();
+          qDebug() << "set Y axis min max from the file";
 
 
 
