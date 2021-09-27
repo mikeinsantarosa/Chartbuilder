@@ -65,6 +65,14 @@ void HtcChart::setFileToOpen(QString fileName, bool RescaleFreq, QString baseFol
     {
         _basePath = baseFolder;
 
+        // all loaded data should go into a variable
+        // other than _masterlist
+        //
+        // we need a dataset to hold the raw data.
+        // and all necessary properties need to be set
+        // correctly.
+        _dataSet = new HTCChartDataSet;
+
         // ------------------------------ //
         //
         // are these 2 doing the same thing?
@@ -89,6 +97,9 @@ void HtcChart::setFileToOpen(QString fileName, bool RescaleFreq, QString baseFol
             writeTypetoFile(fileName);
         }
         readfileIntoList(_rawDataFileAndPath);
+
+        qDebug() << "listing the masterlist loaded from the file";
+        listThisList(_masterlist);
 
         setPropertiesFromOpenFile();
 
@@ -814,6 +825,10 @@ void HtcChart::saveChartData()
     QString msg;
     QString hdr = getSaveHeaderValues();
     QStringList data = getSaveDataValues();
+
+    qDebug() << "listing the data to save";
+    listThisList(data);
+
     QString outputFileName;
 
      if (_loadedChartFromFile == false)
@@ -959,7 +974,8 @@ void HtcChart::readfileIntoList(QString fileName)
     QFile file(fileName);
     setDataFileDelim(fileName);
 
-    _masterlist.clear();
+    //_masterlist.clear();
+    _loadedFileData.clear();
 
 
     QString msg;
@@ -971,7 +987,7 @@ void HtcChart::readfileIntoList(QString fileName)
             QTextStream in(&file);
             while (!in.atEnd())
             {
-                _masterlist += in.readLine();
+                _loadedFileData += in.readLine();
 
             }
                 file.close();
@@ -979,7 +995,9 @@ void HtcChart::readfileIntoList(QString fileName)
 
     // set headers
 
-    setHeaderValues(_masterlist);
+    setHeaderValues(_loadedFileData);
+
+    _dataSet->SetDataFromFileList(_loadedFileData, _dataFileDelim);
 
 
 }
@@ -1741,7 +1759,14 @@ void HtcChart::fillSeriesfromList(QLineSeries *series, int dataSet)
 
         updateHeaderCount();
 
-        //update the dataset
+        //update the dataset - not for loading from file.
+
+        if (_loadedChartFromFile == true)
+        {
+            qDebug() << "listing masterlist after chart by file";
+
+            listThisList(_masterlist);
+        }
         _dataSet->SetData(_masterlist);
         _dataSet->ResetYaxisScales();
 
@@ -2626,10 +2651,12 @@ void HtcChart::setPropertiesFromOpenFile()
         if(_ChartType == "RI")
         {
             setDataType(RIdataType);
+            _dataSet->setDataType(RIdataType);
         }
         else
         {
             setDataType(CIdataType);
+            _dataSet->setDataType(CIdataType);
         }
 
         setLegendText(getDataType());

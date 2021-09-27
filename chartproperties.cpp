@@ -349,7 +349,7 @@ void ChartProperties::setPenItems(int width, QColor color, int penStyle, QString
     {
         ui->comboSelectedPen->addItem(penName);
         _penCount = _penCount + 1;
-        qDebug() << "pen number/live pen count = " << penNumber << "/" << _penCount;
+       // qDebug() << "pen number/live pen count = " << penNumber << "/" << _penCount;
     }
     else
     {
@@ -357,7 +357,7 @@ void ChartProperties::setPenItems(int width, QColor color, int penStyle, QString
         {
             ui->comboSelectedPen->addItem(penName);
             _penCount = _penCount + 1;
-            qDebug() << "pen number/live pen count/locked count = " << penNumber << "/" << _penCount << "/" << _lockedPenCount;
+         //   qDebug() << "pen number/live pen count/locked count = " << penNumber << "/" << _penCount << "/" << _lockedPenCount;
         }
     }
 

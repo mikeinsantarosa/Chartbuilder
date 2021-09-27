@@ -245,7 +245,9 @@ private:
     QString getProperPath(QString target);
     QString _basePath;
 
-    QStringList _masterlist;
+    QStringList _masterlist; // used for some data
+    QStringList _loadedFileData;
+
     QStringList _reWriteList;
 
     // Chart Title items

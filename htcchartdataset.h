@@ -7,6 +7,7 @@
 #include <algorithm>
 #include <QFileInfo>
 #include <QSettings>
+#include <QRegExp>
 #include "math.h"
 
 class HTCChartDataSet
@@ -51,6 +52,8 @@ public:
     void SetFilesPerRangeIsGood(int RangeID, int value);
     QString GetBaseFolder();
     QStringList GetHeaderList();
+
+    void SetDataFromFileList(QStringList list, QString delimiter);
 
     // -------------------------------- //
     // comm check data
@@ -210,8 +213,13 @@ private:
     // Analog min max data
     // -------------------------------- //
 
+    QStringList _rawDataList;
+    int findFirstDataRow(QStringList list, QString delimiter);
+    int setLastDataRow();
+
     void setHeader();
     void setHeaderList(QString target, QString delim);
+    void moveListToData(QStringList list, int start, int stop);
 
 };
 

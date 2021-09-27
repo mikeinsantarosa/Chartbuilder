@@ -289,6 +289,22 @@ QStringList HTCChartDataSet::GetHeaderList()
     return _headerList;
 }
 
+void HTCChartDataSet::SetDataFromFileList(QStringList list, QString delimiter)
+{
+
+    _rawDataList = list;
+
+    int startIDX = findFirstDataRow(_rawDataList, delimiter);
+    int stopIDX = setLastDataRow();
+    //_data = _rawDataList(startIDX,stopIDX);
+    moveListToData(_rawDataList, startIDX, stopIDX);
+
+    qDebug() << "printing header list" << _headerList;
+
+//   qDebug() << "listing the new data";
+//   listThisStringList(_data);
+}
+
 bool HTCChartDataSet::GetIsCommCheckData()
 {
     return _isCommCheckData;
@@ -674,6 +690,97 @@ QString HTCChartDataSet::getReRangedLine(QString target, QString delim, double f
     return result;
 }
 
+int HTCChartDataSet::findFirstDataRow(QStringList list, QString delimiter)
+{
+    QStringList group;
+    QString current;
+    QString dataItem;
+    int numFinds;
+    //bool isNumber;
+    int result = -1;
+    bool found = false;
+    QRegExp re("^-?\\d*\\.?\\d+");
+    QRegExp re2("(([-+]?[0-9]+)?\\.)?\\b[0-9]+([eE][-+]?[0-9]+)?");
+
+
+
+    for (int listRow = 0; listRow < list.count(); listRow++)
+    {
+
+        if (!found)
+        {
+            numFinds = 0;
+            current = list[listRow];
+
+            group = current.split(delimiter);
+
+
+
+            for (int i = 0; i < group.count(); i++)
+            {
+
+                dataItem = group[i];
+
+                dataItem = dataItem.trimmed();
+
+
+
+                //isNumber = false;
+
+
+                if (!dataItem.isEmpty())
+                {
+
+                    //qDebug() << "Non empty item -> " << dataItem;
+
+                    if(re.exactMatch(dataItem) || re2.exactMatch(dataItem))
+                    {
+
+
+                        numFinds = numFinds + 1;
+
+                        if (numFinds > 1)
+                        {
+                            result = listRow;
+                            found = true;
+                            break;
+
+                        }
+                    }
+                    else {
+                        break;
+                    }
+
+
+                }
+                else {
+                    //qDebug() << "item was empty" << dataItem;
+                }
+
+             }
+
+        }
+        else
+        {
+            break;
+        }
+
+
+    }
+
+    return result;
+}
+
+int HTCChartDataSet::setLastDataRow()
+{
+    int result = -1;
+    if (_rawDataList.count() > 0)
+    {
+        result = _rawDataList.count() -1;
+    }
+    return result;
+}
+
 void HTCChartDataSet::setHeader()
 {
     //_header
@@ -686,7 +793,17 @@ void HTCChartDataSet::setHeader()
 
 void HTCChartDataSet::setHeaderList(QString target, QString delim)
 {
-   _headerList = target.split(delim);
+    _headerList = target.split(delim);
+}
+
+void HTCChartDataSet::moveListToData(QStringList list, int start, int stop)
+{
+    _data.clear();
+
+    for (int i = start - 1; i < stop; i++)
+    {
+        _data.append(list[i]);
+    }
 }
 
 
