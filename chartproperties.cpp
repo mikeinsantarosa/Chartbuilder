@@ -2660,7 +2660,7 @@ void ChartProperties::on_pButtonAddPen_clicked()
     {
         if(valuesAreGood)
         {
-            qDebug() << "emit signal HTCCHartAddPenRequest";
+            // qDebug() << "emit signal HTCCHartAddPenRequest";
             emit HTCCHartAddPenRequest(baseValue, header, relative, penID);
             ui->linePenName->setText("");
             ui->linePenValue->setText("");

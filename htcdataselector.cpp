@@ -408,8 +408,8 @@ void HTCDataSelector::on_actionLoad_triggered()
         _currentSearchPath = info.path();
         _baseFolder = _currentSearchPath;
 
-        qDebug() << "Search path = " << _currentSearchPath;
-        qDebug() << "loading file = " << fileName;
+       // qDebug() << "Search path = " << _currentSearchPath;
+       // qDebug() << "loading file = " << fileName;
 
         chart->setFileToOpen(fileName, true, _baseFolder);
 

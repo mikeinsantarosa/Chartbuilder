@@ -98,9 +98,6 @@ void HtcChart::setFileToOpen(QString fileName, bool RescaleFreq, QString baseFol
         }
         readfileIntoList(_rawDataFileAndPath);
 
-        qDebug() << "listing the masterlist loaded from the file";
-        listThisList(_masterlist);
-
         setPropertiesFromOpenFile();
 
         initChart();
@@ -158,6 +155,9 @@ void HtcChart::setChartByDataSet(HTCChartDataSet *ds, bool RescaleFreq)
     _chartYAxisLinLogScale = _dataSet->GetYAxisScale();
     _reScaleFreqColumn = RescaleFreq;
     _rawDataFileAndPath = _dataSet->GetSampleFileName();
+
+    // qDebug() << "loading data normally; Listing _masterlist";
+    // listThisList(_masterlist);
 
     discoverChartScaleValues();
 
@@ -977,6 +977,10 @@ void HtcChart::readfileIntoList(QString fileName)
     //_masterlist.clear();
     _loadedFileData.clear();
 
+    qDebug() << "loading file " << fileName;
+
+    int lineCount = 0;
+
 
     QString msg;
     msg.append("Chart built from - ");
@@ -988,16 +992,26 @@ void HtcChart::readfileIntoList(QString fileName)
             while (!in.atEnd())
             {
                 _loadedFileData += in.readLine();
+                lineCount = lineCount +1;
 
             }
                 file.close();
         }
 
+    qDebug() << "found " << lineCount << " lines in the file";
+
     // set headers
+
+
+
+    _dataSet->SetDataFromFileList(_loadedFileData, _dataFileDelim);
+    // added this missing assignment (test)
+    _masterlist = _dataSet->GetData();
 
     setHeaderValues(_loadedFileData);
 
-    _dataSet->SetDataFromFileList(_loadedFileData, _dataFileDelim);
+//    qDebug() << "Checking masterlist loaded from .chart file";
+//    listThisList(_masterlist);
 
 
 }
@@ -1043,6 +1057,8 @@ void HtcChart::setHeaderValues(QStringList list)
 
         }
 
+        qDebug() << "1st numeric row is " << _firstNumericRow;
+
         QString current;
 
         current = list[_firstNumericRow - 1];
@@ -1056,6 +1072,11 @@ void HtcChart::setHeaderValues(QStringList list)
         _currentHeaderCount = _currentHeaderList.count();
 
     }
+
+//    qDebug() << "loaded header list = ";
+//    listThisList(_currentHeaderList);
+
+//    qDebug() << "file loaded and list listed. Check what's been put in the masterlist next";
 
 }
 
@@ -1763,16 +1784,25 @@ void HtcChart::fillSeriesfromList(QLineSeries *series, int dataSet)
 
         if (_loadedChartFromFile == true)
         {
-            qDebug() << "listing masterlist after chart by file";
+            //qDebug() << "listing masterlist after chart by file";
 
-            listThisList(_masterlist);
+            // listThisList(_masterlist);
         }
+
+        //  -----------------------------------
+        // need to stop X Axis rescaling when
+        // _AddingNewPen == true
+        // -----------------------------------
         _dataSet->SetData(_masterlist);
         _dataSet->ResetYaxisScales();
 
         discoverChartScaleValues();
-        _XAxisMinValue = getPaddedXMinValue();
-        _XAxisMaxValue = getPaddedXMaxValue();
+        if(_AddingNewPen == false)
+        {
+            _XAxisMinValue = getPaddedXMinValue();
+            _XAxisMaxValue = getPaddedXMaxValue();
+        }
+
         setYaxisPaddingValue();
         _YAxisMinValue = getPaddedYMinValue();
         _YAxisMaxValue = getPaddedYMaxValue();
@@ -1901,13 +1931,16 @@ void HtcChart::discoverChartScaleValues()
     // -------------------------------------- //
     // -------------------------------------- //
 
-    _XAxisMinValue = _dataSet->GetAnalogXMinValue() / getFreqRescaleValue();
-    _XAxisMaxValue = _dataSet->GetAnalogXMaxValue() / getFreqRescaleValue();
+    // limit X Axis rescaling when adding a new pen
+    // --------------------------------------------
+    if (_AddingNewPen == false)
+    {
+        _XAxisMinValue = _dataSet->GetAnalogXMinValue() / getFreqRescaleValue();
+        _XAxisMaxValue = _dataSet->GetAnalogXMaxValue() / getFreqRescaleValue();
+    }
 
     _YAxisMinValue = _dataSet->GetAnalogYMinValue();
     _YAxisMaxValue = _dataSet->GetAnalogYMaxValue();
-
-  //  qDebug() << "y min/max in discoverChartScaleValues() " << _YAxisMinValue << "/" << _YAxisMaxValue;
 
 }
 
@@ -2670,11 +2703,11 @@ void HtcChart::setPropertiesFromOpenFile()
     }
 
 
-
+    // changed reference Nov-5-2021
     penParts.clear();
     answer.clear();
 
-    answer = _masterlist.at(_chartKeyIDX).split(_saveItemDelimiter); // 2
+    answer = _loadedFileData.at(_chartKeyIDX).split(_saveItemDelimiter); // 2
 
     if (answer.contains(_saveChartKey))
     {
@@ -2695,7 +2728,7 @@ void HtcChart::setPropertiesFromOpenFile()
 
     answer.clear();
 
-    answer = _masterlist.at(_chartTitleRowIDX).split(_saveItemDelimiter); // 3
+    answer = _loadedFileData.at(_chartTitleRowIDX).split(_saveItemDelimiter); // 3
 
 
     if(answer.contains(_saveItemChartTitleKey))
@@ -2723,7 +2756,7 @@ void HtcChart::setPropertiesFromOpenFile()
     answer.clear();
     penParts.clear();
 
-    answer = _masterlist.at(_chartTitleConfigRowIDX).split(_saveItemDelimiter); // 4
+    answer = _loadedFileData.at(_chartTitleConfigRowIDX).split(_saveItemDelimiter); // 4
 
     if (answer.contains(_saveItemChartTitleConfigKey))
     {
@@ -2745,7 +2778,7 @@ void HtcChart::setPropertiesFromOpenFile()
     penParts.clear();
 
 
-    answer = _masterlist.at(_chartXaxisUnitsIDX).split(_saveItemDelimiter); // 5
+    answer = _loadedFileData.at(_chartXaxisUnitsIDX).split(_saveItemDelimiter); // 5
 
     if (answer.contains(_saveItemChartXAxisUnitsKey))
     {
@@ -2770,7 +2803,7 @@ void HtcChart::setPropertiesFromOpenFile()
     answer.clear();
     penParts.clear();
 
-    answer = _masterlist.at(_chartXaxisUnitsConfigIDX).split(_saveItemDelimiter); // 6
+    answer = _loadedFileData.at(_chartXaxisUnitsConfigIDX).split(_saveItemDelimiter); // 6
 
     if (answer.contains(_saveItemChartXAxisUnitsConfigKey))
     {
@@ -2791,7 +2824,7 @@ void HtcChart::setPropertiesFromOpenFile()
     answer.clear();
     penParts.clear();
 
-    answer = _masterlist.at(_chartYaxisUnitsIDX).split(_saveItemDelimiter); // 7
+    answer = _loadedFileData.at(_chartYaxisUnitsIDX).split(_saveItemDelimiter); // 7
 
     if(answer.contains(_saveItemChartYAxisUnitsKey))
     {
@@ -2813,7 +2846,7 @@ void HtcChart::setPropertiesFromOpenFile()
          _chartYAxisUnitsText = "Unknown Level?";
     }
 
-    answer = _masterlist.at(_chartYaxisUnitsConfigIDX).split(_saveItemDelimiter); // 8
+    answer = _loadedFileData.at(_chartYaxisUnitsConfigIDX).split(_saveItemDelimiter); // 8
 
     if (answer.contains(_saveItemChartYAxisUnitsConfigKey))
     {
@@ -2835,7 +2868,7 @@ void HtcChart::setPropertiesFromOpenFile()
     answer.clear();
     penParts.clear();
 
-    answer = _masterlist.at(_chartXAxisParamsIDX).split(_saveItemDelimiter); // 9
+    answer = _loadedFileData.at(_chartXAxisParamsIDX).split(_saveItemDelimiter); // 9
 
     if (answer.contains(_saveItemChartXAxisParamsKey))
     {
@@ -2863,7 +2896,7 @@ void HtcChart::setPropertiesFromOpenFile()
     answer.clear();
     penParts.clear();
 
-    answer = _masterlist.at(_chartYAxisParamsIDX).split(_saveItemDelimiter); // 10
+    answer = _loadedFileData.at(_chartYAxisParamsIDX).split(_saveItemDelimiter); // 10
 
     if (answer.contains(_saveItemChartYAxisParamsKey))
     {
@@ -2891,7 +2924,7 @@ void HtcChart::setPropertiesFromOpenFile()
     answer.clear();
     penParts.clear();
 
-    answer = _masterlist.at(_chartXaxisMinIDX).split(_saveItemDelimiter); // 11
+    answer = _loadedFileData.at(_chartXaxisMinIDX).split(_saveItemDelimiter); // 11
 
     if (answer.contains(_saveItemChartXMinValueKey))
     {
@@ -2905,7 +2938,7 @@ void HtcChart::setPropertiesFromOpenFile()
 
     answer.clear();
 
-    answer = _masterlist.at(_chartXaxisMaxIDX).split(_saveItemDelimiter); // 12
+    answer = _loadedFileData.at(_chartXaxisMaxIDX).split(_saveItemDelimiter); // 12
 
     if(answer.contains(_saveItemChartXMaxValueKey))
     {
@@ -2918,7 +2951,7 @@ void HtcChart::setPropertiesFromOpenFile()
 
     answer.clear();
 
-    answer = _masterlist.at(_chartYaxisMinIDX).split(_saveItemDelimiter); // 13
+    answer = _loadedFileData.at(_chartYaxisMinIDX).split(_saveItemDelimiter); // 13
 
     if(answer.contains(_saveItemChartYMinValueKey))
     {
@@ -2932,7 +2965,7 @@ void HtcChart::setPropertiesFromOpenFile()
 
     answer.clear();
 
-    answer = _masterlist.at(_chartYaxisMaxIDX).split(_saveItemDelimiter); // 14
+    answer = _loadedFileData.at(_chartYaxisMaxIDX).split(_saveItemDelimiter); // 14
 
     if(answer.contains(_saveItemChartYMaxValueKey))
     {
@@ -2946,7 +2979,7 @@ void HtcChart::setPropertiesFromOpenFile()
     answer.clear();
     penParts.clear();
 
-    answer = _masterlist.at(_chartXAxisGridLines).split(_saveItemDelimiter);  // 15
+    answer = _loadedFileData.at(_chartXAxisGridLines).split(_saveItemDelimiter);  // 15
 
     if (answer.contains(_saveItemChartXAxisGridLinesKey))
     {
@@ -2991,7 +3024,7 @@ void HtcChart::setPropertiesFromOpenFile()
     answer.clear();
     penParts.clear();
 
-    answer = _masterlist.at(_chartYAxisGridLines).split(_saveItemDelimiter);  // 16
+    answer = _loadedFileData.at(_chartYAxisGridLines).split(_saveItemDelimiter);  // 16
 
     if (answer.contains(_saveItemChartYAxisGridLinesKey))
     {
@@ -3034,7 +3067,7 @@ void HtcChart::setPropertiesFromOpenFile()
     answer.clear();
     penParts.clear();
 
-    answer = _masterlist.at(_chartPenStatesIDX).split(_saveItemDelimiter); // 17
+    answer = _loadedFileData.at(_chartPenStatesIDX).split(_saveItemDelimiter); // 17
 
     if(answer.contains(_saveItemChartPenStatesKey))
     {
@@ -3059,7 +3092,7 @@ void HtcChart::setPropertiesFromOpenFile()
 
     answer.clear();
 
-    answer = _masterlist.at(_chartPenStylesIDX).split(_saveItemDelimiter); // 18
+    answer = _loadedFileData.at(_chartPenStylesIDX).split(_saveItemDelimiter); // 18
 
     if(answer.contains(_saveItemChartPenStylesKey))
     {
@@ -3083,7 +3116,7 @@ void HtcChart::setPropertiesFromOpenFile()
 
     answer.clear();
 
-    answer = _masterlist.at(_chartPenWidthsIDX).split(_saveItemDelimiter); // 19
+    answer = _loadedFileData.at(_chartPenWidthsIDX).split(_saveItemDelimiter); // 19
 
     if(answer.contains(_saveItemChartPenWidthsKey))
     {
@@ -3107,7 +3140,7 @@ void HtcChart::setPropertiesFromOpenFile()
 
     answer.clear();
 
-    answer = _masterlist.at(_chartPenColorsIDX).split(_saveItemDelimiter); // 20
+    answer = _loadedFileData.at(_chartPenColorsIDX).split(_saveItemDelimiter); // 20
 
     if(answer.contains(_saveItemChartPenColorsKey))
     {

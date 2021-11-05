@@ -296,12 +296,15 @@ void HTCChartDataSet::SetDataFromFileList(QStringList list, QString delimiter)
 
     int startIDX = findFirstDataRow(_rawDataList, delimiter);
     int stopIDX = setLastDataRow();
+
+    qDebug() << "we'll be putting rows start/stop " << startIDX << "/" << stopIDX << " into the _rawDataList";
     //_data = _rawDataList(startIDX,stopIDX);
     moveListToData(_rawDataList, startIDX, stopIDX);
 
-    qDebug() << "printing header list" << _headerList;
+//   qDebug() << "listing the _rawDataList";
+//    listThisStringList(_rawDataList);
 
-//   qDebug() << "listing the new data";
+//   qDebug() << "pause point";
 //   listThisStringList(_data);
 }
 
