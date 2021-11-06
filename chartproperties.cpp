@@ -153,6 +153,9 @@ ChartProperties::~ChartProperties()
     delete ui;
 }
 
+
+
+
 void ChartProperties::setChartTitleItems(QString title, QFont font, QColor color)
 {
     _busy = true;
@@ -208,41 +211,11 @@ void ChartProperties::setChartXAxisGridLines(bool AxisMajorLinesAreVisible, int 
 
     ui->checkXMajor->setChecked(AxisMajorLinesAreVisible);
     ui->spinXMajorThickness->setValue(QString::number(AxisMajorGridLinesize).toInt());
-
     _clrXMajorTicColor = AxisMajorLinesColor;
     _clrXMinorTicColor = AxisMinorLinesColor;
-
-
-    // Set the X Axis Major tic Label color
-    // -----------------------------------------------------
-//    QPalette  palMajor;
-//    palMajor.setColor(QPalette::Base, Qt::white);
-//    palMajor.setColor(QPalette::WindowText, AxisMajorLinesColor);
-//    ui->labelXMajorTics->setPalette(palMajor);
-
-    // Set the X Axis Major spinbox text/count value
-    // -----------------------------------------------------
     ui->spinXMajorTics->setValue(AxisMajorLinesTicCount);
-
-    // Set the X Axis Major spin box text color
-    // -----------------------------------------------------
-//    palMajor.setColor(QPalette::Text, AxisMajorLinesColor);
-//    ui->spinXMajorTics->setPalette(palMajor);
-
     ui->checkXMinor->setChecked(AxisMinorLinesAreVisible);
     ui->spinXMinorThickness->setValue(QString::number(AxisMinorGridLinesize).toInt());
-
-    // Set the X Axis Minor tic Label color
-    // -----------------------------------------------------
-//    QPalette  palMinor;
-//    palMinor.setColor(QPalette::Base, Qt::white);
-//    palMinor.setColor(QPalette::WindowText, AxisMinorLinesColor);
-//    ui->labelXMinorTics->setPalette(palMinor);
-
-    // Set the X Axis Minor spinbox text/count value
-    // -----------------------------------------------------
-//    palMinor.setColor(QPalette::Text, AxisMajorLinesColor);
-//    ui->spinXMinorTics->setPalette(palMinor);
     ui->spinXMinorTics->setValue(AxisMinorLinesTicCount);
 
 }
@@ -271,8 +244,6 @@ void ChartProperties::setChartYAxisItems(QString UnitsText, QFont UnitsFont, QBr
     _yAxisScaleMin = min;
     _yAxisScaleMax = max;
 
-   // qDebug() << "received Y min/max from Chart ->" << _yAxisScaleMin << "/" << _yAxisScaleMax;
-
     ui->lineYMin->setText(QString::number(_yAxisScaleMin));
     ui->lineYMax->setText(QString::number(_yAxisScaleMax));
 
@@ -297,59 +268,32 @@ void ChartProperties::setChartYAxisGridLines(bool AxisMajorLinesAreVisible, int 
      _clrYMajorTicColor = AxisMajorLinesColor;
      _clrYMinorTicColor = AxisMinorLinesColor;
 
-    // Set the local X Axis Major tic color
-    // -----------------------------------------------------
-//    QPalette  palMajor;
-
-
-//    _palYMajorTicColor.setColor(QPalette::Base, Qt::white);
-//    _palYMajorTicColor.setColor(QPalette::WindowText, AxisMajorLinesColor);
-//    ui->labelYMajorTics->setPalette(palMajor);
-
     // Set the X Axis Major spinbox text/count value
     // -----------------------------------------------------
     ui->spinYMajorTics->setValue(AxisMajorLinesTicCount);
-
-    // Set the X Axis Major spin box text color
-    // -----------------------------------------------------
-//    palMajor.setColor(QPalette::Text, AxisMajorLinesColor);
-//    ui->spinYMajorTics->setPalette(palMajor);
-
-
     ui->checkYMinor->setChecked(AxisMinorLinesAreVisible);
     ui->spinYMinorThickness->setValue(QString::number(AxisMinorGridLinesize).toInt());
-
-    // Set the X Axis Minor tic Label color
-    // -----------------------------------------------------
-//    QPalette  palMinor = QPalette();
-//    _palYMajorTicColor.setColor(QPalette::Base, Qt::white);
-//    _palYMajorTicColor.setColor(QPalette::WindowText, AxisMinorLinesColor);
-//    ui->labelYMinorTics->setPalette(palMinor);
-
-    // Set the X Axis Minor spinbox text/count value
-    // -----------------------------------------------------
-//    palMinor.setColor(QPalette::Text, AxisMajorLinesColor);
-//    ui->spinYMinorTics->setPalette(palMinor);
     ui->spinYMinorTics->setValue(AxisMinorLinesTicCount);
 
 }
 
 void ChartProperties::setPenItems(int width, QColor color, int penStyle, QString penName, int penNumber)
 {
+
+
+
+    _lockedPenCount = findLastEnabledPen() + 1;
+
     _busy = true;
     QPalette palPen;
     _penStates[penNumber - 1] = 1;
     palPen.setColor(QPalette::Text, color);
     palPen.setColor(QPalette::Base, Qt::white);
 
-    //qDebug() << "pensInitialized/in setPens for pen " << _pensInitialized << "/" << penNumber;
-
-
     if (_pensInitialized == false)
     {
         ui->comboSelectedPen->addItem(penName);
         _penCount = _penCount + 1;
-       // qDebug() << "pen number/live pen count = " << penNumber << "/" << _penCount;
     }
     else
     {
@@ -357,7 +301,6 @@ void ChartProperties::setPenItems(int width, QColor color, int penStyle, QString
         {
             ui->comboSelectedPen->addItem(penName);
             _penCount = _penCount + 1;
-         //   qDebug() << "pen number/live pen count/locked count = " << penNumber << "/" << _penCount << "/" << _lockedPenCount;
         }
     }
 
@@ -968,6 +911,25 @@ void ChartProperties::setAllRadioButtonFonts()
 
 }
 
+int ChartProperties::countEnabledLineEdits()
+{
+    int result = 0;
+
+    QList<QComboBox *> boxes = this->findChildren<QComboBox *>();
+
+    for (QComboBox * box : qAsConst(boxes))
+    {
+        qDebug() << "box is visible " << box->isVisible();
+        if (box->isVisible() ==  true)
+         {
+             result = result + 1;
+         }
+
+    }
+
+    return result;
+}
+
 int ChartProperties::findLastEnabledPen()
 {
 
@@ -1370,6 +1332,17 @@ void ChartProperties::listPenStates(QString msg)
     for(int i = 0; i < 13; i++)
     {
         qDebug() << "pen state " << i << " = " << _penStates[i];
+    }
+
+}
+
+void ChartProperties::showEvent(QShowEvent *event)
+{
+    if (_pensInitialized == false)
+    {
+        _penCount = _lockedPenCount;
+        _pensInitialized = true;
+
     }
 
 }
@@ -2625,12 +2598,6 @@ void ChartProperties::on_pButtonAddPen_clicked()
         _lockedPenCount = findLastEnabledPen() + 1;
         qDebug() << " locked pen count is " << _lockedPenCount;
     }
-    else
-    {
-        _lockedPenCount = _lockedPenCount + 1;
-    }
-
-
 
     if(!ui->linePenValue->text().isEmpty())
     {
@@ -2742,6 +2709,8 @@ void ChartProperties::on_buttonRemovePen_clicked()
         int lookupToRemove = ui->comboSelectedPen->count();
 
         clearDeletedPen(penToDelete + 1);
+
+        qDebug() << "deleting pen " << lookupToRemove - 1;
 
         ui->comboSelectedPen->removeItem(lookupToRemove - 1);
         ui->comboSelectedPen->update();

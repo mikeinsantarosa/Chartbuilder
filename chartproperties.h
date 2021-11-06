@@ -135,8 +135,16 @@ signals:
 
     void HTCChartRemovePen(int penNumber);
 
+    //void ChartProperties::showEvent(QShowEvent *ev);
+
+    //virtual void showEvent(QShowEvent *event) override;
+
 
 private slots:
+
+
+    //void on_dialogShowEvent(QShowEvent *event);
+
     void on_btnClose_clicked();
 
     void on_btnChartTitleTextFont_clicked();
@@ -339,9 +347,12 @@ private slots:
 
     void on_linePen13_editingFinished();
 
+
+
 private:
 
     Ui::ChartProperties *ui;
+
 
     QPalette masterPal;
     QPalette subDialogPal;
@@ -424,6 +435,8 @@ private:
     void setAllCheckboxesFont();
     void setAllRadioButtonFonts();
 
+    int countEnabledLineEdits();
+
     // remove pen functions
     int findLastEnabledPen();
     QString getPenTagByID(int pen);
@@ -450,7 +463,7 @@ private:
     int getRelativePenName();
 
     int _penCount;
-    int _lockedPenCount;
+    int _lockedPenCount = 1;
     bool _pensInitialized;
 
 
@@ -460,7 +473,12 @@ private:
     // debug methods
     void listPenStates(QString msg);
 
+    // show implementation
+    void showEvent(QShowEvent *event);
+
 
 };
+
+
 
 #endif // CHARTPROPERTIES_H
